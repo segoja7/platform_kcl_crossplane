@@ -21,19 +21,3 @@ _vpc_resource = vpc.VpcBlueprint {
     _instanceTenancy = _instanceTenancy
     _providerConfigName = _providerConfigName
 }
-
-
-        _tags = [
-            {
-                key = "Name"
-                value = "mi-vpc-de-prueba"
-            },
-            {
-                key = "Environment"
-                value = "development"
-            },
-            {
-                key = "ManagedBy"
-                value = "KCL"
-            },
-        ]
