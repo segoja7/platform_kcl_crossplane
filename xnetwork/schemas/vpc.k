@@ -16,12 +16,12 @@ schema VpcBlueprint(vpc_schema.Vpc):
     _cidrBlock: str
     _enableDnsHostNames: bool
     _enableDnsSupport: bool
-    _enableNetworkAddressUsageMetrics: bool
+    _enableNetworkAddressUsageMetrics?: bool
     _instanceTenancy: str
     _ipv6CidrBlock?: str
     _ipv6Pool?: str
-    _region?: str
-    _tags?: [vpc_schema.VpcspecforproviderTagsitem] #bug validate
+    _region: str
+    _tags: [vpc_schema.VpcspecforproviderTagsitem] #bug validate
 
     # Lógica de mapeo de parámetros simples a la estructura compleja
     metadata = {
