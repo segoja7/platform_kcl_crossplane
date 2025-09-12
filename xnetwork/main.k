@@ -14,10 +14,10 @@ _providerConfig = observed_xr.spec.providerConfigName or "default"
 _vpc_resource = vpc.VpcBlueprint {
     _name = _id
     _region = _region
-    _cidrBlock = observed_xr.spec.vpcCidr
+    _cidrBlock = _cidrBlock
     _enableDnsHostNames = _enableDnsHostNames
     _enableDnsSupport = _enableDnsSupport
     _tags = _tags
     _instanceTenancy = _instanceTenancy
-    _providerConfig = _providerConfigName
+    _providerConfig = _providerConfig
 }
