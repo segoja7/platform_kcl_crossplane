@@ -11,9 +11,9 @@ schema VpcBlueprint(vpc_schema.Vpc):
     # Parámetros de entrada simplificados para el usuario
     _name: str
     _namespace?: str
-    _providerConfig: str
+    _providerConfigName: str
     _amazonProvidedIpv6CidrBlock?: bool
-    _cidrBlock: str
+    _cidrVpc: str
     _enableDnsHostNames: bool
     _enableDnsSupport: bool
     _enableNetworkAddressUsageMetrics?: bool

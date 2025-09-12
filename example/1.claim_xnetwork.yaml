@@ -1,0 +1,16 @@
+# example/claim.yaml
+apiVersion: segoja7.example/v1alpha1
+kind: XNETWORK
+metadata:
+  name: xnetwork-example
+spec:
+  id: xnetwork-example
+  region: us-east-1
+  vpcCidr: "10.50.0.0/16"
+  tags:
+    owner: "platform-team"
+    environment: "development"
+    project: "proyecto"
+    managed-by: "crossplane"
+  providerConfigName: segoja7
+
