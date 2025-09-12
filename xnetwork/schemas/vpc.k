@@ -21,7 +21,7 @@ schema VpcBlueprint(vpc_schema.Vpc):
     _ipv6CidrBlock?: str
     _ipv6Pool?: str
     _region: str
-    _tags: [vpc_schema.VpcspecforproviderTagsitem] #bug validate
+    _tags?: {str: str}
 
     # Lógica de mapeo de parámetros simples a la estructura compleja
     metadata = {
@@ -39,7 +39,7 @@ schema VpcBlueprint(vpc_schema.Vpc):
             ipv6CidrBlock = _ipv6CidrBlock
             ipv6Pool = _ipv6Pool
             region = _region
-            tags = _tags
+            tags = [{"key": k, "value": v} for k, v in _tags] if _tags else []
         }
         providerConfigRef.name = _providerConfigName
     }
