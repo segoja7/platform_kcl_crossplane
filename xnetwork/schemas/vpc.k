@@ -31,7 +31,7 @@ schema VpcBlueprint(vpc_schema.Vpc):
     spec = {
         forProvider = {
             amazonProvidedIpv6CidrBlock = _amazonProvidedIpv6CidrBlock
-            cidrBlock = _cidrBlock
+            cidrBlock = _cidrVpc
             enableDnsHostNames = _enableDnsHostNames
             enableDnsSupport = _enableDnsSupport
             enableNetworkAddressUsageMetrics = _enableNetworkAddressUsageMetrics
@@ -41,7 +41,7 @@ schema VpcBlueprint(vpc_schema.Vpc):
             region = _region
             tags = _tags
         }
-        providerConfigRef.name = _providerConfig
+        providerConfigRef.name = _providerConfigName
     }
 
 # # --- Ejemplo de Uso ---
