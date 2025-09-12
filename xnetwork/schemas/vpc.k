@@ -11,9 +11,9 @@ schema VpcBlueprint(vpc_schema.Vpc):
     # Parámetros de entrada simplificados para el usuario
     _name: str
     _namespace?: str
-    _providerConfigName: str
+    _providerConfig: str
     _amazonProvidedIpv6CidrBlock?: bool
-    _cidrVpc: str
+    _cidrBlock: str
     _enableDnsHostNames: bool
     _enableDnsSupport: bool
     _enableNetworkAddressUsageMetrics?: bool
@@ -31,7 +31,7 @@ schema VpcBlueprint(vpc_schema.Vpc):
     spec = {
         forProvider = {
             amazonProvidedIpv6CidrBlock = _amazonProvidedIpv6CidrBlock
-            cidrBlock = _cidrVpc
+            cidrBlock = _cidrBlock
             enableDnsHostNames = _enableDnsHostNames
             enableDnsSupport = _enableDnsSupport
             enableNetworkAddressUsageMetrics = _enableNetworkAddressUsageMetrics
@@ -41,38 +41,29 @@ schema VpcBlueprint(vpc_schema.Vpc):
             region = _region
             tags = [{"key": k, "value": v} for k, v in _tags] if _tags else []
         }
-        providerConfigRef.name = _providerConfigName
+        providerConfigRef.name = _providerConfig
     }
 
 # # --- Ejemplo de Uso ---
 # # Descomenta y ajusta los valores para usar este Blueprint en tu archivo 'main.k'.
-# items = [
-#     VpcBlueprint {
-#         _name = "example-value" # Reemplazar valor
-# #        _namespace = "example-value" # Reemplazar valor
-#         _providerConfig = "example-value" # Reemplazar valor
-# #        _amazonProvidedIpv6CidrBlock = True # Reemplazar valor
-#         _cidrBlock = "example-value" # Reemplazar valor
-#         _enableDnsHostNames = True # Reemplazar valor
-#         _enableDnsSupport = True # Reemplazar valor
-#         _enableNetworkAddressUsageMetrics = True # Reemplazar valor
-#         _instanceTenancy = "example-value" # Reemplazar valor
-# #        _ipv6CidrBlock = "example-value" # Reemplazar valor
-# #        _ipv6Pool = "example-value" # Reemplazar valor
-#         _region = "example-value" # Reemplazar valor
-#         _tags = [
-#             {
-#                 key = "Name"
-#                 value = "mi-vpc-de-prueba"
-#             },
-#             {
-#                 key = "Environment"
-#                 value = "development"
-#             },
-#             {
-#                 key = "ManagedBy"
-#                 value = "KCL"
-#             },
-#         ]
-#     }
-#]
+items = [
+    VpcBlueprint {
+        _name = "example-value" # Reemplazar valor
+#        _namespace = "example-value" # Reemplazar valor
+        _providerConfig = "example-value" # Reemplazar valor
+#        _amazonProvidedIpv6CidrBlock = True # Reemplazar valor
+        _cidrBlock = "example-value" # Reemplazar valor
+        _enableDnsHostNames = True # Reemplazar valor
+        _enableDnsSupport = True # Reemplazar valor
+        _enableNetworkAddressUsageMetrics = True # Reemplazar valor
+        _instanceTenancy = "example-value" # Reemplazar valor
+#        _ipv6CidrBlock = "example-value" # Reemplazar valor
+#        _ipv6Pool = "example-value" # Reemplazar valor
+        _region = "example-value" # Reemplazar valor
+        _tags = {
+            Name = "mi-vpc-de-prueba"
+            Environment = "development"
+            ManagedBy = "KCL"
+        }
+    }
+]
