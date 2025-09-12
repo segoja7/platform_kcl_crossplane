@@ -21,3 +21,5 @@ _vpc_resource = vpc.VpcBlueprint {
     _instanceTenancy = _instanceTenancy
     _providerConfig = _providerConfig
 }
+
+items = [_vpc_resource]
