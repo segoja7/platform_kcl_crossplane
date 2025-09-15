@@ -1,2 +1,4 @@
 *.xpkg
 *.py
+**.test
+test/

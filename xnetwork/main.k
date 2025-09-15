@@ -1,5 +1,6 @@
 import json
 import schemas.vpc as vpc
+import schemas.subnet as subnets
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
@@ -21,5 +22,17 @@ _vpc_resource = vpc.VpcBlueprint {
     _instanceTenancy = _instanceTenancy
     _providerConfig = _providerConfig
 }
+
+_subnet_resource = subnets.SubnetBlueprint {
+    _name = "${_id}-${s.az}-${s.type}"
+    _providerConfig = _providerConfig
+    _availabilityZone = s.az
+    _cidrBlock = s.cidr
+#    _mapPublicIPOnLaunch = 
+    _region = _region
+    _tags = _tags
+    vpcIdSelector.matchControllerRef = True
+}
+
 
 items = [_vpc_resource]

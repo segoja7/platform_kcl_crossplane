@@ -50,23 +50,23 @@ spec:
                 description: The name of the ProviderConfig to use for this resource.
                 default: "default"
 
-              # subnets:
-              #   type: array
-              #   description: A list of subnets to create.
-              #   items:
-              #     type: object
-              #     properties:
-              #       az:
-              #         type: string
-              #         description: Availability Zone for the subnet.
-              #       cidr:
-              #         type: string
-              #         description: The CIDR block for the subnet.
-              #       type:
-              #         type: string
-              #         description: The type of subnet, which controls routing.
-              #         enum: ["public", "private", "database"]
-              #     required: ["az", "cidr", "type"]
+              subnets:
+                type: array
+                description: A list of subnets to create.
+                items:
+                  type: object
+                  properties:
+                    az:
+                      type: string
+                      description: Availability Zone for the subnet.
+                    cidr:
+                      type: string
+                      description: The CIDR block for the subnet.
+                    type:
+                      type: string
+                      description: The type of subnet, which controls routing.
+                      enum: ["public", "private", "database"]
+                  required: ["az", "cidr", "type"]
               # natGatewayStrategy:
               #   type: string
               #   description: "Define la estrategia para los NAT Gateways. 'Single' para uno solo, 'PerAZ' uno por cada Zona de Disponibilidad."

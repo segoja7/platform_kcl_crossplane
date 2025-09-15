@@ -13,4 +13,16 @@ spec:
     project: "proyecto"
     managed-by: "crossplane"
   providerConfigName: segoja7
-
+  subnets:
+  - az: us-east-1a
+    cidr: "10.50.1.0/24"
+    type: "public"
+  - az: us-east-1a
+    cidr: "10.50.2.0/24"
+    type: "private"
+  - az: us-east-1b
+    cidr: "10.50.4.0/24"
+    type: "public"
+  - az: us-east-1b
+    cidr: "10.50.5.0/24"
+    type: "private"
