@@ -11,6 +11,8 @@ _enableDnsSupport = observed_xr.spec.enableDnsSupport or True
 _tags = observed_xr.spec.tags or {}
 _instanceTenancy = observed_xr.spec.instanceTenancy or "default"
 _providerConfig = observed_xr.spec.providerConfigName or "default"
+_subnets = observed_xr.spec.subnets or []
+
 
 _vpc_resource = vpc.VpcBlueprint {
     _name = _id
@@ -23,16 +25,18 @@ _vpc_resource = vpc.VpcBlueprint {
     _providerConfig = _providerConfig
 }
 
-_subnet_resource = subnets.SubnetBlueprint {
-    _name = "${_id}-${s.az}-${s.type}"
-    _providerConfig = _providerConfig
-    _availabilityZone = s.az
-    _cidrBlock = s.cidr
-#    _mapPublicIPOnLaunch = 
-    _region = _region
-    _tags = _tags
-    vpcIdSelector.matchControllerRef = True
-}
+_subnet_resource = [
+    subnets.SubnetBlueprint {
+        _name = "${_id}-${s.az}-${s.type}"
+        _providerConfig = _providerConfig
+        _availabilityZone = s.az
+        _cidrBlock = s.cidr
+    #    _mapPublicIPOnLaunch = 
+        _region = _region
+        _tags = _tags
+        vpcIdSelector.matchControllerRef = True 
+        }
+    for s in _subnets
+]
 
-
-items = [_vpc_resource]
+items = [_vpc_resource + _subnet_resources]
