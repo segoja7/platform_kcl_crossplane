@@ -38,7 +38,7 @@ schema VpcBlueprint(vpc_schema.Vpc):
             ipv6CidrBlock = _ipv6CidrBlock
             ipv6Pool = _ipv6Pool
             region = _region
-            tags = [{"key": k, "value": v} for k, v in _tags] if _tags else []
+            tags = [{"key": k, "value": v} for k, v in ((_tags or {}) | {"Name": _name})]
         }
         providerConfigRef.name = _providerConfig
     }

@@ -8,7 +8,7 @@ schema InternetgatewayBlueprint(internetgateway_schema.Internetgateway):
 
     # Parámetros de entrada simplificados para el usuario
     _name: str
-    _namespace?: str
+    _namespace: str
     _providerConfig: str
     _region?: str
     _tags?: {str:str}
@@ -24,7 +24,7 @@ schema InternetgatewayBlueprint(internetgateway_schema.Internetgateway):
     spec = {
         forProvider = {
             region = _region
-            tags = [{"key": k, "value": v} for k, v in _tags] if _tags else []
+            tags = [{"key": k, "value": v} for k, v in ((_tags or {}) | {"Name": _name})]
             vpcId = _vpcId
             vpcIdRef = _vpcIdRef
             vpcIdSelector = _vpcIdSelector
@@ -46,7 +46,7 @@ schema InternetgatewayBlueprint(internetgateway_schema.Internetgateway):
 #         } # Reemplazar valor
 #         _vpcId = "example-value" # Reemplazar valor
 #         _vpcIdRef = {
-#             name = "example-name"
+#             # Configure object fields as needed
 #         } # Reemplazar valor
 #         _vpcIdSelector = {
 #             # Configure object fields as needed

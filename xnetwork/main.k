@@ -45,7 +45,7 @@ _internetGateway_resource = internetGateway.InternetgatewayBlueprint {
         _name = "${_id}-igw"
         _providerConfig = _providerConfig
         _region = _region
-        _tags = _tags
+        _tags = _tags 
         _vpcIdSelector.matchControllerRef = True 
 }
 
