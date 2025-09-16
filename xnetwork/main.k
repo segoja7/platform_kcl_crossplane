@@ -120,7 +120,7 @@ if _natStrategy == "PerAZ":
         ]
     }
     _private_route_tables = [
-        rt.RouteTableBlueprint {
+        routeTable.RouteTableBlueprint {
             _name = "rt-${_id}-private-${s.az}"
             _region = _region
             _providerConfig = _providerConfig
