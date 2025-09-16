@@ -194,7 +194,7 @@ else: # _natStrategy == "Single"
             for s in _public_subnets
         ]
     }
-    _private_route_table = rt.RouteTableBlueprint {
+    _private_route_table = routeTable.RouteTableBlueprint {
         _name = "rt-${_id}-private"
         _region = _region
         _providerConfig = _providerConfig
