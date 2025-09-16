@@ -90,8 +90,8 @@ if _natStrategy == "PerAZ":
             _name = "ng-${_id}-${s.az}"
             _region = _region
             _providerConfig = _providerConfig
-            _subnetIdRef = "subnet-${_id}-${s.az}-${s.type}"
-            _allocationIdRef = "eip-${_id}-${s.az}"
+            _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
+            _allocationIdRef.name = "eip-${_id}-${s.az}"
             _tags = _tags | {
                 Name = _name
             } 
@@ -102,9 +102,6 @@ if _natStrategy == "PerAZ":
         _name = "rt-${_id}-public"
         _region = _region
         _providerConfig = _providerConfig
-        _tags = _tags | {
-            Name = _name
-        } 
         _routes = [
             {
                 destinationCidrBlock = "0.0.0.0/0", 
@@ -127,9 +124,6 @@ if _natStrategy == "PerAZ":
             _name = "rt-${_id}-private-${s.az}"
             _region = _region
             _providerConfig = _providerConfig
-            _tags = _tags | {
-                Name = _name
-            } 
             _routes = [
                 {
                     destinationCidrBlock = "0.0.0.0/0",
@@ -169,8 +163,8 @@ else: # _natStrategy == "Single"
             _name = "ng-${_id}"
             _region = _region
             _providerConfig = _providerConfig
-            _subnetNameRef = "subnet-${_id}-${s[0].az}-${s.type}"
-            _eipNameRef = "eip-${_id}"
+            _subnetIdRef.name = "subnet-${_id}-${s[0].az}-${s.type}"
+            _allocationIdRef.name = "eip-${_id}"
             _tags = _tags | {
                 Name = _name
             }
