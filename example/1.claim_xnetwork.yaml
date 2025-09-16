@@ -26,4 +26,4 @@ spec:
   - az: us-east-1b
     cidr: "10.50.5.0/24"
     type: "private"
-  natGatewayStrategy: "Single" 
+  natGatewayStrategy: "PerAZ" 

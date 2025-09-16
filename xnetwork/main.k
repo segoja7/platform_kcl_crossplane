@@ -141,13 +141,13 @@ if _natStrategy == "PerAZ":
             _associations = [
                 {
                     subnetIdRef ={
-                        name = "subnet-${_id}-${s.az}-${s.type}"
+                        name = "subnet-${_id}-${p.az}-${t.type}"
                     }
                 }
                 for p in _private_subnets + _database_subnets if p.az == s.az
             ]
         }
-        for s in _public_subnets
+        for az in {s.az for s in _public_subnets}
     ]
     _route_table_resources = [_public_route_table] + _private_route_tables
 
