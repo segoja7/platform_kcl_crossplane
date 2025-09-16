@@ -72,7 +72,7 @@ _test_subnets = [
         type = "database"
     }
 ]
-_unique_azs = {s.az: True for s in _test_subnets}
+_unique_azs = {s.az : True for s in _test_subnets}
 items = [
     RoutetableBlueprint {
         _name = "example-value" # Reemplazar valor

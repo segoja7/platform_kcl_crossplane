@@ -22,7 +22,7 @@ _natStrategy = observed_xr.spec.natGatewayStrategy or "Single"
 _public_subnets = [s for s in _subnets if s.type == "public"]
 _private_subnets = [s for s in _subnets if s.type == "private"]
 _database_subnets = [s for s in _subnets if s.type == "database"]
-_azs = {s.az: True for s in _subnets}
+_azs = {s.az : True for s in _subnets}
 
 _vpc_resource = vpc.VpcBlueprint {
     _name = "vpc-${_id}"
