@@ -14,7 +14,7 @@ _tags = observed_xr.spec.tags or {}
 _instanceTenancy = observed_xr.spec.instanceTenancy or "default"
 _providerConfig = observed_xr.spec.providerConfigName or "default"
 _subnets = observed_xr.spec.subnets or []
-_labels = {"claim-name": _id}
+_labels = {"claim-name" = _id}
 
 
 _vpc_resource = vpc.VpcBlueprint {
