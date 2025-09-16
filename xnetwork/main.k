@@ -124,7 +124,7 @@ if _natStrategy == "PerAZ":
     }
     _private_route_tables = [
         routeTable.RoutetableBlueprint {
-            _name = "rt-${_id}-private-${s.az}"
+            _name = "rt-${_id}-private-${az}"
             _region = _region
             _providerConfig = _providerConfig
             _vpcIdSelector = {
@@ -141,13 +141,13 @@ if _natStrategy == "PerAZ":
             _associations = [
                 {
                     subnetIdRef ={
-                        name = "subnet-${_id}-${p.az}-${t.type}"
+                        name = "subnet-${_id}-${p.az}-${p.type}"
                     }
                 }
                 for p in _private_subnets + _database_subnets if p.az == s.az
             ]
         }
-        for az in {s.az for s in _public_subnets}
+        for az in {s.az for s in _private_subnets} 
     ]
     _route_table_resources = [_public_route_table] + _private_route_tables
 
