@@ -120,7 +120,7 @@ if _natStrategy == "PerAZ":
         ]
     }
     _private_route_tables = [
-        routeTable.RouteTableBlueprint {
+        routeTable.RoutetableBlueprint {
             _name = "rt-${_id}-private-${s.az}"
             _region = _region
             _providerConfig = _providerConfig
@@ -170,7 +170,7 @@ else: # _natStrategy == "Single"
             }
         }
     ]
-    _public_route_table = routeTable.RouteTableBlueprint {
+    _public_route_table = routeTable.RoutetableBlueprint {
         _name = "rt-${_id}-public"
         _region = _region
         _providerConfig = _providerConfig
@@ -194,7 +194,7 @@ else: # _natStrategy == "Single"
             for s in _public_subnets
         ]
     }
-    _private_route_table = routeTable.RouteTableBlueprint {
+    _private_route_table = routeTable.RoutetableBlueprint {
         _name = "rt-${_id}-private"
         _region = _region
         _providerConfig = _providerConfig
