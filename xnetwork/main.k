@@ -47,6 +47,6 @@ _internetGateway_resource = internetGateway.InternetgatewayBlueprint {
         _region = _region
         _tags = _tags
         _vpcIdSelector.matchControllerRef = True 
-    }
+}
 
-items = [_vpc_resource] + _subnet_resource + [_internetGateway_resource]
+items = [_vpc_resource, _internetGateway_resource] + _subnet_resource 
