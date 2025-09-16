@@ -22,7 +22,7 @@ _natStrategy = observed_xr.spec.natGatewayStrategy or "Single"
 _public_subnets = [s for s in _subnets if s.type == "public"]
 _private_subnets = [s for s in _subnets if s.type == "private"]
 _database_subnets = [s for s in _subnets if s.type == "database"]
-_unique_azs = {s.az for s in _subnets}
+_azs = {s.az: True for s in _subnets}
 
 _vpc_resource = vpc.VpcBlueprint {
     _name = "vpc-${_id}"
@@ -141,13 +141,12 @@ if _natStrategy == "PerAZ":
             _associations = [
                 {
                     subnetIdRef ={
-                        name = "subnet-${_id}-${p.az}-${p.type}"
+                        name = "subnet-${_id}-${s.az}-${s.type}"
                     }
-                }
-                for s in _subnets if s.type != "public" and s.az == az
+                } 
+                for s in _subnets if s.az == az and s.type != "public"
             ]
-        }
-        for az in _unique_azs 
+        } for az in _azs
     ]
     _route_table_resources = [_public_route_table] + _private_route_tables
 
