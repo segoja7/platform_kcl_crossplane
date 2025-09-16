@@ -163,8 +163,15 @@ else: # _natStrategy == "Single"
             _name = "ng-${_id}"
             _region = _region
             _providerConfig = _providerConfig
-            _subnetIdRef.name = "subnet-${_id}-${s[0].az}-${s.type}"
-            _allocationIdRef.name = "eip-${_id}"
+            _subnetIdSelector = {
+                matchControllerRef = True
+                matchLabels = _labels | {
+                    "subnet.type" = "public"
+                }
+            }
+            _allocationIdSelector = {
+                matchControllerRef = True
+            }
             _tags = _tags | {
                 Name = _name
             }
@@ -184,11 +191,13 @@ else: # _natStrategy == "Single"
         ]
         _associations = [
             {
-                subnetIdRef = {
-                    name = "subnet-${_id}-${s.az}-${s.type}"
+                subnetIdSelector = {
+                    matchControllerRef = True
+                    matchLabels = _labels | {
+                        "subnet.type" = "public"
+                    }
                 }
             } 
-            for s in _public_subnets
         ]
     }
     _private_route_table = routeTable.RoutetableBlueprint {
@@ -198,18 +207,21 @@ else: # _natStrategy == "Single"
         _routes = [
             {
                 destinationCidrBlock = "0.0.0.0/0", 
-                natGatewayIdRef = {
-                    name = "ng-${_id}"
+                natGatewayIdSelector = {
+                    matchControllerRef = True
                 }
             }
         ]
         _associations = [
             {
-                subnetIdRef = {
-                    name = "subnet-${_id}-${s.az}-${s.type}"
+                SubnetIdSelector = {
+                    matchControllerRef = True
+                    matchLabels = _labels | {
+                        "subnet.type" = "private"
+                    }
                 }
             }
-            for s in _private_subnets + _database_subnets
+            
         ]
     }
     _route_table_resources = [_public_route_table, _private_route_table]
