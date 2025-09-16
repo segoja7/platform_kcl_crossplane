@@ -9,6 +9,7 @@ schema SubnetBlueprint(subnet_schema.Subnet):
     # Parámetros de entrada simplificados para el usuario
     _name: str
     _namespace?: str
+    _labels?: {str:str}
     _providerConfig: str
     _assignIpv6AddressOnCreation?: bool
     _availabilityZone?: str
@@ -25,7 +26,8 @@ schema SubnetBlueprint(subnet_schema.Subnet):
     # Lógica de mapeo de parámetros simples a la estructura compleja
     metadata = {
         name = _name
-        # namespace = _namespace
+        namespace = _namespace
+        labels = _labels
     }
     spec = {
         forProvider = {
@@ -50,6 +52,10 @@ schema SubnetBlueprint(subnet_schema.Subnet):
 #     SubnetBlueprint {
 #         _name = "example-value" # Reemplazar valor
 #         _namespace = "example-value" # Reemplazar valor
+#         _labels = {
+#             Name = "example-name"
+#             Environment = "development"
+#         } # Reemplazar valor
 #         _providerConfig = "example-value" # Reemplazar valor
 #         _assignIpv6AddressOnCreation = True # Reemplazar valor
 #         _availabilityZone = "example-value" # Reemplazar valor
@@ -62,15 +68,16 @@ schema SubnetBlueprint(subnet_schema.Subnet):
 #             Name = "example-name"
 #             Environment = "development"
 #         } # Reemplazar valor
-#         # _vpcId = "example-value" # Reemplazar valor
-#          _vpcIdRef = {
-#             name = "example-name"
-#         }
+#         _vpcId = "example-value" # Reemplazar valor
+#         _vpcIdRef = {
+#             name = "example-resource-name"
+#         } # Reemplazar valor
 #         _vpcIdSelector = {
 #             matchControllerRef = True
-#             matchLabels = {
-#                 Name = "example-name"
-#             }
-#         }
+#             # OR use matchLabels:
+#             # matchLabels = {
+#             #     key = "value"
+#             # }
+#         } # Reemplazar valor
 #     }
 # ]
