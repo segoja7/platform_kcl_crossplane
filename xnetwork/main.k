@@ -163,7 +163,7 @@ else: # _natStrategy == "Single"
             _name = "ng-${_id}"
             _region = _region
             _providerConfig = _providerConfig
-            __subnetIdSelector = {
+            _subnetIdSelector = {
                 matchControllerRef = True
                 matchLabels = _labels | {
                     "subnet.type" = "public"
