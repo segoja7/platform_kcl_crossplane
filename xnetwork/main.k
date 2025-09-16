@@ -191,7 +191,7 @@ else: # _natStrategy == "Single"
         ]
         _associations = [
             {
-                _subnetIdSelector = {
+                subnetIdSelector = {
                     matchControllerRef = True
                     matchLabels = _labels | {
                         "subnet.type" = "public"
@@ -214,7 +214,7 @@ else: # _natStrategy == "Single"
         ]
         _associations = [
             {
-                _subnetIdSelector = {
+                subnetIdSelector = {
                     matchControllerRef = True
                     matchLabels = _labels | {
                         "subnet.type" = "private"
