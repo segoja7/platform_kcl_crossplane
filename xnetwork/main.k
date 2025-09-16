@@ -115,8 +115,7 @@ if _natStrategy == "PerAZ":
         ]
         _associations = [
             {
-                subnetIdRef = 
-                {
+                subnetIdRef = {
                     name = "subnet-${_id}-${s.az}-${s.type}"
                 }
             } 
@@ -141,8 +140,7 @@ if _natStrategy == "PerAZ":
             ]
             _associations = [
                 {
-                    subnetIdRef = 
-                    {
+                    subnetIdRef ={
                         name = "subnet-${_id}-${s.az}-${s.type}"
                     }
                 }
@@ -194,8 +192,9 @@ else: # _natStrategy == "Single"
             }
         ]
         _associations = [
-            {subnetIdRef = {
-                name = "subnet-${_id}-${s.az}-${s.type}"
+            {
+                subnetIdRef = {
+                    name = "subnet-${_id}-${s.az}-${s.type}"
                 }
             } 
             for s in _public_subnets
