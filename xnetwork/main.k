@@ -174,9 +174,6 @@ else: # _natStrategy == "Single"
         _name = "rt-${_id}-public"
         _region = _region
         _providerConfig = _providerConfig
-        _tags = _tags | {
-            Name = _name
-        }
         _routes = [
             {
                 destinationCidrBlock = "0.0.0.0/0", 
@@ -198,9 +195,6 @@ else: # _natStrategy == "Single"
         _name = "rt-${_id}-private"
         _region = _region
         _providerConfig = _providerConfig
-        _tags = _tags | {
-            Name = _name
-        }
         _routes = [
             {
                 destinationCidrBlock = "0.0.0.0/0", 
