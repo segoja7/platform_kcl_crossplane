@@ -14,15 +14,12 @@ _tags = observed_xr.spec.tags or {}
 _instanceTenancy = observed_xr.spec.instanceTenancy or "default"
 _providerConfig = observed_xr.spec.providerConfigName or "default"
 _subnets = observed_xr.spec.subnets or []
+_labels = {"claim-name": _id}
 
 
 _vpc_resource = vpc.VpcBlueprint {
-    metadata = {
-        _name = "${_id}-vpc",
-        labels = {
-            "claim-name": _id,
-        }
-    }
+    _name = "${_id}-vpc"
+    _labels = _labels
     _region = _region
     _cidrBlock = _cidrBlock
     _enableDnsHostNames = _enableDnsHostNames
@@ -37,6 +34,9 @@ _vpc_resource = vpc.VpcBlueprint {
 _subnet_resource = [
     subnets.SubnetBlueprint {
         _name = "${_id}-${s.az}-${s.type}"
+        _labels = _labels | {
+            "subnet.type" = s.type
+        }
         _providerConfig = _providerConfig
         _availabilityZone = s.az
         _cidrBlock = s.cidr
@@ -52,6 +52,7 @@ _subnet_resource = [
 
 _internetGateway_resource = internetGateway.InternetgatewayBlueprint {
         _name = "${_id}-igw"
+        _labels = _labels
         _providerConfig = _providerConfig
         _region = _region
         _tags = _tags | {

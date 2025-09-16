@@ -47,7 +47,13 @@ schema VpcBlueprint(vpc_schema.Vpc):
 # # Descomenta y ajusta los valores para usar este Blueprint en tu archivo 'main.k'.
 items = [
     VpcBlueprint {
-        _name = "example-value" # Reemplazar valor
+        metadata = {
+            _name = "vpc",
+            labels = {
+            "claim-name": "vpc"
+            }
+        }
+        # _name = "example-value" # Reemplazar valor
 #        _namespace = "example-value" # Reemplazar valor
         _providerConfig = "example-value" # Reemplazar valor
 #        _amazonProvidedIpv6CidrBlock = True # Reemplazar valor

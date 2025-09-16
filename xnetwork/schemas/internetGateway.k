@@ -8,7 +8,8 @@ schema InternetgatewayBlueprint(internetgateway_schema.Internetgateway):
 
     # Parámetros de entrada simplificados para el usuario
     _name: str
-    _namespace: str
+    _namespace?: str
+    _labels?: {str:str}
     _providerConfig: str
     _region?: str
     _tags?: {str:str}
@@ -20,6 +21,7 @@ schema InternetgatewayBlueprint(internetgateway_schema.Internetgateway):
     metadata = {
         name = _name
         namespace = _namespace
+        labels = _labels
     }
     spec = {
         forProvider = {
@@ -38,6 +40,10 @@ schema InternetgatewayBlueprint(internetgateway_schema.Internetgateway):
 #     InternetgatewayBlueprint {
 #         _name = "example-value" # Reemplazar valor
 #         _namespace = "example-value" # Reemplazar valor
+#         _labels = {
+#             Name = "example-name"
+#             Environment = "development"
+#         } # Reemplazar valor
 #         _providerConfig = "example-value" # Reemplazar valor
 #         _region = "example-value" # Reemplazar valor
 #         _tags = {
@@ -45,7 +51,15 @@ schema InternetgatewayBlueprint(internetgateway_schema.Internetgateway):
 #             Environment = "development"
 #         } # Reemplazar valor
 #         _vpcId = "example-value" # Reemplazar valor
-#         _vpcIdRef = 1 # Reemplazar valor
-#         _vpcIdSelector = 1 # Reemplazar valor
+#         _vpcIdRef = {
+#             name = "example-resource-name"
+#         } # Reemplazar valor
+#         _vpcIdSelector = {
+#             matchControllerRef = True
+#             # OR use matchLabels:
+#             # matchLabels = {
+#             #     key = "value"
+#             # }
+#         } # Reemplazar valor
 #     }
 # ]
