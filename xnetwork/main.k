@@ -18,13 +18,11 @@ _subnets = observed_xr.spec.subnets or []
 
 _vpc_resource = vpc.VpcBlueprint {
     metadata = {
-    _name = "${_id}-vpc",
-    labels = {
-        "claim-name": _id,
+        _name = "${_id}-vpc",
+        labels = {
+            "claim-name": _id,
+        }
     }
-    }
-
-
     _region = _region
     _cidrBlock = _cidrBlock
     _enableDnsHostNames = _enableDnsHostNames
