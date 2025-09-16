@@ -36,7 +36,7 @@ schema SubnetBlueprint(subnet_schema.Subnet):
             ipv6CIDRBlock = _ipv6CIDRBlock
             mapPublicIPOnLaunch = _mapPublicIPOnLaunch
             region = _region
-            tags = [{"key": k, "value": v} for k, v in ((_tags or {}) | {"Name": _name})]
+            tags = [{"key": k, "value": v} for k, v in ((_tags or {}) | {"Name": _name}).items()]
             vpcId = _vpcId
             vpcIdRef = _vpcIdRef
             vpcIdSelector = _vpcIdSelector
