@@ -46,27 +46,27 @@ schema VpcBlueprint(vpc_schema.Vpc):
 
 # --- Ejemplo de Uso ---
 # Descomenta y ajusta los valores para usar este Blueprint en tu archivo 'main.k'.
-# items = [
-#     VpcBlueprint {
-#         _name = "example-value" # Reemplazar valor
-#         _namespace = "example-value" # Reemplazar valor
-#         _labels = {
-#             Name = "example-name"
-#             Environment = "development"
-#         } # Reemplazar valor
-#         _providerConfig = "example-value" # Reemplazar valor
-#         _amazonProvidedIpv6CidrBlock = True # Reemplazar valor
-#         _cidrBlock = "example-value" # Reemplazar valor
-#         _enableDnsHostNames = True # Reemplazar valor
-#         _enableDnsSupport = True # Reemplazar valor
-#         _enableNetworkAddressUsageMetrics = True # Reemplazar valor
-#         _instanceTenancy = "example-value" # Reemplazar valor
-#         _ipv6CidrBlock = "example-value" # Reemplazar valor
-#         _ipv6Pool = "example-value" # Reemplazar valor
-#         _region = "example-value" # Reemplazar valor
-#         _tags = {
-#             Name = "example-name"
-#             Environment = "development"
-#         } # Reemplazar valor
-#     }
-# ]
+items = [
+    VpcBlueprint {
+        _name = "example-value" # Reemplazar valor
+        _namespace = "example-value" # Reemplazar valor
+        _labels = {
+            Name = "example-name"
+            Environment = "development"
+        } # Reemplazar valor
+        _providerConfig = "example-value" # Reemplazar valor
+        _amazonProvidedIpv6CidrBlock = True # Reemplazar valor
+        _cidrBlock = "example-value" # Reemplazar valor
+        _enableDnsHostNames = True # Reemplazar valor
+        _enableDnsSupport = True # Reemplazar valor
+        _enableNetworkAddressUsageMetrics = True # Reemplazar valor
+        _instanceTenancy = "example-value" # Reemplazar valor
+        _ipv6CidrBlock = "example-value" # Reemplazar valor
+        _ipv6Pool = "example-value" # Reemplazar valor
+        _region = "example-value" # Reemplazar valor
+        _tags = {
+            Name = "example-name"
+            Environment = "development"
+        } # Reemplazar valor
+    }
+]

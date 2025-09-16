@@ -11,10 +11,10 @@ schema RoutetableBlueprint(routetable_schema.Routetable):
     _namespace?: str
     _labels?: {str:str}
     _providerConfig: str
-    _associations: {str:str}
+    _associations: [routetable_schema.RoutetablespecforproviderAssociationsitem]
     _ignoreRoutes?: bool
     _region: str
-    _routes?: {str:str}
+    _routes?: [routetable_schema.RoutetablespecforproviderRoutesitem]
     _vpcId?: str
     _vpcIdRef?: routetable_schema.RoutetablespecforproviderVpcidref
     _vpcIdSelector?: routetable_schema.RoutetablespecforproviderVpcidselector
@@ -49,16 +49,10 @@ schema RoutetableBlueprint(routetable_schema.Routetable):
 #             Environment = "development"
 #         } # Reemplazar valor
 #         _providerConfig = "example-value" # Reemplazar valor
-#         _associations = {
-#             Name = "example-name"
-#             Environment = "development"
-#         } # Reemplazar valor
+#         _associations = [] # Reemplazar valor
 #         _ignoreRoutes = True # Reemplazar valor
 #         _region = "example-value" # Reemplazar valor
-#         _routes = {
-#             Name = "example-name"
-#             Environment = "development"
-#         } # Reemplazar valor
+#         _routes = [] # Reemplazar valor
 #         _vpcId = "example-value" # Reemplazar valor
 #         _vpcIdRef = {
 #             name = "example-resource-name"

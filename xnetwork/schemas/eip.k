@@ -13,7 +13,7 @@ schema AddressBlueprint(address_schema.Address):
     _providerConfig: str
     _address?: str
     _customerOwnedIPv4Pool?: str
-    _domain?: address_schema."vpc" | "standard"
+    _domain?: "vpc" | "standard"
     _publicIpv4Pool?: str
     _region: str
     _tags?: {str:str}
@@ -38,25 +38,23 @@ schema AddressBlueprint(address_schema.Address):
 
 # --- Ejemplo de Uso ---
 # Descomenta y ajusta los valores para usar este Blueprint en tu archivo 'main.k'.
-# items = [
-#     AddressBlueprint {
-#         _name = "example-value" # Reemplazar valor
-#         _namespace = "example-value" # Reemplazar valor
-#         _labels = {
-#             Name = "example-name"
-#             Environment = "development"
-#         } # Reemplazar valor
-#         _providerConfig = "example-value" # Reemplazar valor
-#         _address = "example-value" # Reemplazar valor
-#         _customerOwnedIPv4Pool = "example-value" # Reemplazar valor
-#         _domain = {
-#             # Configure object fields as needed
-#         } # Reemplazar valor
-#         _publicIpv4Pool = "example-value" # Reemplazar valor
-#         _region = "example-value" # Reemplazar valor
-#         _tags = {
-#             Name = "example-name"
-#             Environment = "development"
-#         } # Reemplazar valor
-#     }
-# ]
+items = [
+    AddressBlueprint {
+        _name = "example-value" # Reemplazar valor
+        _namespace = "example-value" # Reemplazar valor
+        _labels = {
+            Name = "example-name"
+            Environment = "development"
+        } # Reemplazar valor
+        _providerConfig = "example-value" # Reemplazar valor
+        _address = "example-value" # Reemplazar valor
+        _customerOwnedIPv4Pool = "example-value" # Reemplazar valor
+        _domain = "vpc" # Reemplazar valor
+        _publicIpv4Pool = "example-value" # Reemplazar valor
+        _region = "example-value" # Reemplazar valor
+        _tags = {
+            Name = "example-name"
+            Environment = "development"
+        } # Reemplazar valor
+    }
+]

@@ -14,7 +14,7 @@ schema NatgatewayBlueprint(natgateway_schema.Natgateway):
     _allocationId?: str
     _allocationIdRef?: natgateway_schema.NatgatewayspecforproviderAllocationidref
     _allocationIdSelector?: natgateway_schema.NatgatewayspecforproviderAllocationidselector
-    _connectivityType?: natgateway_schema."public" | "private"
+    _connectivityType?: "public" | "private"
     _region: str
     _subnetId?: str
     _subnetIdRef?: natgateway_schema.NatgatewayspecforproviderSubnetidref
@@ -44,44 +44,42 @@ schema NatgatewayBlueprint(natgateway_schema.Natgateway):
 
 # --- Ejemplo de Uso ---
 # Descomenta y ajusta los valores para usar este Blueprint en tu archivo 'main.k'.
-# items = [
-#     NatgatewayBlueprint {
-#         _name = "example-value" # Reemplazar valor
-#         _namespace = "example-value" # Reemplazar valor
-#         _labels = {
-#             Name = "example-name"
-#             Environment = "development"
-#         } # Reemplazar valor
-#         _providerConfig = "example-value" # Reemplazar valor
-#         _allocationId = "example-value" # Reemplazar valor
-#         _allocationIdRef = {
-#             name = "example-resource-name"
-#         } # Reemplazar valor
-#         _allocationIdSelector = {
-#             matchControllerRef = True
-#             # OR use matchLabels:
-#             # matchLabels = {
-#             #     key = "value"
-#             # }
-#         } # Reemplazar valor
-#         _connectivityType = {
-#             # Configure object fields as needed
-#         } # Reemplazar valor
-#         _region = "example-value" # Reemplazar valor
-#         _subnetId = "example-value" # Reemplazar valor
-#         _subnetIdRef = {
-#             name = "example-resource-name"
-#         } # Reemplazar valor
-#         _subnetIdSelector = {
-#             matchControllerRef = True
-#             # OR use matchLabels:
-#             # matchLabels = {
-#             #     key = "value"
-#             # }
-#         } # Reemplazar valor
-#         _tags = {
-#             Name = "example-name"
-#             Environment = "development"
-#         } # Reemplazar valor
-#     }
-# ]
+items = [
+    NatgatewayBlueprint {
+        _name = "example-value" # Reemplazar valor
+        _namespace = "example-value" # Reemplazar valor
+        _labels = {
+            Name = "example-name"
+            Environment = "development"
+        } # Reemplazar valor
+        _providerConfig = "example-value" # Reemplazar valor
+        _allocationId = "example-value" # Reemplazar valor
+        _allocationIdRef = {
+            name = "example-resource-name"
+        } # Reemplazar valor
+        _allocationIdSelector = {
+            matchControllerRef = True
+            # OR use matchLabels:
+            # matchLabels = {
+            #     key = "value"
+            # }
+        } # Reemplazar valor
+        _connectivityType = "public" # Reemplazar valor
+        _region = "example-value" # Reemplazar valor
+        _subnetId = "example-value" # Reemplazar valor
+        _subnetIdRef = {
+            name = "example-resource-name"
+        } # Reemplazar valor
+        _subnetIdSelector = {
+            matchControllerRef = True
+            # OR use matchLabels:
+            # matchLabels = {
+            #     key = "value"
+            # }
+        } # Reemplazar valor
+        _tags = {
+            Name = "example-name"
+            Environment = "development"
+        } # Reemplazar valor
+    }
+]
