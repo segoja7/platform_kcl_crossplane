@@ -102,6 +102,9 @@ if _natStrategy == "PerAZ":
         _name = "rt-${_id}-public"
         _region = _region
         _providerConfig = _providerConfig
+        _vpcIdSelector = {
+            matchControllerRef = True
+        }
         _routes = [
             {
                 destinationCidrBlock = "0.0.0.0/0", 
@@ -124,6 +127,9 @@ if _natStrategy == "PerAZ":
             _name = "rt-${_id}-private-${s.az}"
             _region = _region
             _providerConfig = _providerConfig
+            _vpcIdSelector = {
+                matchControllerRef = True
+            }
             _routes = [
                 {
                     destinationCidrBlock = "0.0.0.0/0",
@@ -189,6 +195,9 @@ else: # _natStrategy == "Single"
                 }
             }
         ]
+        _vpcIdSelector = {
+            matchControllerRef = True
+        }
         _associations = [
             {
                 subnetIdSelector = {
@@ -212,6 +221,9 @@ else: # _natStrategy == "Single"
                 }
             }
         ]
+        _vpcIdSelector = {
+            matchControllerRef = True
+        }
         _associations = [
             {
                 subnetIdSelector = {
