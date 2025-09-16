@@ -87,7 +87,7 @@ if _natStrategy == "PerAZ":
     ]
     _nat_gateway_resources = [
         natGateway.NatgatewayBlueprint {
-            _name = "ng-${_id}-${s.az}"
+            _name = "ng-${_id}-${az}"
             _region = _region
             _providerConfig = _providerConfig
             _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
@@ -134,7 +134,7 @@ if _natStrategy == "PerAZ":
                 {
                     destinationCidrBlock = "0.0.0.0/0",
                     natGatewayIdRef = {
-                        name = "ng-${_id}-${s.az}"
+                        name = "ng-${_id}-${az}"
                     }
                 }
             ]
