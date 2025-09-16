@@ -170,7 +170,7 @@ else: # _natStrategy == "Single"
             }
         }
     ]
-    _public_route_table = rt.RouteTableBlueprint {
+    _public_route_table = routeTable.RouteTableBlueprint {
         _name = "rt-${_id}-public"
         _region = _region
         _providerConfig = _providerConfig
