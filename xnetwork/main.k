@@ -77,7 +77,7 @@ if _natStrategy == "PerAZ":
     _eip_resources = [
         eip.AddressBlueprint {
             _name = "eip-${_id}-${s.az}"
-            _providerConfig = _providerConfigName
+            _providerConfig = _providerConfig
             _region = _region
             _tags = _tags | {
                 Name = _name
@@ -89,7 +89,7 @@ if _natStrategy == "PerAZ":
         natGateway.NatgatewayBlueprint {
             _name = "ng-${_id}-${s.az}"
             _region = _region
-            _providerConfig = _providerConfigName
+            _providerConfig = _providerConfig
             _subnetIdRef = "subnet-${_id}-${s.az}-${s.type}"
             _allocationIdRef = "eip-${_id}-${s.az}"
             _tags = _tags | {
@@ -101,7 +101,7 @@ if _natStrategy == "PerAZ":
     _public_route_table = routeTable.RoutetableBlueprint {
         _name = "rt-${_id}-public"
         _region = _region
-        _providerConfig = _providerConfigName
+        _providerConfig = _providerConfig
         _tags = _tags | {
             Name = _name
         } 
@@ -126,7 +126,7 @@ if _natStrategy == "PerAZ":
         rt.RouteTableBlueprint {
             _name = "rt-${_id}-private-${s.az}"
             _region = _region
-            _providerConfig = _providerConfigName
+            _providerConfig = _providerConfig
             _tags = _tags | {
                 Name = _name
             } 
@@ -158,7 +158,7 @@ else: # _natStrategy == "Single"
         eip.AddressBlueprint {
             _name = "eip-${_id}"
             _region = _region
-            _providerConfig = _providerConfigName
+            _providerConfig = _providerConfig
             _tags = _tags | {
                 Name = _name
             } 
@@ -168,7 +168,7 @@ else: # _natStrategy == "Single"
         natGateway.NatgatewayBlueprint {
             _name = "ng-${_id}"
             _region = _region
-            _providerConfig = _providerConfigName
+            _providerConfig = _providerConfig
             _subnetNameRef = "subnet-${_id}-${s[0].az}-${s.type}"
             _eipNameRef = "eip-${_id}"
             _tags = _tags | {
@@ -179,7 +179,7 @@ else: # _natStrategy == "Single"
     _public_route_table = rt.RouteTableBlueprint {
         _name = "rt-${_id}-public"
         _region = _region
-        _providerConfig = _providerConfigName
+        _providerConfig = _providerConfig
         _tags = _tags | {
             Name = _name
         }
@@ -203,7 +203,7 @@ else: # _natStrategy == "Single"
     _private_route_table = rt.RouteTableBlueprint {
         _name = "rt-${_id}-private"
         _region = _region
-        _providerConfig = _providerConfigName
+        _providerConfig = _providerConfig
         _tags = _tags | {
             Name = _name
         }
