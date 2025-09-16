@@ -31,12 +31,12 @@ _subnet_resource = [
         _providerConfig = _providerConfig
         _availabilityZone = s.az
         _cidrBlock = s.cidr
-    #    _mapPublicIPOnLaunch = 
+        _mapPublicIPOnLaunch = True if s.type == "public" else False
         _region = _region
         _tags = _tags
-        vpcIdSelector.matchControllerRef = True 
+        _vpcIdSelector.matchControllerRef = True 
         }
     for s in _subnets
 ]
 
-items = [_vpc_resource + _subnet_resources]
+items = [_vpc_resource] + _subnet_resource
