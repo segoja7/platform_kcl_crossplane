@@ -67,11 +67,11 @@ spec:
                       description: The type of subnet, which controls routing.
                       enum: ["public", "private", "database"]
                   required: ["az", "cidr", "type"]
-              # natGatewayStrategy:
-              #   type: string
-              #   description: "Define la estrategia para los NAT Gateways. 'Single' para uno solo, 'PerAZ' uno por cada Zona de Disponibilidad."
-              #   enum: ["Single", "PerAZ"]
-              #   default: "Single"
+              natGatewayStrategy:
+                type: string
+                description: "Define la estrategia para los NAT Gateways. 'Single' para uno solo, 'PerAZ' uno por cada Zona de Disponibilidad."
+                enum: ["Single", "PerAZ"]
+                default: "Single"
 
               # flowLogs:
               #   type: object
