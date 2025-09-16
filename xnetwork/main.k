@@ -1,6 +1,8 @@
 import json
 import schemas.vpc as vpc
 import schemas.subnet as subnets
+import schemas.internetGateway as internetGateway
+
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
@@ -15,7 +17,7 @@ _subnets = observed_xr.spec.subnets or []
 
 
 _vpc_resource = vpc.VpcBlueprint {
-    _name = _id
+    _name = "${_id}-vpc"
     _region = _region
     _cidrBlock = _cidrBlock
     _enableDnsHostNames = _enableDnsHostNames
@@ -39,4 +41,12 @@ _subnet_resource = [
     for s in _subnets
 ]
 
-items = [_vpc_resource] + _subnet_resource
+_internetGateway_resource = internetGateway.InternetgatewayBlueprint {
+        _name = "${_id}-igw"
+        _providerConfig = _providerConfig
+        _region = _region
+        _tags = _tags
+        _vpcIdSelector.matchControllerRef = True 
+    }
+
+items = [_vpc_resource + _internetGateway_resource ] + _subnet_resource

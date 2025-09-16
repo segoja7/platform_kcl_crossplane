@@ -46,31 +46,31 @@ schema SubnetBlueprint(subnet_schema.Subnet):
 
 # --- Ejemplo de Uso ---
 # Descomenta y ajusta los valores para usar este Blueprint en tu archivo 'main.k'.
-items = [
-    SubnetBlueprint {
-        _name = "example-value" # Reemplazar valor
-        _namespace = "example-value" # Reemplazar valor
-        _providerConfig = "example-value" # Reemplazar valor
-        _assignIpv6AddressOnCreation = True # Reemplazar valor
-        _availabilityZone = "example-value" # Reemplazar valor
-        _availabilityZoneId = "example-value" # Reemplazar valor
-        _cidrBlock = "example-value" # Reemplazar valor
-        _ipv6CIDRBlock = "example-value" # Reemplazar valor
-        _mapPublicIPOnLaunch = True # Reemplazar valor
-        _region = "example-value" # Reemplazar valor
-        _tags = {
-            Name = "example-name"
-            Environment = "development"
-        } # Reemplazar valor
-        # _vpcId = "example-value" # Reemplazar valor
-         _vpcIdRef = {
-            name = "example-name"
-        }
-        _vpcIdSelector = {
-            matchControllerRef = True
-            matchLabels = {
-                Name = "example-name"
-            }
-        }
-    }
-]
+# items = [
+#     SubnetBlueprint {
+#         _name = "example-value" # Reemplazar valor
+#         _namespace = "example-value" # Reemplazar valor
+#         _providerConfig = "example-value" # Reemplazar valor
+#         _assignIpv6AddressOnCreation = True # Reemplazar valor
+#         _availabilityZone = "example-value" # Reemplazar valor
+#         _availabilityZoneId = "example-value" # Reemplazar valor
+#         _cidrBlock = "example-value" # Reemplazar valor
+#         _ipv6CIDRBlock = "example-value" # Reemplazar valor
+#         _mapPublicIPOnLaunch = True # Reemplazar valor
+#         _region = "example-value" # Reemplazar valor
+#         _tags = {
+#             Name = "example-name"
+#             Environment = "development"
+#         } # Reemplazar valor
+#         # _vpcId = "example-value" # Reemplazar valor
+#          _vpcIdRef = {
+#             name = "example-name"
+#         }
+#         _vpcIdSelector = {
+#             matchControllerRef = True
+#             matchLabels = {
+#                 Name = "example-name"
+#             }
+#         }
+#     }
+# ]
