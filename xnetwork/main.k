@@ -206,8 +206,8 @@ else: # _natStrategy == "Single"
                         "subnet.type" = "public"
                     }
                 }
-            } 
-        ] for s in _public_subnets
+            } for s in _public_subnets
+        ] 
     }
     _private_route_table = routeTable.RoutetableBlueprint {
         _name = "rt-${_id}-private"
@@ -232,9 +232,9 @@ else: # _natStrategy == "Single"
                         "subnet.type" = "private"
                     }
                 }
-            }
+            } for s in _private_subnets + _database_subnets
             
-        ] for s in _private_subnets + _database_subnets
+        ] 
     }
     _route_table_resources = [_public_route_table, _private_route_table]
 
