@@ -22,7 +22,9 @@ _vpc_resource = vpc.VpcBlueprint {
     _cidrBlock = _cidrBlock
     _enableDnsHostNames = _enableDnsHostNames
     _enableDnsSupport = _enableDnsSupport
-    _tags = _tags
+    _tags = _tags | {
+        Name = _name
+    }
     _instanceTenancy = _instanceTenancy
     _providerConfig = _providerConfig
 }
@@ -35,7 +37,9 @@ _subnet_resource = [
         _cidrBlock = s.cidr
         _mapPublicIPOnLaunch = True if s.type == "public" else False
         _region = _region
-        _tags = _tags
+        _tags = _tags | {
+            Name = _name
+        }
         _vpcIdSelector.matchControllerRef = True 
         }
     for s in _subnets
@@ -45,7 +49,9 @@ _internetGateway_resource = internetGateway.InternetgatewayBlueprint {
         _name = "${_id}-igw"
         _providerConfig = _providerConfig
         _region = _region
-        _tags = _tags 
+        _tags = _tags | {
+            Name = _name
+        } 
         _vpcIdSelector.matchControllerRef = True 
 }
 

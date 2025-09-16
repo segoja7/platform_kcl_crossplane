@@ -24,8 +24,7 @@ schema InternetgatewayBlueprint(internetgateway_schema.Internetgateway):
     spec = {
         forProvider = {
             region = _region
-            _combined_tags = (_tags or {}) | {"Name": _name}
-            tags = [{"key": k, "value": v} for k, v in _combined_tags.items()]
+            tags = [{"key": k, "value": v} for k, v in _tags] if _tags else []
             vpcId = _vpcId
             vpcIdRef = _vpcIdRef
             vpcIdSelector = _vpcIdSelector
@@ -46,11 +45,7 @@ schema InternetgatewayBlueprint(internetgateway_schema.Internetgateway):
 #             Environment = "development"
 #         } # Reemplazar valor
 #         _vpcId = "example-value" # Reemplazar valor
-#         _vpcIdRef = {
-#             # Configure object fields as needed
-#         } # Reemplazar valor
-#         _vpcIdSelector = {
-#             # Configure object fields as needed
-#         } # Reemplazar valor
+#         _vpcIdRef = 1 # Reemplazar valor
+#         _vpcIdSelector = 1 # Reemplazar valor
 #     }
 # ]
