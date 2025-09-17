@@ -37,3 +37,7 @@ spec:
   enabledDynamodbGateway: false
   enabledInterfaceEndpoints:
   - kms
+  flowLogs:
+    enabled: true
+    trafficType: "REJECT"
+    retentionInDays: 60
