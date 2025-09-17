@@ -168,19 +168,16 @@ else: # _natStrategy == "Single"
             _name = "ng-${_id}"
             _region = _region
             _providerConfig = _providerConfig
-            _subnetIdSelector = {
-                matchControllerRef = True
-                matchLabels = {
-                    "subnet.type" = "public"
-                }
-            }
+            _subnetIdRef = {
+                name = "subnet-${_id}-${s.az}-${s.type}"
+            } for s in _public_subnets
             _allocationIdSelector = {
                 matchControllerRef = True
             }
             _tags = _tags | {
                 Name = _name
             }
-        }
+        } 
     ]
     _public_route_table = routeTable.RoutetableBlueprint {
         _name = "rt-${_id}-public"
