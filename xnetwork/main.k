@@ -390,8 +390,7 @@ _interface_endpoint_resources = vpcEndpoint.VpcendpointBlueprint {
     _serviceName = "com.amazonaws.${_region}.${service}"
     subnetIdRefs = {
         name = "subnet-${_id}-${s.az}-${s.type}"
-    }
-    for s in _private_subnets + _database_subnets
+    } for s in _private_subnets + _database_subnets
     _tagSpecifications = [
         {
             resourceType = "vpc-endpoint"
