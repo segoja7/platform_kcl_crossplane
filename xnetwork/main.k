@@ -5,6 +5,8 @@ import schemas.internetGateway as internetGateway
 import schemas.eip as eip
 import schemas.natGateway as natGateway
 import schemas.routeTable as routeTable
+import schemas.securityGroup as securityGroup
+
 
 
 observed_xr = option("params").oxr
@@ -239,4 +241,36 @@ else: # _natStrategy == "Single"
     }
     _route_table_resources = [_public_route_table, _private_route_table]
 
-items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources 
+# _internetGateway_resource = internetGateway.InternetgatewayBlueprint {
+#         _name = "igw-${_id}"
+#         _labels = _labels
+#         _providerConfig = _providerConfig
+#         _region = _region
+#         _tags = _tags | {
+#             Name = _name
+#         } 
+#         _vpcIdSelector.matchControllerRef = True 
+# }
+
+_security_group_resources = {
+    _name = "sg-${_id}-vpce"
+    _labels = _labels
+    _providerConfig = _providerConfig
+    description = "Allow HTTPS for VPC Endpoints"
+    _egress = [{
+        fromPort = 0
+        toPort = 0
+        ipProtocol = "-1"
+        ipRanges = [{ cidrIp = "0.0.0.0/0" }]
+    }]
+    _groupName = _name
+    _ingress = [{
+        fromPort = 443
+        toPort = 443
+        ipProtocol = "tcp"
+        ipRanges = [{ cidrIp = _cidrBlock }]
+    }]
+
+}
+
+items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + [_security_group_resources]
