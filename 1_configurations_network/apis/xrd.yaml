@@ -80,6 +80,14 @@ spec:
                 type: boolean
                 description: A boolean flag to enable/disable S3 Gateway support in the VPC
                 default: false
+              enabledInterfaceEndpoints:
+                type: array
+                description: A list of interface endpoints to enable 
+                            (e.g., ec2, ssm, ssmmessages, ec2messages, logs, 
+                             secretsmanager, kms, ecr.api, ecr.dkr, sts, sts, sns).
+                items:
+                  type: string
+
               # flowLogs:
               #   type: object
               #   description: Configuration for VPC Flow Logs.
