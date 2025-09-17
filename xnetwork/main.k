@@ -253,7 +253,7 @@ else: # _natStrategy == "Single"
 # }
 
 _security_group_resources = securityGroup.SecuritygroupBlueprint {
-    _name = "sg-${_id}-vpce"
+    _name = "security-group-${_id}-vpce"
     _labels = _labels
     _providerConfig = _providerConfig
     _description = "Allow HTTPS for VPC Endpoints"
