@@ -6,6 +6,8 @@ import schemas.eip as eip
 import schemas.natGateway as natGateway
 import schemas.routeTable as routeTable
 import schemas.securityGroup as securityGroup
+import schemas.vpcEndpoint as vpcEndpoint
+
 
 
 
@@ -282,6 +284,28 @@ _security_group_resources = securityGroup.SecuritygroupBlueprint {
     _vpcIdSelector = {
         matchControllerRef = True
     }
+
+}
+
+_s3_gateway_endpoint_resources = vpcEndpoint.VpcendpointBlueprint {
+    _name = "s3-gateway-vpce-${_id}"
+    _labels = _labels
+    _providerConfig = _providerConfig
+    _routeTableIdRefs = [
+        { 
+            name = rt._name 
+        } 
+        for rt in _route_table_resources if "private" in rt._name or "database" in rt._name
+    ]
+    _serviceName = "com.amazonaws.us-east-1.s3"
+    _tags = _tags | {
+        Name = _name
+    }
+    _vpcEndpointType = "Gateway"
+    _vpcIdSelector = {
+        matchControllerRef = True
+    }
+    _region = _region
 
 }
 
