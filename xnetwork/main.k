@@ -345,39 +345,6 @@ if _enabledDynamodbGateway == True:
         _region = _region
     }
 
-    _dynamodb_gateway_endpoint_resources = vpcEndpoint.VpcendpointBlueprint {
-        _name = "dynamodb-gateway-vpce-${_id}"
-        _labels = _labels
-        _providerConfig = _providerConfig
-        _routeTableIdRefs = [
-            { 
-                name = rt._name 
-            } 
-            for rt in _route_table_resources if "private" in rt._name or "database" in rt._name
-        ]
-        _serviceName = "com.amazonaws.us-east-1.dynamodb"
-        _tagSpecifications = [
-            {
-                resourceType = "vpc-endpoint"
-                tags = [
-                    {
-                        key = "Name"
-                        value = _name
-                    }
-                ]
-            }
-        ]
-        _tags = _tags | {
-            Name = _name
-        }
-
-        _vpcEndpointType = "Gateway"
-        _vpcIdSelector = {
-            matchControllerRef = True
-        }
-        _region = _region
-    }
-
 _interface_endpoint_resources = vpcEndpoint.VpcendpointBlueprint {
     _name = "${service}-vpce-${_id}"
     _labels = _labels
