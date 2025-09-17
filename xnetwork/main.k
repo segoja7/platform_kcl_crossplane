@@ -257,7 +257,7 @@ _interface_endpoint_sg_resource = []
 if len(_enabledInterfaceEndpoints) > 0:
     
     _sg_for_interface_endpoints = securityGroup.SecuritygroupBlueprint {
-        _name = "sg-${_id}-interface-endpoints"
+        _name = "security-group-${_id}-interface-endpoints"
         _labels = _labels
         _providerConfig = _providerConfig
         _description = "Security Group for Interface VPC Endpoints"

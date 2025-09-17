@@ -36,7 +36,7 @@ spec:
   enabledS3Gateway: false
   enabledDynamodbGateway: false
   enabledInterfaceEndpoints:
-  - kms
+  #- kms #test without endpoints
   flowLogs:
     enabled: true
     trafficType: "REJECT"
