@@ -438,7 +438,9 @@ if _flowLogsConfig.enabled == True:
             matchControllerRef = True 
         }
         _trafficType = _flowLogsConfig.trafficType or "ALL"
-        _tags = _tags
+        _tags = _tags | {
+            Name = _name
+        }
     }
     
     _flow_log_all_resources = [
