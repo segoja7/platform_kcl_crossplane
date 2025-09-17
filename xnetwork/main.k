@@ -436,7 +436,9 @@ if _flowLogsConfig.enabled == True:
         _providerConfig = _providerConfig
         _logGroupName = _log_group_resources._name
         _region = _region
-        _iamRoleName = _flow_log_role_resources._name
+        _deliverLogsPermissionArnRef = {
+            name = _flow_log_role_resources._name
+        }
         _vpcIdSelector = { 
             matchControllerRef = True 
         }
