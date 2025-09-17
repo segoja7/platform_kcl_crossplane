@@ -391,20 +391,20 @@ _interface_endpoint_resources = vpcEndpoint.VpcendpointBlueprint {
     subnetIdRefs = {
         name = "subnet-${_id}-${s.az}-${s.type}"
     } for s in _private_subnets + _database_subnets
-    _tagSpecifications = [
-        {
-            resourceType = "vpc-endpoint"
-            tags = [
-                {
-                    key = "Name"
-                    value = _name
-                }
-            ]
-        }
-    ]
-    _tags = _tags | {
-        Name = _name
-    }
+    # _tagSpecifications = [
+    #     {
+    #         resourceType = "vpc-endpoint"
+    #         tags = [
+    #             {
+    #                 key = "Name"
+    #                 value = _name
+    #             }
+    #         ]
+    #     }
+    # ]
+    # _tags = _tags | {
+    #     Name = _name
+    # }
     _vpcEndpointType = "Interface"
     _vpcIdSelector = {
         matchControllerRef = True
