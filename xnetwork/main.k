@@ -362,20 +362,20 @@ _interface_endpoint_resources = [
         }
         for s in _private_subnets 
     ] 
-    # _tagSpecifications = [
-    #     {
-    #         resourceType = "vpc-endpoint"
-    #         tags = [
-    #             {
-    #                 key = "Name"
-    #                 value = _name
-    #             }
-    #         ]
-    #     }
-    # ]
-    # _tags = _tags | {
-    #     Name = _name
-    # }
+    _tagSpecifications = [
+        {
+            resourceType = "vpc-endpoint"
+            tags = [
+                {
+                    key = "Name"
+                    value = _name
+                }
+            ]
+        }
+    ]
+    _tags = _tags | {
+        Name = _name
+    }
     _vpcEndpointType = "Interface"
     _vpcIdSelector = {
         matchControllerRef = True

@@ -37,4 +37,3 @@ spec:
   enabledDynamodbGateway: false
   enabledInterfaceEndpoints:
   - ec2
-  
