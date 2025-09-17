@@ -290,17 +290,20 @@ if _enabledS3Gateway == True:
             for rt in _route_table_resources if "private" in rt._name or "database" in rt._name
         ]
         _serviceName = "com.amazonaws.us-east-1.s3"
-        _tagSpecifications = [
-            {
-                resourceType = "vpc-endpoint"
-                tags = [
-                    {
-                        key = k
-                        value = v
-                    } for k, v in (_tags | { Name = _name })
-                ]
-            }
-        ]
+        # _tagSpecifications = [
+        #     {
+        #         resourceType = "vpc-endpoint"
+        #         tags = [
+        #             {
+        #                 key = "Name"
+        #                 value = _name
+        #             }
+        #         ]
+        #     }
+        # ]
+        _tags = _tags | {
+            Name = _name
+        }
         _vpcEndpointType = "Gateway"
         _vpcIdSelector = {
             matchControllerRef = True
@@ -320,17 +323,20 @@ if _enabledDynamodbGateway == True:
             for rt in _route_table_resources if "private" in rt._name or "database" in rt._name
         ]
         _serviceName = "com.amazonaws.us-east-1.dynamodb"
-        _tagSpecifications = [
-            {
-                resourceType = "vpc-endpoint"
-                tags = [
-                    {
-                        key = k
-                        value = v
-                    } for k, v in (_tags | { Name = _name })
-                ]
-            }
-        ]
+        # _tagSpecifications = [
+        #     {
+        #         resourceType = "vpc-endpoint"
+        #         tags = [
+        #             {
+        #                 key = "Name"
+        #                 value = _name
+        #             }
+        #         ]
+        #     }
+        # ]
+        _tags = _tags | {
+            Name = _name
+        }
 
         _vpcEndpointType = "Gateway"
         _vpcIdSelector = {
@@ -356,17 +362,20 @@ _interface_endpoint_resources = [
         }
         for s in _private_subnets 
     ] 
-    _tagSpecifications = [
-        {
-            resourceType = "vpc-endpoint"
-            tags = [
-                {
-                    key = k
-                    value = v
-                } for k, v in (_tags | { Name = _name })
-            ]
-        }
-    ]
+    # _tagSpecifications = [
+    #     {
+    #         resourceType = "vpc-endpoint"
+    #         tags = [
+    #             {
+    #                 key = "Name"
+    #                 value = _name
+    #             }
+    #         ]
+    #     }
+    # ]
+    _tags = _tags | {
+        Name = _name
+    }
     _vpcEndpointType = "Interface"
     _vpcIdSelector = {
         matchControllerRef = True
