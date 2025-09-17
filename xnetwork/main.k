@@ -171,8 +171,8 @@ else: # _natStrategy == "Single"
             _subnetIdRef = {
                 name = "subnet-${_id}-${_public_subnets[0].az}-${_public_subnets[0].type}"
             }
-            _allocationIdRef = {
-                name = "eip-${_id}"
+            _allocationIdSelector = {
+                matchControllerRef = True
             }
             _tags = _tags | {
                 Name = _name
