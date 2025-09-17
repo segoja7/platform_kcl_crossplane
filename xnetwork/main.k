@@ -252,7 +252,7 @@ else: # _natStrategy == "Single"
 #         _vpcIdSelector.matchControllerRef = True 
 # }
 
-_security_group_resources = {
+_security_group_resources = securityGroup.SecuritygroupBlueprint {
     _name = "sg-${_id}-vpce"
     _labels = _labels
     _providerConfig = _providerConfig

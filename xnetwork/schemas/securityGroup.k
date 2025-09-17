@@ -48,36 +48,36 @@ schema SecuritygroupBlueprint(securitygroup_schema.Securitygroup):
 
 # --- Ejemplo de Uso ---
 # Descomenta y ajusta los valores para usar este Blueprint en tu archivo 'main.k'.
-# items = [
-#     SecuritygroupBlueprint {
-#         _name = "example-value" # Reemplazar valor
-#         _namespace = "example-value" # Reemplazar valor
-#         _labels = {
-#             Name = "example-name"
-#             Environment = "development"
-#         } # Reemplazar valor
-#         _providerConfig = "example-value" # Reemplazar valor
-#         _description = "example-value" # Reemplazar valor
-#         _egress = [] # Reemplazar valor
-#         _groupName = "example-value" # Reemplazar valor
-#         _ignoreEgress = True # Reemplazar valor
-#         _ignoreIngress = True # Reemplazar valor
-#         _ingress = [] # Reemplazar valor
-#         _region = "example-value" # Reemplazar valor
-#         _tags = {
-#             Name = "example-name"
-#             Environment = "development"
-#         } # Reemplazar valor
-#         _vpcId = "example-value" # Reemplazar valor
-#         _vpcIdRef = {
-#             name = "example-resource-name"
-#         } # Reemplazar valor
-#         _vpcIdSelector = {
-#             matchControllerRef = True
-#             # OR use matchLabels:
-#             # matchLabels = {
-#             #     key = "value"
-#             # }
-#         } # Reemplazar valor
-#     }
-# ]
+items = [
+    SecuritygroupBlueprint {
+        _name = "example-value" # Reemplazar valor
+        _namespace = "example-value" # Reemplazar valor
+        _labels = {
+            Name = "example-name"
+            Environment = "development"
+        } # Reemplazar valor
+        _providerConfig = "example-value" # Reemplazar valor
+        _description = "example-value" # Reemplazar valor
+        _egress = [] # Reemplazar valor
+        _groupName = "example-value" # Reemplazar valor
+        _ignoreEgress = True # Reemplazar valor
+        _ignoreIngress = True # Reemplazar valor
+        _ingress = [] # Reemplazar valor
+        _region = "example-value" # Reemplazar valor
+        _tags = {
+            Name = "example-name"
+            Environment = "development"
+        } # Reemplazar valor
+        _vpcId = "example-value" # Reemplazar valor
+        _vpcIdRef = {
+            name = "example-resource-name"
+        } # Reemplazar valor
+        _vpcIdSelector = {
+            matchControllerRef = True
+            # OR use matchLabels:
+            # matchLabels = {
+            #     key = "value"
+            # }
+        } # Reemplazar valor
+    }
+]
