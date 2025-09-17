@@ -28,6 +28,7 @@ _private_subnets = [s for s in _subnets if s.type == "private"]
 _database_subnets = [s for s in _subnets if s.type == "database"]
 _azs = {s.az : True for s in _subnets}
 _enabledS3Gateway = observed_xr.spec.enabledS3Gateway or False
+_enabledDynamodbGateway = observed_xr.spec.enabledDynamodbGateway or False
 
 _vpc_resource = vpc.VpcBlueprint {
     _name = "vpc-${_id}"
@@ -309,7 +310,27 @@ if _enabledS3Gateway == True:
         _region = _region
     }
 
+if _enabledDynamodbGateway == True:
+    _dynamodb_gateway_endpoint_resources = vpcEndpoint.VpcendpointBlueprint {
+        _name = "dynamodb-gateway-vpce-${_id}"
+        _labels = _labels
+        _providerConfig = _providerConfig
+        _routeTableIdRefs = [
+            { 
+                name = rt._name 
+            } 
+            for rt in _route_table_resources if "private" in rt._name or "database" in rt._name
+        ]
+        _serviceName = "com.amazonaws.us-east-1.dynamodb"
+        _tags = _tags | {
+            Name = _name
+        }
+        _vpcEndpointType = "Gateway"
+        _vpcIdSelector = {
+            matchControllerRef = True
+        }
+        _region = _region
+    }
 
 
-
-items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + [_security_group_resources, _s3_gateway_endpoint_resources]
+items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + [_security_group_resources, _s3_gateway_endpoint_resources, _dynamodb_gateway_endpoint_resources]

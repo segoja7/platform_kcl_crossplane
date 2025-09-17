@@ -76,6 +76,10 @@ spec:
                 type: boolean
                 description: A boolean flag to enable/disable S3 Gateway support in the VPC
                 default: false
+              enabledDynamodbGateway:
+                type: boolean
+                description: A boolean flag to enable/disable S3 Gateway support in the VPC
+                default: false
               # flowLogs:
               #   type: object
               #   description: Configuration for VPC Flow Logs.
