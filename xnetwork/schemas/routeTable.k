@@ -18,7 +18,7 @@ schema RoutetableBlueprint(routetable_schema.Routetable):
     _vpcId?: str
     _vpcIdRef?: routetable_schema.RoutetablespecforproviderVpcidref
     _vpcIdSelector?: routetable_schema.RoutetablespecforproviderVpcidselector
-    _tags: {str:str}
+    _tags?: {str:str}
 
     # Lógica de mapeo de parámetros simples a la estructura compleja
     metadata = {

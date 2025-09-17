@@ -58,7 +58,7 @@ schema VpcendpointBlueprint(vpcendpoint_schema.Vpcendpoint):
             subnetIdSelector = _subnetIdSelector
             subnetIds = _subnetIds
             tagSpecifications = _tagSpecifications
-            tags = [{"key": k, "value": v} for k, v in _tags] if _tags else []
+            tags = _tags if _tags else {}
             vpcEndpointType = _vpcEndpointType
             vpcIdRef = _vpcIdRef
             vpcIdSelector = _vpcIdSelector
