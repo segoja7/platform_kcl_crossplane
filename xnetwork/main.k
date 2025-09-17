@@ -295,15 +295,12 @@ if _enabledS3Gateway == True:
                 resourceType = "vpc-endpoint"
                 tags = [
                     {
-                        key = "Name"
-                        value = _name
-                    }
+                        key = k
+                        value = v
+                    } for k, v in (_tags | { Name = _name })
                 ]
             }
         ]
-        _tags = _tags | {
-            Name = _name
-        }
         _vpcEndpointType = "Gateway"
         _vpcIdSelector = {
             matchControllerRef = True
@@ -328,15 +325,12 @@ if _enabledDynamodbGateway == True:
                 resourceType = "vpc-endpoint"
                 tags = [
                     {
-                        key = "Name"
-                        value = _name
-                    }
+                        key = k
+                        value = v
+                    } for k, v in (_tags | { Name = _name })
                 ]
             }
         ]
-        _tags = _tags | {
-            Name = _name
-        }
 
         _vpcEndpointType = "Gateway"
         _vpcIdSelector = {
@@ -367,15 +361,12 @@ _interface_endpoint_resources = [
             resourceType = "vpc-endpoint"
             tags = [
                 {
-                    key = "Name"
-                    value = _name
-                }
+                    key = k
+                    value = v
+                } for k, v in (_tags | { Name = _name })
             ]
         }
     ]
-    _tags = _tags | {
-        Name = _name
-    }
     _vpcEndpointType = "Interface"
     _vpcIdSelector = {
         matchControllerRef = True
