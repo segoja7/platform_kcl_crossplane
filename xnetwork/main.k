@@ -160,7 +160,7 @@ else: # _natStrategy == "Single"
             _providerConfig = _providerConfig
             _tags = _tags | {
                 Name = _name
-            } 
+            }
         }
     ]
     _nat_gateway_resources = [
@@ -169,15 +169,15 @@ else: # _natStrategy == "Single"
             _region = _region
             _providerConfig = _providerConfig
             _subnetIdRef = {
-                name = "subnet-${_id}-${s.az}-${s.type}"
-            } for s in _public_subnets
-            _allocationIdSelector = {
-                matchControllerRef = True
+                name = "subnet-${_id}-${_public_subnets[0].az}-${_public_subnets[0].type}"
+            }
+            _allocationIdRef = {
+                name = "eip-${_id}"
             }
             _tags = _tags | {
                 Name = _name
             }
-        } 
+        }
     ]
     _public_route_table = routeTable.RoutetableBlueprint {
         _name = "rt-${_id}-public"
@@ -185,7 +185,7 @@ else: # _natStrategy == "Single"
         _providerConfig = _providerConfig
         _routes = [
             {
-                destinationCidrBlock = "0.0.0.0/0", 
+                destinationCidrBlock = "0.0.0.0/0",
                 gatewayIdSelector = {
                     matchControllerRef = True
                 }
@@ -196,14 +196,11 @@ else: # _natStrategy == "Single"
         }
         _associations = [
             {
-                subnetIdSelector = {
-                    matchControllerRef = True
-                    matchLabels = {
-                        "subnet.type" = s.type
-                    }
+                subnetIdRef = {
+                    name = "subnet-${_id}-${s.az}-${s.type}"
                 }
             } for s in _public_subnets
-        ] 
+        ]
     }
     _private_route_table = routeTable.RoutetableBlueprint {
         _name = "rt-${_id}-private"
@@ -211,7 +208,7 @@ else: # _natStrategy == "Single"
         _providerConfig = _providerConfig
         _routes = [
             {
-                destinationCidrBlock = "0.0.0.0/0", 
+                destinationCidrBlock = "0.0.0.0/0",
                 natGatewayIdSelector = {
                     matchControllerRef = True
                 }
@@ -222,15 +219,11 @@ else: # _natStrategy == "Single"
         }
         _associations = [
             {
-                subnetIdSelector = {
-                    matchControllerRef = True
-                    matchLabels = {
-                        "subnet.type" = s.type
-                    }
+                subnetIdRef = {
+                    name = "subnet-${_id}-${s.az}-${s.type}"
                 }
             } for s in _private_subnets + _database_subnets
-            
-        ] 
+        ]
     }
     _route_table_resources = [_public_route_table, _private_route_table]
 
