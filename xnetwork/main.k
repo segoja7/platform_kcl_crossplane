@@ -249,38 +249,6 @@ else: # _natStrategy == "Single"
     }
     _route_table_resources = [_public_route_table, _private_route_table]
 
-_security_group_resources = securityGroup.SecuritygroupBlueprint {
-    _name = "security-group-${_id}-vpce"
-    _labels = _labels
-    _providerConfig = _providerConfig
-    _description = "Security Group for VPC Endpoints"
-    _egress = [{
-        fromPort = 0
-        toPort = 0
-        ipProtocol = "-1"
-        ipRanges = [{ cidrIp = "0.0.0.0/0" }]
-    }]
-    _groupName = _name
-    _ingress = [{
-        fromPort = 443
-        toPort = 443
-        ipProtocol = "tcp"
-        ipRanges = [
-            { 
-                cidrIp = _cidrBlock 
-                description = "Allow HTTPS for VPC Endpoints"
-            }
-        ]
-    }]
-    _region = _region
-    _tags = _tags | {
-        Name = _name
-    }
-    _vpcIdSelector = {
-        matchControllerRef = True
-    }
-
-}
 if _enabledS3Gateway == True:
     _s3_gateway_endpoint_resources = vpcEndpoint.VpcendpointBlueprint {
         _name = "s3-gateway-vpce-${_id}"
@@ -348,43 +316,77 @@ if _enabledDynamodbGateway == True:
         _region = _region
     }
 
+if len(_enabledInterfaceEndpoints) > 0:
 _interface_endpoint_resources = [
-    vpcEndpoint.VpcendpointBlueprint {
-    _name = "${s}-vpce-${_id}"
-    _labels = _labels
-    _providerConfig = _providerConfig
-    _ipAddressType = "ipv4"
-    _privateDNSEnabled = True
-    _securityGroupIdSelector = {
-        matchControllerRef = True
-    }
-    _serviceName = "com.amazonaws.${_region}.${s}"
-    _subnetIdRefs = [
-        {
-            name = "subnet-${_id}-${s.az}-${s.type}"
+    _security_group_resources = securityGroup.SecuritygroupBlueprint {
+        _name = "security-group-${_id}-vpce"
+        _labels = _labels
+        _providerConfig = _providerConfig
+        _description = "Security Group for VPC Endpoints"
+        _egress = [{
+            fromPort = 0
+            toPort = 0
+            ipProtocol = "-1"
+            ipRanges = [{ cidrIp = "0.0.0.0/0" }]
+        }]
+        _groupName = _name
+        _ingress = [{
+            fromPort = 443
+            toPort = 443
+            ipProtocol = "tcp"
+            ipRanges = [
+                { 
+                    cidrIp = _cidrBlock 
+                    description = "Allow HTTPS for VPC Endpoints"
+                }
+            ]
+        }]
+        _region = _region
+        _tags = _tags | {
+            Name = _name
         }
-        for s in _private_subnets 
-    ] 
-    # _tagSpecifications = [
-    #     {
-    #         resourceType = "vpc-endpoint"
-    #         tags = [
-    #             {
-    #                 key = "Name"
-    #                 value = _name
-    #             }
-    #         ]
-    #     }
-    # ]
-    _tags = _tags | {
-        Name = _name
+        _vpcIdSelector = {
+            matchControllerRef = True
+        }
+
     }
-    _vpcEndpointType = "Interface"
-    _vpcIdSelector = {
-        matchControllerRef = True
-    }
-    _region = _region
-} for s in _enabledInterfaceEndpoints
+
+    vpcEndpoint.VpcendpointBlueprint {
+        _name = "${s}-vpce-${_id}"
+        _labels = _labels
+        _providerConfig = _providerConfig
+        _ipAddressType = "ipv4"
+        _privateDNSEnabled = True
+        _securityGroupIdSelector = {
+            matchControllerRef = True
+        }
+        _serviceName = "com.amazonaws.${_region}.${s}"
+        _subnetIdRefs = [
+            {
+                name = "subnet-${_id}-${s.az}-${s.type}"
+            }
+            for s in _private_subnets 
+        ] 
+        # _tagSpecifications = [
+        #     {
+        #         resourceType = "vpc-endpoint"
+        #         tags = [
+        #             {
+        #                 key = "Name"
+        #                 value = _name
+        #             }
+        #         ]
+        #     }
+        # ]
+        _tags = _tags | {
+            Name = _name
+        }
+        _vpcEndpointType = "Interface"
+        _vpcIdSelector = {
+            matchControllerRef = True
+        }
+        _region = _region
+    } for s in _enabledInterfaceEndpoints
 ]
 
 _flow_log_all_resources = []
