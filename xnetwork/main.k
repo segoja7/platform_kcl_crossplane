@@ -256,7 +256,7 @@ _security_group_resources = securityGroup.SecuritygroupBlueprint {
     _name = "sg-${_id}-vpce"
     _labels = _labels
     _providerConfig = _providerConfig
-    description = "Allow HTTPS for VPC Endpoints"
+    _description = "Allow HTTPS for VPC Endpoints"
     _egress = [{
         fromPort = 0
         toPort = 0
@@ -270,6 +270,13 @@ _security_group_resources = securityGroup.SecuritygroupBlueprint {
         ipProtocol = "tcp"
         ipRanges = [{ cidrIp = _cidrBlock }]
     }]
+    _region = _region
+    _tags = _tags | {
+        Name = _name
+    }
+    _vpcIdSelector = {
+        matchControllerRef = True
+    }
 
 }
 
