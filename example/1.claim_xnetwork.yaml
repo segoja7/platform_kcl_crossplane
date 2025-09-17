@@ -33,5 +33,5 @@ spec:
     cidr: "10.50.60.0/24"
     type: "database"
   natGatewayStrategy: "Single"
-  enabledS3Gateway: true
-  enabledDynamodbGateway: true
+  enabledS3Gateway: false
+  enabledDynamodbGateway: false

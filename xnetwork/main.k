@@ -300,6 +300,17 @@ if _enabledS3Gateway == True:
             for rt in _route_table_resources if "private" in rt._name or "database" in rt._name
         ]
         _serviceName = "com.amazonaws.us-east-1.s3"
+        _tagSpecifications = [
+            {
+                resourceType = "vpc-endpoint"
+                tags = [
+                    {
+                        key = "Name"
+                        value = _name
+                    }
+                ]
+            }
+        ]
         _tags = _tags | {
             Name = _name
         }
@@ -333,9 +344,9 @@ if _enabledDynamodbGateway == True:
                 ]
             }
         ]
-        # _tags = _tags | {
-        #     Name = _name
-        # }
+        _tags = _tags | {
+            Name = _name
+        }
 
         _vpcEndpointType = "Gateway"
         _vpcIdSelector = {
