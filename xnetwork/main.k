@@ -322,6 +322,7 @@ if _enabledDynamodbGateway == True:
             for rt in _route_table_resources if "private" in rt._name or "database" in rt._name
         ]
         _serviceName = "com.amazonaws.us-east-1.dynamodb"
+        _tagSpecifications = ["Key", "Name", "Value", _name]
         _tags = _tags | {
             Name = _name
         }
