@@ -249,145 +249,55 @@ else: # _natStrategy == "Single"
     }
     _route_table_resources = [_public_route_table, _private_route_table]
 
-if _enabledS3Gateway == True:
-    _s3_gateway_endpoint_resources = vpcEndpoint.VpcendpointBlueprint {
-        _name = "s3-gateway-vpce-${_id}"
-        _labels = _labels
-        _providerConfig = _providerConfig
-        _routeTableIdRefs = [
-            { 
-                name = rt._name 
-            } 
-            for rt in _route_table_resources if "private" in rt._name or "database" in rt._name
-        ]
-        _serviceName = "com.amazonaws.us-east-1.s3"
-        # _tagSpecifications = [
-        #     {
-        #         resourceType = "vpc-endpoint"
-        #         tags = [
-        #             {
-        #                 key = "Name"
-        #                 value = _name
-        #             }
-        #         ]
-        #     }
-        # ]
-        _tags = _tags | {
-            Name = _name
-        }
-        _vpcEndpointType = "Gateway"
-        _vpcIdSelector = {
-            matchControllerRef = True
-        }
-        _region = _region
-    }
 
-if _enabledDynamodbGateway == True:
-    _dynamodb_gateway_endpoint_resources = vpcEndpoint.VpcendpointBlueprint {
-        _name = "dynamodb-gateway-vpce-${_id}"
-        _labels = _labels
-        _providerConfig = _providerConfig
-        _routeTableIdRefs = [
-            { 
-                name = rt._name 
-            } 
-            for rt in _route_table_resources if "private" in rt._name or "database" in rt._name
-        ]
-        _serviceName = "com.amazonaws.us-east-1.dynamodb"
-        # _tagSpecifications = [
-        #     {
-        #         resourceType = "vpc-endpoint"
-        #         tags = [
-        #             {
-        #                 key = "Name"
-        #                 value = _name
-        #             }
-        #         ]
-        #     }
-        # ]
-        _tags = _tags | {
-            Name = _name
-        }
+_interface_endpoint_resources = []
 
-        _vpcEndpointType = "Gateway"
-        _vpcIdSelector = {
-            matchControllerRef = True
-        }
-        _region = _region
-    }
+_interface_endpoint_sg_resource = []
 
 if len(_enabledInterfaceEndpoints) > 0:
-_interface_endpoint_resources = [
-    _security_group_resources = securityGroup.SecuritygroupBlueprint {
-        _name = "security-group-${_id}-vpce"
+    
+    _sg_for_interface_endpoints = securityGroup.SecuritygroupBlueprint {
+        _name = "sg-${_id}-interface-endpoints"
         _labels = _labels
         _providerConfig = _providerConfig
-        _description = "Security Group for VPC Endpoints"
+        _description = "Security Group for Interface VPC Endpoints"
+        _groupName = _name
+        _vpcIdSelector = { matchControllerRef = True }
+        _region = _region
+        _tags = _tags | { Name = _name }
+        _ingress = [{
+            fromPort = 443
+            toPort = 443
+            ipProtocol = "tcp"
+            ipRanges = [{ cidrIp = _cidrBlock }]
+        }]
         _egress = [{
             fromPort = 0
             toPort = 0
             ipProtocol = "-1"
             ipRanges = [{ cidrIp = "0.0.0.0/0" }]
         }]
-        _groupName = _name
-        _ingress = [{
-            fromPort = 443
-            toPort = 443
-            ipProtocol = "tcp"
-            ipRanges = [
-                { 
-                    cidrIp = _cidrBlock 
-                    description = "Allow HTTPS for VPC Endpoints"
-                }
-            ]
-        }]
-        _region = _region
-        _tags = _tags | {
-            Name = _name
-        }
-        _vpcIdSelector = {
-            matchControllerRef = True
-        }
-
     }
+    _interface_endpoint_sg_resource = [_sg_for_interface_endpoints]
 
-    vpcEndpoint.VpcendpointBlueprint {
-        _name = "${s}-vpce-${_id}"
-        _labels = _labels
-        _providerConfig = _providerConfig
-        _ipAddressType = "ipv4"
-        _privateDNSEnabled = True
-        _securityGroupIdSelector = {
-            matchControllerRef = True
+    _interface_endpoint_resources = [
+        vpcEndpoint.VpcendpointBlueprint {
+            _name = "${service}-interface-vpce-${_id}"
+            _labels = _labels
+            _providerConfig = _providerConfig
+            _region = _region
+            _vpcIdSelector = { matchControllerRef = True }
+            _tags = _tags | { Name = _name }
+            _vpcEndpointType = "Interface"
+            _serviceName = "com.amazonaws.${_region}.${service}"
+            _privateDNSEnabled = True
+            _subnetIdRefs = [
+                { name = subnet._name } for subnet in _subnet_resource if subnet._labels["subnet.type"] != "public"
+            ]
+            _securityGroupIdRefs = [{ name = _sg_for_interface_endpoints._name }]
         }
-        _serviceName = "com.amazonaws.${_region}.${s}"
-        _subnetIdRefs = [
-            {
-                name = "subnet-${_id}-${s.az}-${s.type}"
-            }
-            for s in _private_subnets 
-        ] 
-        # _tagSpecifications = [
-        #     {
-        #         resourceType = "vpc-endpoint"
-        #         tags = [
-        #             {
-        #                 key = "Name"
-        #                 value = _name
-        #             }
-        #         ]
-        #     }
-        # ]
-        _tags = _tags | {
-            Name = _name
-        }
-        _vpcEndpointType = "Interface"
-        _vpcIdSelector = {
-            matchControllerRef = True
-        }
-        _region = _region
-    } for s in _enabledInterfaceEndpoints
-]
+        for service in _enabledInterfaceEndpoints
+    ]
 
 _flow_log_all_resources = []
 if _flowLogsConfig.enabled == True:
@@ -403,10 +313,10 @@ if _flowLogsConfig.enabled == True:
     }
 
     _flow_log_role_policy_document = json.encode({
-        "Version": "2012-10-17"
+        "Version": "2012-10-17",
         "Statement": [{
-            "Effect": "Allow"
-            "Principal": {"Service": "vpc-flow-logs.amazonaws.com"}
+            "Effect": "Allow",
+            "Principal": {"Service": "vpc-flow-logs.amazonaws.com"},
             "Action": "sts:AssumeRole"
         }]
     })
@@ -414,7 +324,7 @@ if _flowLogsConfig.enabled == True:
     _flow_log_role_resource = role.RoleBlueprint {
         _name = "role-flowlogs-${_id}"
         _providerConfig = _providerConfig
-        _assumeRolePolicyDocument = _flow_log_role_policy_document 
+        _assumeRolePolicyDocument = _flow_log_role_policy_document
         _description = "Role for VPC Flow Logs"
         _tags = _tags | {
             Name = _name
@@ -446,10 +356,10 @@ if _flowLogsConfig.enabled == True:
     }
     
     _flow_log_all_resources = [
-        _log_group_resource 
-        _flow_log_role_resource 
-        _flow_log_policy_attachment_resource 
+        _log_group_resource,
+        _flow_log_role_resource,
+        _flow_log_policy_attachment_resource,
         _flow_log_resource
     ]
 
-items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + [_security_group_resources, _s3_gateway_endpoint_resources, _dynamodb_gateway_endpoint_resources] + _interface_endpoint_resources + _flow_log_all_resources
+items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + _interface_endpoint_sg_resource + _interface_endpoint_resources + _flow_log_all_resources
