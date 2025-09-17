@@ -269,13 +269,23 @@ if len(_enabledInterfaceEndpoints) > 0:
             fromPort = 443
             toPort = 443
             ipProtocol = "tcp"
-            ipRanges = [{ cidrIp = _cidrBlock }]
+            ipRanges = [
+                { 
+                    cidrIp = _cidrBlock
+                    description = "Allow HTTPS traffic from VPC" 
+                }
+            ]
         }]
         _egress = [{
             fromPort = 0
             toPort = 0
             ipProtocol = "-1"
-            ipRanges = [{ cidrIp = "0.0.0.0/0" }]
+            ipRanges = [
+                { 
+                    cidrIp = "0.0.0.0/0"
+                    description = "Allow all outbound traffic" 
+                }
+            ]
         }]
     }
     _interface_endpoint_sg_resource = [_sg_for_interface_endpoints]
