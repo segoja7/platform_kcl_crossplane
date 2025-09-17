@@ -390,62 +390,62 @@ _interface_endpoint_resources = [
 _flow_log_all_resources = []
 if _flowLogsConfig.enabled == True:
     _log_group_resource = logGroup.LoggroupBlueprint {
-        _name = "vpc-flowlogs-${_id}",
-        _providerConfig = _providerConfig,
-        _logGroupName = "/aws/vpc/${_name}",
-        _region = _region,
-        _retentionInDays = _flowLogsConfig.retentionInDays or 90,
+        _name = "vpc-flowlogs-${_id}"
+        _providerConfig = _providerConfig
+        _logGroupName = "/aws/vpc/${_name}"
+        _region = _region
+        _retentionInDays = _flowLogsConfig.retentionInDays or 90
         _tags = _tags | {
             Name = _name
         }
     }
 
     _flow_log_role_policy_document = json.encode({
-        "Version": "2012-10-17",
+        "Version": "2012-10-17"
         "Statement": [{
-            "Effect": "Allow",
-            "Principal": {"Service": "vpc-flow-logs.amazonaws.com"},
+            "Effect": "Allow"
+            "Principal": {"Service": "vpc-flow-logs.amazonaws.com"}
             "Action": "sts:AssumeRole"
         }]
     })
 
     _flow_log_role_resource = role.RoleBlueprint {
-        _name = "role-flowlogs-${_id}",
-        _providerConfig = _providerConfig,
-        _assumeRolePolicyDocument = _flow_log_role_policy_document, # <-- Nombre corregido
-        _description = "Role for VPC Flow Logs",
+        _name = "role-flowlogs-${_id}"
+        _providerConfig = _providerConfig
+        _assumeRolePolicyDocument = _flow_log_role_policy_document 
+        _description = "Role for VPC Flow Logs"
         _tags = _tags | {
             Name = _name
         }
     }
 
     _flow_log_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
-        _name = "policy-attachment-flowlogs-${_id}",
-        _providerConfig = _providerConfig,
-        _roleName = _flow_log_role_resource._name,
+        _name = "policy-attachment-flowlogs-${_id}"
+        _providerConfig = _providerConfig
+        _roleName = _flow_log_role_resource._name
         _policyArn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
     }
 
     _flow_log_resource = flowLog.FlowlogBlueprint {
-        _name = "flowlog-${_id}",
-        _region = _region,
-        _providerConfig = _providerConfig,
-        _logGroupName = _log_group_resource._name,
+        _name = "flowlog-${_id}"
+        _region = _region
+        _providerConfig = _providerConfig
+        _logGroupName = _log_group_resource._name
         _deliverLogsPermissionArnRef = {
             name = _flow_log_role_resource._name
-        },
+        }
         _vpcIdSelector = { 
             matchControllerRef = True 
-        },
-        _trafficType = _flowLogsConfig.trafficType or "ALL",
+        }
+        _trafficType = _flowLogsConfig.trafficType or "ALL"
         _tags = _tags
     }
     
     # Se agrupan todos los recursos de flow-logs en una sola lista
     _flow_log_all_resources = [
-        _log_group_resource, 
-        _flow_log_role_resource, 
-        _flow_log_policy_attachment_resource, 
+        _log_group_resource 
+        _flow_log_role_resource 
+        _flow_log_policy_attachment_resource 
         _flow_log_resource
     ]
 
