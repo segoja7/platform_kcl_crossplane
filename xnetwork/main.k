@@ -387,20 +387,20 @@ _interface_endpoint_resources = [
 } for s in _enabledInterfaceEndpoints
 ]
 
-_vpc_flow_log_resources = []
+_flow_log_all_resources = []
 if _flowLogsConfig.enabled == True:
-    _log_group_resources = logGroup.LoggroupBlueprint {
-        _name = "vpc-flowlogs-${_id}"
-        _providerConfig = _providerConfig
-        _logGroupName = "/aws/vpc/${_name}"
-        _region = _region
-        _retentionInDays = _flowLogsConfig.retentionInDays or 90
+    _log_group_resource = logGroup.LoggroupBlueprint {
+        _name = "vpc-flowlogs-${_id}",
+        _providerConfig = _providerConfig,
+        _logGroupName = "/aws/vpc/${_name}",
+        _region = _region,
+        _retentionInDays = _flowLogsConfig.retentionInDays or 90,
         _tags = _tags | {
             Name = _name
         }
     }
 
-    _flow_log_role_policy_resources = json.encode({
+    _flow_log_role_policy_document = json.encode({
         "Version": "2012-10-17",
         "Statement": [{
             "Effect": "Allow",
@@ -409,42 +409,44 @@ if _flowLogsConfig.enabled == True:
         }]
     })
 
-    _flow_log_role_resources = role.RoleBlueprint {
-        _name = "role-flowlogs-${_id}"
-        _providerConfig = _providerConfig
-        _assumeRolePolicy = _flow_log_role_policy_resources
-        _description = "Role for VPC Flow Logs"
+    _flow_log_role_resource = role.RoleBlueprint {
+        _name = "role-flowlogs-${_id}",
+        _providerConfig = _providerConfig,
+        _assumeRolePolicyDocument = _flow_log_role_policy_document, # <-- Nombre corregido
+        _description = "Role for VPC Flow Logs",
         _tags = _tags | {
             Name = _name
         }
     }
 
-    # Esta es una política en línea para mayor seguridad, pero usamos una gestionada por simplicidad.
-    # En un entorno de producción, se podría crear un recurso `iam.aws.upbound.io/v1beta1:Policy`
-    # con permisos más granulares y adjuntarlo.
-    _flow_log_policy_attachment_resources = rolePolicyAttachment.RolepolicyattachmentBlueprint {
-        _name = "policy-attachment-flowlogs-${_id}"
-        _providerConfig = _providerConfig
-        _roleName = _flow_log_role_resources._name
-        # Política gestionada.
-        _policyArn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess" # Simplificado, en prod usar política más restrictiva.
+    _flow_log_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
+        _name = "policy-attachment-flowlogs-${_id}",
+        _providerConfig = _providerConfig,
+        _roleName = _flow_log_role_resource._name,
+        _policyArn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
     }
 
-    _flow_log_resources = flowLog.FlowlogBlueprint {
-        _name = "flowlog-${_id}"
-        _region = _region
-        _providerConfig = _providerConfig
-        _logGroupName = _log_group_resources._name
-        _region = _region
+    _flow_log_resource = flowLog.FlowlogBlueprint {
+        _name = "flowlog-${_id}",
+        _region = _region,
+        _providerConfig = _providerConfig,
+        _logGroupName = _log_group_resource._name,
         _deliverLogsPermissionArnRef = {
-            name = _flow_log_role_resources._name
-        }
+            name = _flow_log_role_resource._name
+        },
         _vpcIdSelector = { 
             matchControllerRef = True 
-        }
-        _trafficType = _flowLogsConfig.trafficType or "ALL"
+        },
+        _trafficType = _flowLogsConfig.trafficType or "ALL",
         _tags = _tags
     }
-     _vpc_flow_log_resources = [_log_group_resources, _flow_log_role_resources, _flow_log_policy_attachment_resources, _flow_log_resources]
+    
+    # Se agrupan todos los recursos de flow-logs en una sola lista
+    _flow_log_all_resources = [
+        _log_group_resource, 
+        _flow_log_role_resource, 
+        _flow_log_policy_attachment_resource, 
+        _flow_log_resource
+    ]
 
-items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + [_security_group_resources, _s3_gateway_endpoint_resources, _dynamodb_gateway_endpoint_resources] + _interface_endpoint_resources + _vpc_flow_log_resources
+items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + [_security_group_resources, _s3_gateway_endpoint_resources, _dynamodb_gateway_endpoint_resources] + _interface_endpoint_resources + _flow_log_all_resources
