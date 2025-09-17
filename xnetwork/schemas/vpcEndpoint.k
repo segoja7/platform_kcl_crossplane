@@ -13,7 +13,7 @@ schema VpcendpointBlueprint(vpcendpoint_schema.Vpcendpoint):
     _providerConfig: str
     _dnsOptions?: vpcendpoint_schema.VpcendpointspecforproviderDnsoptions
     _ipAddressType?: str
-    _policyDocument?: str #restringir el acceso a buckets de S3
+    _policyDocument?: str
     _privateDNSEnabled?: bool
     _routeTableIdRefs?: [vpcendpoint_schema.VpcendpointspecforproviderRoutetableidrefsitem]
     _routeTableIdSelector?: vpcendpoint_schema.VpcendpointspecforproviderRoutetableidselector
@@ -26,7 +26,7 @@ schema VpcendpointBlueprint(vpcendpoint_schema.Vpcendpoint):
     _subnetIdRefs?: [vpcendpoint_schema.VpcendpointspecforproviderSubnetidrefsitem]
     _subnetIdSelector?: vpcendpoint_schema.VpcendpointspecforproviderSubnetidselector
     _subnetIds?: [str]
-    _tagSpecifications?: {str:str}
+    _tagSpecifications?: [vpcendpoint_schema.VpcendpointspecforproviderTagspecificationsitem]
     _tags?: {str:str}
     _vpcEndpointType?: str
     _vpcIdRef?: vpcendpoint_schema.VpcendpointspecforproviderVpcidref
@@ -58,7 +58,7 @@ schema VpcendpointBlueprint(vpcendpoint_schema.Vpcendpoint):
             subnetIdSelector = _subnetIdSelector
             subnetIds = _subnetIds
             tagSpecifications = _tagSpecifications
-            tags = [{"key": k, "value": v} for k, v in _tags] if _tags else []
+            tags = _tags
             vpcEndpointType = _vpcEndpointType
             vpcIdRef = _vpcIdRef
             vpcIdSelector = _vpcIdSelector
@@ -114,10 +114,7 @@ schema VpcendpointBlueprint(vpcendpoint_schema.Vpcendpoint):
 #             # }
 #         } # Reemplazar valor
 #         _subnetIds = [] # Reemplazar valor
-#         _tagSpecifications = {
-#             Name = "example-name"
-#             Environment = "development"
-#         } # Reemplazar valor
+#         _tagSpecifications = [] # Reemplazar valor
 #         _tags = {
 #             Name = "example-name"
 #             Environment = "development"

@@ -309,4 +309,4 @@ _s3_gateway_endpoint_resources = vpcEndpoint.VpcendpointBlueprint {
 
 }
 
-items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + [_security_group_resources]
+items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + [_security_group_resources, _s3_gateway_endpoint_resources]
