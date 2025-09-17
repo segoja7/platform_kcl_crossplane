@@ -170,7 +170,7 @@ else: # _natStrategy == "Single"
             _providerConfig = _providerConfig
             _subnetIdSelector = {
                 matchControllerRef = True
-                matchLabels = _labels | {
+                matchLabels = {
                     "subnet.type" = "public"
                 }
             }
@@ -201,8 +201,8 @@ else: # _natStrategy == "Single"
             {
                 subnetIdSelector = {
                     matchControllerRef = True
-                    matchLabels = _labels | {
-                        "subnet.type" = "public"
+                    matchLabels = {
+                        "subnet.type" = s.type
                     }
                 }
             } for s in _public_subnets
@@ -227,7 +227,7 @@ else: # _natStrategy == "Single"
             {
                 subnetIdSelector = {
                     matchControllerRef = True
-                    matchLabels = _labels | {
+                    matchLabels = {
                         "subnet.type" = s.type
                     }
                 }
