@@ -269,6 +269,7 @@ _security_group_resources = securityGroup.SecuritygroupBlueprint {
         toPort = 443
         ipProtocol = "tcp"
         ipRanges = [{ cidrIp = _cidrBlock }]
+        description = "Allow HTTPS for VPC Endpoints"
     }]
     _region = _region
     _tags = _tags | {
