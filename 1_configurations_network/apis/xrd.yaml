@@ -105,4 +105,4 @@ spec:
                     enum: ["ALL", "ACCEPT", "REJECT"]
                     default: "ALL"
                 required: ["enabled"]
-            required: ["id", "region", "vpcCidr"] #"subnets"]
+            required: ["id", "region", "vpcCidr", "subnets"]
