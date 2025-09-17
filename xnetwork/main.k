@@ -387,7 +387,7 @@ _interface_endpoint_resources = [
 } for s in _enabledInterfaceEndpoints
 ]
 
-_flow_log_resources = []
+_vpc_flow_log_resources = []
 if _flowLogsConfig.enabled == True:
     _log_group_resources = logGroup.LoggroupBlueprint {
         _name = "vpc-flowlogs-${_id}"
@@ -445,6 +445,6 @@ if _flowLogsConfig.enabled == True:
         _trafficType = _flowLogsConfig.trafficType or "ALL"
         _tags = _tags
     }
-     _flow_log_resources = [_log_group_resources, _flow_log_role_resources, _flow_log_policy_attachment_resources, _flow_log_resources]
+     _vpc_flow_log_resources = [_log_group_resources, _flow_log_role_resources, _flow_log_policy_attachment_resources, _flow_log_resources]
 
-items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + [_security_group_resources, _s3_gateway_endpoint_resources, _dynamodb_gateway_endpoint_resources] + _interface_endpoint_resources + _flow_log_resources
+items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + [_security_group_resources, _s3_gateway_endpoint_resources, _dynamodb_gateway_endpoint_resources] + _interface_endpoint_resources + _vpc_flow_log_resources
