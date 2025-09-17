@@ -441,7 +441,6 @@ if _flowLogsConfig.enabled == True:
         _tags = _tags
     }
     
-    # Se agrupan todos los recursos de flow-logs en una sola lista
     _flow_log_all_resources = [
         _log_group_resource 
         _flow_log_role_resource 
