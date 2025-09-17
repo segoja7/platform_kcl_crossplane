@@ -32,4 +32,5 @@ spec:
   - az: us-east-1b
     cidr: "10.50.60.0/24"
     type: "database"
-  natGatewayStrategy: "Single" 
+  natGatewayStrategy: "Single"
+  enabledS3Gateway: true
