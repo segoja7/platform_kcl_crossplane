@@ -427,7 +427,7 @@ if _flowLogsConfig.enabled == True:
     }
 
     _flow_log_resource = flowLog.FlowlogBlueprint {
-        _name = "flowlog-${_id}"
+        _name = "flowlog-vpc-${_id}"
         _region = _region
         _providerConfig = _providerConfig
         _logGroupName = _log_group_resource._name
