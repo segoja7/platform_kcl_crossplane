@@ -36,4 +36,4 @@ spec:
   enabledS3Gateway: false
   enabledDynamodbGateway: false
   enabledInterfaceEndpoints:
-  - ec2
+  - kms

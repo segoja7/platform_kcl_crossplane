@@ -7,8 +7,10 @@ import schemas.natGateway as natGateway
 import schemas.routeTable as routeTable
 import schemas.securityGroup as securityGroup
 import schemas.vpcEndpoint as vpcEndpoint
-
-
+import schemas.flowLog as flowLog
+import schemas.logGroup as logGroup
+import schemas.role as role
+import schemas.rolePolicyAttachment as rolePolicyAttachment
 
 
 observed_xr = option("params").oxr
@@ -30,6 +32,7 @@ _azs = {s.az : True for s in _subnets}
 _enabledS3Gateway = observed_xr.spec.enabledS3Gateway or False
 _enabledDynamodbGateway = observed_xr.spec.enabledDynamodbGateway or False
 _enabledInterfaceEndpoints = observed_xr.spec.enabledInterfaceEndpoints or []
+_flowLogsConfig = observed_xr.spec.flowLogs or { enabled = False }
 
 _vpc_resource = vpc.VpcBlueprint {
     _name = "vpc-${_id}"
@@ -383,4 +386,63 @@ _interface_endpoint_resources = [
     _region = _region
 } for s in _enabledInterfaceEndpoints
 ]
-items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + [_security_group_resources, _s3_gateway_endpoint_resources, _dynamodb_gateway_endpoint_resources] + _interface_endpoint_resources
+
+_flow_log_resources = []
+if _flowLogsConfig.enabled == True:
+    _log_group_resources = logGroup.LoggroupBlueprint {
+        _name = "vpc-flowlogs-${_id}"
+        _providerConfig = _providerConfig
+        _logGroupName = "/aws/vpc/${_name}"
+        _region = _region
+        _retentionInDays = _flowLogsConfig.retentionInDays or 90
+        _tags = _tags | {
+            Name = _name
+        }
+    }
+
+    _flow_log_role_policy_resources = json.encode({
+        "Version": "2012-10-17",
+        "Statement": [{
+            "Effect": "Allow",
+            "Principal": {"Service": "vpc-flow-logs.amazonaws.com"},
+            "Action": "sts:AssumeRole"
+        }]
+    })
+
+    _flow_log_role_resources = role.RoleBlueprint {
+        _name = "role-flowlogs-${_id}"
+        _providerConfig = _providerConfig
+        _assumeRolePolicy = _flow_log_role_policy_resources
+        _description = "Role for VPC Flow Logs"
+        _tags = _tags | {
+            Name = _name
+        }
+    }
+
+    # Esta es una política en línea para mayor seguridad, pero usamos una gestionada por simplicidad.
+    # En un entorno de producción, se podría crear un recurso `iam.aws.upbound.io/v1beta1:Policy`
+    # con permisos más granulares y adjuntarlo.
+    _flow_log_policy_attachment_resources = rolePolicyAttachment.RolepolicyattachmentBlueprint {
+        _name = "policy-attachment-flowlogs-${_id}"
+        _providerConfig = _providerConfig
+        _roleName = _flow_log_role_resources._name
+        # Política gestionada.
+        _policyArn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess" # Simplificado, en prod usar política más restrictiva.
+    }
+
+    _flow_log_resources = flowLog.FlowlogBlueprint {
+        _name = "flowlog-${_id}"
+        _region = _region
+        _providerConfig = _providerConfig
+        _logGroupName = _log_group_resources._name
+        _region = _region
+        _iamRoleName = _flow_log_role_resources._name
+        _vpcIdSelector = { 
+            matchControllerRef = True 
+        }
+        _trafficType = _flowLogsConfig.trafficType or "ALL"
+        _tags = _tags
+    }
+     _flow_log_resources = [_log_group_resources, _flow_log_role_resources, _flow_log_policy_attachment_resources, _flow_log_resources]
+
+items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + [_security_group_resources, _s3_gateway_endpoint_resources, _dynamodb_gateway_endpoint_resources] + _interface_endpoint_resources + _flow_log_resources

@@ -88,21 +88,21 @@ spec:
                 items:
                   type: string
 
-              # flowLogs:
-              #   type: object
-              #   description: Configuration for VPC Flow Logs.
-              #   properties:
-              #     enabled:
-              #       type: boolean
-              #       description: Set to true to enable VPC Flow Logs.
-              #     retentionInDays:
-              #       type: integer
-              #       description: Number of days to retain the logs.
-              #       default: 90
-              #     trafficType:
-              #       type: string
-              #       description: The type of traffic to log.
-              #       enum: ["ALL", "ACCEPT", "REJECT"]
-              #       default: "ALL"
-              #   required: ["enabled"]
+              flowLogs:
+                type: object
+                description: Configuration for VPC Flow Logs.
+                properties:
+                  enabled:
+                    type: boolean
+                    description: Set to true to enable VPC Flow Logs.
+                  retentionInDays:
+                    type: integer
+                    description: Number of days to retain the logs.
+                    default: 90
+                  trafficType:
+                    type: string
+                    description: The type of traffic to log.
+                    enum: ["ALL", "ACCEPT", "REJECT"]
+                    default: "ALL"
+                required: ["enabled"]
             required: ["id", "region", "vpcCidr"] #"subnets"]
