@@ -228,7 +228,7 @@ else: # _natStrategy == "Single"
                 subnetIdSelector = {
                     matchControllerRef = True
                     matchLabels = _labels | {
-                        "subnet.type" = "private"
+                        "subnet.type" = s.type
                     }
                 }
             } for s in _private_subnets + _database_subnets
