@@ -7,5 +7,5 @@ import manifests
 manifests.yaml_stream([
     resources.deploy,
     resources.service,
-    #resources.ingress,
+    resources.ingress,
 ])

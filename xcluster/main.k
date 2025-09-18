@@ -1,12 +1,15 @@
 import json
 import schemas.role as role
 import schemas.rolePolicyAttachment as rolePolicyAttachment
+import schemas.eksCluster as eksCluster
+
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
 _region = observed_xr.spec.region
 _providerConfig = observed_xr.spec.providerConfigName or "default"
 _tags = observed_xr.spec.tags or {}
+_encryptCluster = observed_xr.spec.encryptCluster or False
 
 
 
@@ -79,5 +82,31 @@ _node_policy_attachments_resource = [
         {name = "AmazonEKS-CNI-Policy", arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"}
     ]
 ]
+
+_kms_resources = []
+_eks_encryption_config = None
+
+if _encryptCluster == True:
+    # _cluster_role_arn = "arn:aws:iam::${aws_account_id}:role/${_cluster_role_resource._name}"
+
+   _kms_key_policy = json.encode({
+       "Version": "2012-10-17",
+       "Statement": [
+           {
+               "Sid": "Enable IAM User Permissions",
+               "Effect": "Allow",
+               "Principal": {"AWS": "arn:aws:iam::${aws_account_id}:root"}, # Reemplaza con tu ID de cuenta
+               "Action": "kms:*",
+               "Resource": "*"
+           },
+           {
+               "Sid": "Allow EKS service to use the key",
+               "Effect": "Allow",
+               "Principal": {"AWS": _cluster_role_arn},
+               "Action": ["kms:CreateGrant", "kms:DescribeKey"],
+               "Resource": "*"
+           }
+       ]
+   })
 
 items = [_cluster_role_resource, _node_role_resource] + _cluster_policy_attachment_resource + _node_policy_attachments_resource
