@@ -1,5 +1,6 @@
 import json
 import schemas.role as role
+import schemas.rolePolicyAttachment as rolePolicyAttachment
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
@@ -52,4 +53,17 @@ _node_role_resource = role.RoleBlueprint {
     }
 }
 
-items = [_cluster_role_resource, _node_role_resource]
+_cluster_policy__attachment_resource = [
+    rolePolicyAttachment.RolepolicyattachmentBlueprint {
+        _name = "cluster-policy-${s.name}-${_id}"
+        _providerConfig = _providerConfig
+        _roleName = _cluster_role_resource._name
+        _policyArn = s.arn
+    }
+    for s in [
+        {name = "eks-cluster", arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"},
+        {name = "eks-vpc-resource-controller", arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"} 
+    ]
+]
+
+items = [_cluster_role_resource, _node_role_resource] + _cluster_policy__attachment_resource
