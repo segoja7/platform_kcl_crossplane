@@ -1,11 +1,11 @@
-import pkg.deploy
-import pkg.service
-import pkg.ingress
+import pkg as resources
+# import pkg.service
+# import pkg.ingress
 import manifests
 
 
 manifests.yaml_stream([
-    deploy.deploy,
-    service.service,
-    ingress.ingress,
+    resources.deploy,
+    resources.service,
+    #resources.ingress,
 ])
