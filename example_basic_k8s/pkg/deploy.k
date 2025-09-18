@@ -24,7 +24,7 @@ deploy = k8sapps.Deployment {
             spec = {
                 containers = [
                     {
-                        name = "my-reto-app"
+                        name = "app"
                         image = "gcr.io/google-samples/hello-app:1.0"
                         ports = [
                             {
