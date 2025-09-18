@@ -74,7 +74,7 @@ _node_policy_attachments_resource = [
         _policyArn = s.arn
     }
     for s in [
-        {name = "`AmazonEKSWorkerNodePolicy`", arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"},
+        {name = "AmazonEKSWorkerNodePolicy", arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"},
         {name = "AmazonEC2ContainerRegistryReadOnly", arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"},
         {name = "AmazonEKS-CNI-Policy", arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"}
     ]
