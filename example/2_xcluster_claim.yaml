@@ -6,35 +6,10 @@ metadata:
 spec:
   id: xcluster-example
   region: us-east-1
-  providerConfigName: "segoja7"
-
-
-  # Conecta este cluster a la red creada previamente.
-  networkId: "xnetwork-example"
-  # # Versión de Kubernetes actualizada a una soportada por EKS.
-  clusterVersion: "1.33"
-
-  # nodeGroup:
-  #   instanceTypes: ["t3.medium"]
-  #   minSize: 1
-  #   maxSize: 3
-  #   desiredSize: 1
-
-  #   capacityType: "SPOT"
-  #   updateConfig:
-
-  #     maxUnavailablePercentage: 25
-
-
-  # Control explícito sobre la visibilidad del API server.
-  endpointPublicAccess: true
-  endpointPrivateAccess: true
-  logging: ["api", "audit", "authenticator", "controllerManager", "scheduler"]
-  authenticationMode: "API_AND_CONFIG_MAP"
-
-
-  # tags:
-  #   owner: "platform-team"
-  #   environment: "development"
-  #   project: "mi-proyecto"
-  #   managed-by: "crossplane"
+  providerConfigName: segoja7
+  tags:
+    owner: "platform-team"
+    environment: "development"
+    project: "proyecto"
+    managed-by: "crossplane"
+  
