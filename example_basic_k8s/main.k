@@ -1,7 +1,11 @@
-import pkg.deploy as deploy
-import pkg.service as svc
+import pkg.deploy
+import pkg.service
+import pkg.ingress
+import manifests
 
-_deploy_resources = deploy.deploy {}
-_svc_resources = svc.service {}
 
-items = [_deploy_resources, _svc_resources]
+manifests.yaml_stream([
+    deploy.deploy,
+    service.service,
+    ingress.ingress,
+])
