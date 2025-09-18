@@ -42,4 +42,14 @@ _cluster_role_resource = role.RoleBlueprint {
     }
 }
 
-items = [_cluster_role_resource]
+_node_role_resource = role.RoleBlueprint {
+    _name = "role-eks-node-${_id}"
+    _providerConfig = _providerConfig
+    _assumeRolePolicy = _node_assume_role_policy
+    _description = "role-eks-nodes"
+    _tags = _tags | {
+        Name = _name
+    }
+}
+
+items = [_cluster_role_resource, _node_role_resource]
