@@ -17,7 +17,7 @@ service = k8score.Service {
             {
                 name = "http"
                 port = 8080
-                targetPort: 8080
+                targetPort = 8080
                 protocol: "TCP"
             }
         ]
