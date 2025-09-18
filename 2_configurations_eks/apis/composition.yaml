@@ -17,7 +17,7 @@ spec:
       kind: KCLRun
       spec:
         target: Resources
-        source: github.com/segoja7/kcl_platform/xcluster
+        source: github.com/segoja7/platform_as_data/xcluster
   - step: auto-ready
     functionRef:
       name: crossplane-contrib-function-auto-ready
