@@ -55,7 +55,7 @@ _node_role_resource = role.RoleBlueprint {
 
 _cluster_policy_attachment_resource = [
     rolePolicyAttachment.RolepolicyattachmentBlueprint {
-        _name = "eks-cluster-policy-${s.name}-${_id}"
+        _name = "eks-cluster-policy-${s.name}-${_id}".lower()
         _providerConfig = _providerConfig
         _roleName = _cluster_role_resource._name
         _policyArn = s.arn
@@ -68,7 +68,7 @@ _cluster_policy_attachment_resource = [
 
 _node_policy_attachments_resource = [
     rolePolicyAttachment.RolepolicyattachmentBlueprint {
-        _name = "eks-cluster-node-policy-${s.name}-${_id}"
+        _name = "eks-cluster-node-policy-${s.name}-${_id}".lower()
         _providerConfig = _providerConfig
         _roleName = _node_role_resource._name
         _policyArn = s.arn
