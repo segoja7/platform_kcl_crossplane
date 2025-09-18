@@ -53,17 +53,31 @@ _node_role_resource = role.RoleBlueprint {
     }
 }
 
-_cluster_policy__attachment_resource = [
+_cluster_policy_attachment_resource = [
     rolePolicyAttachment.RolepolicyattachmentBlueprint {
-        _name = "cluster-policy-${s.name}-${_id}"
+        _name = "eks-cluster-policy-${s.name}-${_id}"
         _providerConfig = _providerConfig
         _roleName = _cluster_role_resource._name
         _policyArn = s.arn
     }
     for s in [
-        {name = "eks-cluster", arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"},
-        {name = "eks-vpc-resource-controller", arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"} 
+        {name = "AmazonEKSClusterPolicy", arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"},
+        {name = "AmazonEKSVPCResourceController", arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"} 
     ]
 ]
 
-items = [_cluster_role_resource, _node_role_resource] + _cluster_policy__attachment_resource
+_node_policy_attachments_resource = [
+    rolePolicyAttachment.RolepolicyattachmentBlueprint {
+        _name = "eks-cluster-node-policy-${s.name}-${_id}"
+        _providerConfig = _providerConfig
+        _roleName = _node_role_resource._name
+        _policyArn = s.arn
+    }
+    for s in [
+        {name = "`AmazonEKSWorkerNodePolicy`", arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"},
+        {name = "AmazonEC2ContainerRegistryReadOnly", arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"},
+        {name = "AmazonEKS_CNI_Policy", arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"}
+    ]
+]
+
+items = [_cluster_role_resource, _node_role_resource] + _cluster_policy_attachment_resource + _node_policy_attachments_resource
