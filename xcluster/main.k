@@ -128,7 +128,7 @@ if _encryptCluster == True:
        _tags = _tags | { Name = _name }
    }
    _kms_alias_resource = kmsAlias.AliasBlueprint {
-       _name = "alias/eks-${_id}"
+       _name = "alias-eks-${_id}"
        _providerConfig = _providerConfig
        _region = _region
        _targetKeyIdRef = {
