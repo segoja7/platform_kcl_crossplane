@@ -133,13 +133,13 @@ if _encryptCluster == True:
                             "Action": "kms:*",
                             "Resource": "*"
                         },
-                        {
-                            "Sid": "Allow EKS service to use the key",
-                            "Effect": "Allow",
-                            "Principal": {"AWS": _cluster_role_arn},
-                            "Action": ["kms:CreateGrant", "kms:DescribeKey"],
-                            "Resource": "*"
-                        }
+                        # {
+                        #     "Sid": "Allow EKS service to use the key",
+                        #     "Effect": "Allow",
+                        #     "Principal": {"AWS": _cluster_role_arn},
+                        #     "Action": ["kms:CreateGrant", "kms:DescribeKey"],
+                        #     "Resource": "*"
+                        # }
                     ]
                 }
        _region = _region
