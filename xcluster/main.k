@@ -97,7 +97,7 @@ if _encryptCluster == True:
 #            {
 #                "Sid": "Enable IAM User Permissions",
 #                "Effect": "Allow",
-#                "Principal": {"AWS": "arn:aws:iam::${_accountId}:root"},
+#                "Principal": {"AWS": _accountId},
 #                "Action": "kms:*",
 #                "Resource": "*"
 #            },
