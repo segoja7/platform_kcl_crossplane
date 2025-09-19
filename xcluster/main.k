@@ -123,7 +123,7 @@ if _encryptCluster == True:
        _multiRegion = False
        _origin = "AWS_KMS"
        _pendingWindowInDays = 7
-       _policy = json.encode(
+       _policy = """
             {
                 "Version": "2012-10-17",
                 "Statement": [
@@ -142,9 +142,9 @@ if _encryptCluster == True:
                     #     "Resource": "*"
                     # }
                 ]
-            })
+            }"""
        _region = _region
        _tags = _tags | { Name = _name }
    }
    _kms_resources = [_kms_key_resource]
-items = [_cluster_role_resource, _node_role_resource] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources
+#items = [_cluster_role_resource, _node_role_resource] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources
