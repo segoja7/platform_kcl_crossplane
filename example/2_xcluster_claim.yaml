@@ -13,7 +13,7 @@ spec:
     project: "proyecto"
     managed-by: "crossplane"
   accountId: "476114125818"
-  encryptCluster: true
+  encryptCluster: false
   authenticationMode: "API_AND_CONFIG_MAP"
   logging:
     - "api" 
@@ -25,5 +25,5 @@ spec:
   endpointPrivateAccess: true
   publicAccessCidrs: 
     - "0.0.0.0/0"
-  networkId: "xnetwork-example"
+  networkId: "xnetwork-example
   clusterVersion: "1.33"

@@ -38,7 +38,7 @@ _node_assume_role_policy = json.encode({
                 "ec2.amazonaws.com"
             ]
         }
-        #                "eks.amazonaws.com" 
+        #"eks.amazonaws.com" 
         "Action": "sts:AssumeRole"
     }]
 })
