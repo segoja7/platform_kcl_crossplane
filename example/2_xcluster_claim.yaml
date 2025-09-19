@@ -25,5 +25,5 @@ spec:
   endpointPrivateAccess: true
   publicAccessCidrs: 
     - "0.0.0.0/0"
-  networkId: "xnetwork-example
+  networkId: "xnetwork-example"
   clusterVersion: "1.33"
