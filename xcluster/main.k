@@ -123,17 +123,21 @@ if _encryptCluster == True:
        _multiRegion = False
        _origin = "AWS_KMS"
        _pendingWindowInDays = 7
-       _policy =  
-        {
-                    "Version": "2012-10-17",
-                    "Statement": [
-                        {
-                            "Sid": "Enable IAM User Permissions",
-                            "Effect": "Allow",
-                            "Principal": {"AWS": "arn:aws:iam::${_accountId}:root"},
-                            "Action": "kms:*",
-                            "Resource": "*"
-                        },
+       _policy = json.encode(
+            {
+            "Version":"2012-10-17",
+            "Statement":[
+                {
+                    "Sid":"Enable IAM User Permissions",
+                    "Effect":"Allow",
+                    "Principal":{
+                        "AWS":"arn:aws:iam::${_accountId}:root"
+                    },
+                    "Action":"kms:*",
+                    "Resource":"*"
+                }
+            ]
+            }
                         # {
                         #     "Sid": "Allow EKS service to use the key",
                         #     "Effect": "Allow",
@@ -141,9 +145,8 @@ if _encryptCluster == True:
                         #     "Action": ["kms:CreateGrant", "kms:DescribeKey"],
                         #     "Resource": "*"
                         # }
-                    ]
-                }
-       _region = _region
+                    
+        )
        _tags = _tags | { Name = _name }
    }
    _kms_resources = [_kms_key_resource]
