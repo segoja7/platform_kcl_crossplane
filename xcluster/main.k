@@ -110,7 +110,7 @@ if _encryptCluster == True:
                     {
                         "Sid": "Enable IAM User Permissions",
                         "Effect": "Allow",
-                        "Principal": {"AWS": "arn:aws:iam::${_accountId}:user/root"},
+                        "Principal": {"AWS": "arn:aws:iam::%s:root" % _accountId}, 
                         "Action": "kms:*",
                         "Resource": "*"
                     },
@@ -124,7 +124,6 @@ if _encryptCluster == True:
                 ]
             }
         )
-       _region = _region
        _tags = _tags | { Name = _name }
    }
    _kms_resources = [_kms_key_resource]
