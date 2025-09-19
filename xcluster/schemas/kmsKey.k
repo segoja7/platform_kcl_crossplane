@@ -1,6 +1,6 @@
 # --- Blueprint de Alto Nivel (Generado Automáticamente) ---
 
-import modulesms_aws_crossplane_io.v1alpha1ms_aws_crossplane_io_v1alpha1_Key as key_schema
+import modules.kms_aws_crossplane_io.v1alpha1.kms_aws_crossplane_io_v1alpha1_Key as key_schema
 
 schema KeyBlueprint(key_schema.Key):
     """Este Blueprint simplifica la creación de un recurso Key,

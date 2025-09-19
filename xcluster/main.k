@@ -117,7 +117,7 @@ if _encryptCluster == True:
        _description = "KMS key for EKS encryption"
        _enableKeyRotation = True
        _enabled = True
-       _keyspec = "SYMMETRIC_DEFAULT"
+       _keySpec = "SYMMETRIC_DEFAULT"
        _keyUsage = "ENCRYPT_DECRYPT"
        _region = _region
        _multiRegion = False
