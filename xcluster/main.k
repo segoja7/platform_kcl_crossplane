@@ -164,14 +164,14 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
         serviceIpv4Cidr = "10.96.0.0/16"
     }
     if len(_logTypes) > 0:
-        logging = {
+        _logging = {
             clusterLogging = [{
                 enabled = True
                 types = _logTypes
             }]
         }
     _region = _region
-    resourcesVpcConfig = {
+    _resourcesVpcConfig = {
         _endpointPrivateAccess: _endpointPrivateAccess
         _endpointPublicAccess: _endpointPublicAccess
         _publicAccessCidrs = _publicAccessCidrs
