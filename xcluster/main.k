@@ -153,12 +153,12 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
         authenticationMode = _authenticationMode
     }
     if _encryptCluster == True:
-    _encryptionConfig = [{
+    _encryptionConfig = [
         resources = ["secrets"]
         provider = {
             keyArn = _kms_alias_resource._name
         }
-    }]
+    ]
     _kubernetesNetworkConfig = {
         ipFamily = "ipv4"
         serviceIpv4Cidr = "10.96.0.0/16"
