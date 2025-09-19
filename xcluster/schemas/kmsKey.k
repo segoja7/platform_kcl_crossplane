@@ -48,7 +48,7 @@ schema KeyBlueprint(key_schema.Key):
             pendingWindowInDays = _pendingWindowInDays
             policy = _policy
             region = _region
-            tags = [{"key": k, "value": v} for k, v in _tags] if _tags else []
+            tags = [{"tagKey": k, "tagValue": v} for k, v in _tags] if _tags else []
             xksKeyID = _xksKeyID
         }
         providerConfigRef.name = _providerConfig
