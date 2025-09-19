@@ -149,8 +149,6 @@ if _encryptCluster == True:
             keyArn: _kms_alias_resource._name
         }
     }]
-else:
-   _eks_encryption_config = []
 
 _eks_cluster_resource = eksCluster.ClusterBlueprint {
     _name = "eks-cluster-${_id}"
