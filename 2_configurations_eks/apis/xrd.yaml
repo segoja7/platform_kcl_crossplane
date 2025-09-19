@@ -68,4 +68,4 @@ spec:
               clusterVersion:
                 type: string
                 description: "Kubernetes version for the cluster."
-            required: ["id", "region", "accountId"]
+            required: ["id", "region", "accountId", "networkId"]

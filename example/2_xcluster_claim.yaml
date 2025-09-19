@@ -15,9 +15,15 @@ spec:
   accountId: "476114125818"
   encryptCluster: true
   authenticationMode: "API_AND_CONFIG_MAP"
-  logging: ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+  logging:
+    - "api" 
+    - "audit"
+    - "authenticator"
+    - "controllerManager"
+    - "scheduler"
   endpointPublicAccess: true
   endpointPrivateAccess: true
-  publicAccessCidrs: ["0.0.0.0/0"]
+  publicAccessCidrs: 
+    - "0.0.0.0/0"
   networkId: xnetwork-example
   clusterVersion: "1.33"
