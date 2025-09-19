@@ -34,4 +34,11 @@ spec:
                 description: A map of tags to apply to all resources.
                 additionalProperties:
                   type: string
-            required: ["id", "region"]
+              encryptCluster:
+                type: boolean
+                description: A boolean flag to enable/disable kms encrypt in eks cluster
+                default: false
+              accountId: 
+                type: string
+                description: Accountid of the account
+            required: ["id", "region", "accountId"]

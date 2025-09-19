@@ -1,6 +1,7 @@
 import json
 import schemas.role as role
 import schemas.rolePolicyAttachment as rolePolicyAttachment
+import schemas.kmsKey as kmsKey
 import schemas.eksCluster as eksCluster
 
 
@@ -10,6 +11,7 @@ _region = observed_xr.spec.region
 _providerConfig = observed_xr.spec.providerConfigName or "default"
 _tags = observed_xr.spec.tags or {}
 _encryptCluster = observed_xr.spec.encryptCluster or False
+_accountId = observed_xr.spec.accountId or "account_id_not_set"
 
 
 
@@ -87,7 +89,7 @@ _kms_resources = []
 _eks_encryption_config = None
 
 if _encryptCluster == True:
-    # _cluster_role_arn = "arn:aws:iam::${aws_account_id}:role/${_cluster_role_resource._name}"
+   _cluster_role_arn = "arn:aws:iam::${_accountId}:role/${_cluster_role_resource._name}"
 
    _kms_key_policy = json.encode({
        "Version": "2012-10-17",
@@ -95,7 +97,7 @@ if _encryptCluster == True:
            {
                "Sid": "Enable IAM User Permissions",
                "Effect": "Allow",
-               "Principal": {"AWS": "arn:aws:iam::${aws_account_id}:root"}, # Reemplaza con tu ID de cuenta
+               "Principal": {"AWS": "arn:aws:iam::${_accountId}:root"}, # Reemplaza con tu ID de cuenta
                "Action": "kms:*",
                "Resource": "*"
            },
@@ -109,4 +111,21 @@ if _encryptCluster == True:
        ]
    })
 
-items = [_cluster_role_resource, _node_role_resource] + _cluster_policy_attachment_resource + _node_policy_attachments_resource
+   _kms_key_resource = kmsKey.KeyBlueprint {
+       _name = "kms-key-eks-${_id}"
+       _providerConfig = _providerConfig
+       _description = "KMS key for EKS encryption"
+       _enableKeyRotation = True
+       _enabled = True
+       _keyspec = "SYMMETRIC_DEFAULT"
+       _keyUsage = "ENCRYPT_DECRYPT"
+       _region = _region
+       _multiRegion = False
+       _origin = "AWS_KMS"
+       _pendingWindowInDays = 7
+       _policy = _kms_key_policy
+       _region = _region
+       _tags = _tags | { Name = _name }
+   }
+   _kms_resources = [_kms_key_resource]
+items = [_cluster_role_resource, _node_role_resource] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources

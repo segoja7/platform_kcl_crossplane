@@ -1,6 +1,7 @@
 import k8s.api.apps.v1 as k8sapps
 
-deploy = k8sapps.Deployment {
+deploy = k8sapps.Deployment {    
+
     metadata = {
         name = "hello-app"
         labels = {
