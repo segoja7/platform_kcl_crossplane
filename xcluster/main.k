@@ -13,6 +13,13 @@ _providerConfig = observed_xr.spec.providerConfigName or "default"
 _tags = observed_xr.spec.tags or {}
 _encryptCluster = observed_xr.spec.encryptCluster or False
 _accountId = observed_xr.spec.accountId or "account_id_not_set"
+_authenticationMode = observed_xr.spec.authenticationMode or "API_AND_CONFIG_MAP"
+_logTypes = observed_xr.spec.logging or []
+_publicAccessCidrs = observed_xr.spec.publicAccessCidrs or ["0.0.0.0/0"]
+_endpointPublicAccess = observed_xr.spec.endpointPublicAccess or True
+_endpointPrivateAccess = observed_xr.spec.endpointPrivateAccess or True
+_networkId = observed_xr.spec.networkId or "network_id_not_set"
+_clusterVersion = observed_xr.spec.clusterVersion 
 
 
 
@@ -135,7 +142,51 @@ if _encryptCluster == True:
            name = _kms_key_resource._name
        }
    }
-
-
    _kms_resources = [_kms_key_resource, _kms_alias_resource]
-items = [_cluster_role_resource, _node_role_resource] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources
+
+
+_eks_cluster_resource = eksCluster.ClusterBlueprint {
+    _name = "eks-cluster-${_id}"
+    _region = _region
+    _providerConfig = _providerConfig
+    _accessConfig = {
+        authenticationMode = _authenticationMode
+    }
+    if _encryptCluster == True:
+    _encryptionConfig = [{
+        resources = ["secrets"]
+        provider = {
+            keyArn = _kms_alias_resource._name
+        }
+    }]
+    _kubernetesNetworkConfig = {
+        ipFamily = "ipv4"
+        serviceIpv4Cidr = "10.96.0.0/16"
+    }
+    if len(_logTypes) > 0:
+        logging = {
+            clusterLogging = [{
+                enabled = True
+                types = _logTypes
+            }]
+        }
+    _region = _region
+    resourcesVpcConfig = {
+        _endpointPrivateAccess: _endpointPrivateAccess
+        _endpointPublicAccess: _endpointPublicAccess
+        _publicAccessCidrs = _publicAccessCidrs
+        _subnetIdSelector = {
+            matchLabels = {
+                "claim-name": _networkId,
+                "subnet.type": "private"
+            }
+        }
+    }
+    _roleArnRef = {
+        name = _cluster_role_resource._name
+    }
+    _tags = _tags | { Name = _name }
+    _version = _clusterVersion
+}
+
+items = [_cluster_role_resource, _node_role_resource] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + [_eks_cluster_resource]

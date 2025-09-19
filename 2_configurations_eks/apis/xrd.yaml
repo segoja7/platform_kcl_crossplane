@@ -41,4 +41,31 @@ spec:
               accountId: 
                 type: string
                 description: Accountid of the account
+              authenticationMode:
+                type: string
+                description: "Authentication mode for the EKS cluster. Valid values are 'API,' 'CONFIG_MAP' and 'API_AND_CONFIG_MAP'."
+                default: "API_AND_CONFIG_MAP"
+              logging:
+                type: array
+                description: "List of log types to enable for the cluster. Valid values are 'api', 'audit', 'authenticator', 'controllerManager', and 'scheduler'."
+                items:
+                  type: string
+              endpointPublicAccess:
+                type: boolean
+                description: "Enable public access to API server endpoint"
+                default: true
+              endpointPrivateAccess:
+                type: boolean
+                description: "Enable private access to API server endpoint."
+                default: true
+              publicAccessCidrs:
+                type: array
+                description: "List of CIDR blocks to allow access to the public API server endpoint."
+                default: ["0.0.0.0/0"]
+              networkId:
+                type: string
+                description: "ID of the network where the cluster will be deployed."
+              clusterVersion:
+                type: string
+                description: "Kubernetes version for the cluster."
             required: ["id", "region", "accountId"]
