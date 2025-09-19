@@ -132,17 +132,23 @@ if _encryptCluster == True:
                 ]
             }
         )
-       _tags = _tags | { Name = _name }
+       _tags = _tags | { Name: _name }
    }
    _kms_alias_resource = kmsAlias.AliasBlueprint {
        _name = "alias-eks-${_id}"
        _providerConfig = _providerConfig
        _region = _region
        _targetKeyIdRef = {
-           name = _kms_key_resource._name
+           name: _kms_key_resource._name
        }
    }
    _kms_resources = [_kms_key_resource, _kms_alias_resource]
+   _eks_encryption_config = [{
+        resources: ["secrets"],
+        provider: {
+            keyArn: _kms_alias_resource._name
+        }
+    }]
 
 
 _eks_cluster_resource = eksCluster.ClusterBlueprint {
@@ -150,40 +156,33 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
     _region = _region
     _providerConfig = _providerConfig
     _accessConfig = {
-        authenticationMode = _authenticationMode
+        authenticationMode: _authenticationMode
     }
-    if _encryptCluster == True:
-    _encryptionConfig = [
-        resources = ["secrets"]
-        provider = {
-            keyArn = _kms_alias_resource._name
-        }
-    ]
+    _encryptionConfig = _eks_encryption_config
     _kubernetesNetworkConfig = {
-        ipFamily = "ipv4"
-        serviceIpv4Cidr = "10.96.0.0/16"
+        ipFamily: "ipv4",
+        serviceIpv4Cidr: "10.96.0.0/16"
     }
     if len(_logTypes) > 0:
         _logging = {
-            clusterLogging = [{
-                enabled = True
-                types = _logTypes
+            clusterLogging: [{
+                enabled: True,
+                types: _logTypes
             }]
         }
-    _region = _region
     _resourcesVpcConfig = {
-        _endpointPrivateAccess: _endpointPrivateAccess
-        _endpointPublicAccess: _endpointPublicAccess
-        _publicAccessCidrs = _publicAccessCidrs
-        _subnetIdSelector = {
-            matchLabels = {
+        endpointPrivateAccess: _endpointPrivateAccess,
+        endpointPublicAccess: _endpointPublicAccess,
+        publicAccessCidrs: _publicAccessCidrs,
+        subnetIdSelector: {
+            matchLabels: {
                 "claim-name": _networkId,
                 "subnet.type": "private"
             }
         }
     }
     _roleArnRef = {
-        name = _cluster_role_resource._name
+        name: _cluster_role_resource._name
     }
     _tags = _tags | { Name = _name }
     _version = _clusterVersion
