@@ -17,7 +17,7 @@ _logTypes = observed_xr.spec.logging or []
 _publicAccessCidrs = observed_xr.spec.publicAccessCidrs or ["0.0.0.0/0"]
 _endpointPublicAccess = observed_xr.spec.endpointPublicAccess or True
 _endpointPrivateAccess = observed_xr.spec.endpointPrivateAccess or True
-_networkId = observed_xr.spec.networkId or "network_id_not_set"
+_networkId = observed_xr.spec.networkId
 _clusterVersion = observed_xr.spec.clusterVersion
 
 _cluster_assume_role_policy = json.encode({
