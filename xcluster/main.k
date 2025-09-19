@@ -21,23 +21,23 @@ _networkId = observed_xr.spec.networkId
 _clusterVersion = observed_xr.spec.clusterVersion
 
 _cluster_assume_role_policy = json.encode({
-    "Version": "2012-10-17"
+    "Version": "2012-10-17",
     "Statement": [{
-        "Effect": "Allow"
-        "Principal": {"Service": "eks.amazonaws.com"}
+        "Effect": "Allow",
+        "Principal": {"Service": "eks.amazonaws.com"},
         "Action": "sts:AssumeRole"
     }]
 })
 
 _node_assume_role_policy = json.encode({
-    "Version": "2012-10-17"
+    "Version": "2012-10-17",
     "Statement": [{
-        "Effect": "Allow"
+        "Effect": "Allow",
         "Principal": {
             "Service": [
                 "ec2.amazonaws.com"
             ]
-        }
+        },
         #"eks.amazonaws.com" 
         "Action": "sts:AssumeRole"
     }]
@@ -69,7 +69,7 @@ _cluster_policy_attachment_resource = [rolePolicyAttachment.Rolepolicyattachment
     _roleName = _cluster_role_resource._name
     _policyArn = s.arn
 } for s in [
-    {name = "AmazonEKSClusterPolicy", arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"}
+    {name = "AmazonEKSClusterPolicy", arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"},
     {name = "AmazonEKSVPCResourceController", arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"}
 ]]
 
@@ -79,8 +79,8 @@ _node_policy_attachments_resource = [rolePolicyAttachment.RolepolicyattachmentBl
     _roleName = _node_role_resource._name
     _policyArn = s.arn
 } for s in [
-    {name = "AmazonEKSWorkerNodePolicy", arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"}
-    {name = "AmazonEC2ContainerRegistryReadOnly", arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"}
+    {name = "AmazonEKSWorkerNodePolicy", arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"},
+    {name = "AmazonEC2ContainerRegistryReadOnly", arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"},
     {name = "AmazonEKS-CNI-Policy", arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"}
 ]]
 
@@ -103,20 +103,20 @@ if _encryptCluster == True:
         _origin = "AWS_KMS"
         _pendingWindowInDays = 7
         _policy = json.encode({
-            "Version": "2012-10-17"
+            "Version": "2012-10-17",
             "Statement": [
                 {
-                    "Sid": "Enable IAM User Permissions"
-                    "Effect": "Allow"
-                    "Principal": {"AWS": "arn:aws:iam::${_accountId}:root"}
-                    "Action": "kms:*"
+                    "Sid": "Enable IAM User Permissions",
+                    "Effect": "Allow",
+                    "Principal": {"AWS": "arn:aws:iam::${_accountId}:root"},
+                    "Action": "kms:*",
                     "Resource": "*"
-                }
+                },
                 {
-                    "Sid": "Allow EKS service to use the key"
-                    "Effect": "Allow"
-                    "Principal": {"AWS": _cluster_role_arn}
-                    "Action": ["kms:CreateGrant", "kms:DescribeKey"]
+                    "Sid": "Allow EKS service to use the key",
+                    "Effect": "Allow",
+                    "Principal": {"AWS": _cluster_role_arn},
+                    "Action": ["kms:CreateGrant", "kms:DescribeKey"],
                     "Resource": "*"
                 }
             ]
@@ -132,12 +132,12 @@ if _encryptCluster == True:
         }
     }
     _kms_resources = [_kms_key_resource, _kms_alias_resource]
-    _eks_encryption_config = [
-        resources: ["secrets"]
+    _eks_encryption_config = [{
+        resources: ["secrets"],
         provider: {
             keyArn: "arn:aws:kms:${_region}:${_accountId}:alias/${_kms_alias_resource._name}"
         }
-    ]
+    }]
 
 _eks_cluster_resource = eksCluster.ClusterBlueprint {
     _name = "eks-cluster-${_id}"
@@ -148,23 +148,23 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
     }
     _encryptionConfig = _eks_encryption_config
     _kubernetesNetworkConfig = {
-        ipFamily: "ipv4"
+        ipFamily: "ipv4",
         serviceIpv4Cidr: "10.96.0.0/16"
     }
     if len(_logTypes) > 0:
         _logging = {
             clusterLogging: [{
-                enabled: True
+                enabled: True,
                 types: _logTypes
             }]
         }
     _resourcesVpcConfig = {
-        endpointPrivateAccess: _endpointPrivateAccess
-        endpointPublicAccess: _endpointPublicAccess
-        publicAccessCidrs: _publicAccessCidrs
+        endpointPrivateAccess: _endpointPrivateAccess,
+        endpointPublicAccess: _endpointPublicAccess,
+        publicAccessCidrs: _publicAccessCidrs,
         subnetIdSelector: {
             matchLabels: {
-                "claim-name": _networkId
+                "claim-name": _networkId,
                 "subnet.type": "private"
             }
         }
