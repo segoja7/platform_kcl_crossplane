@@ -110,6 +110,7 @@ if _encryptCluster == True:
 #            }
 #        ]
 #    })
+   _principal_arn = "arn:aws:iam::${_accountId}:root"
 
    _kms_key_resource = kmsKey.KeyBlueprint {
        _name = "kms-key-eks-${_id}"
@@ -130,7 +131,7 @@ if _encryptCluster == True:
                     {
                         "Sid": "Enable IAM User Permissions",
                         "Effect": "Allow",
-                        "Principal": {"AWS": "arn:aws:iam::${_accountId}:root"},
+                        "Principal": {"AWS": _principal_arn},
                         "Action": "kms:*",
                         "Resource": "*"
                     },
