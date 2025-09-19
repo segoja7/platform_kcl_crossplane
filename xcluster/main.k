@@ -97,7 +97,7 @@ if _encryptCluster == True:
            {
                "Sid": "Enable IAM User Permissions",
                "Effect": "Allow",
-               "Principal": {"AWS": "arn:aws:iam::${_accountId}:root"}, # Reemplaza con tu ID de cuenta
+               "Principal": {"AWS": "arn:aws:iam::${_accountId}:root"},
                "Action": "kms:*",
                "Resource": "*"
            },
