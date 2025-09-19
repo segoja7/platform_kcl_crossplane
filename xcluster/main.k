@@ -2,6 +2,7 @@ import json
 import schemas.role as role
 import schemas.rolePolicyAttachment as rolePolicyAttachment
 import schemas.kmsKey as kmsKey
+import schemas.kmsAlias as kmsAlias
 import schemas.eksCluster as eksCluster
 
 
@@ -126,5 +127,15 @@ if _encryptCluster == True:
         )
        _tags = _tags | { Name = _name }
    }
-   _kms_resources = [_kms_key_resource]
+   _kms_alias_resource = kmsAlias.AliasBlueprint {
+       _name = "alias/eks-${_id}"
+       _providerConfig = _providerConfig
+       _region = _region
+       _targetKeyIdRef = {
+           name = _kms_key_resource._name
+       }
+   }
+
+
+   _kms_resources = [_kms_key_resource, _kms_alias_resource]
 items = [_cluster_role_resource, _node_role_resource] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources
