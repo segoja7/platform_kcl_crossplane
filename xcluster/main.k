@@ -85,7 +85,7 @@ _node_policy_attachments_resource = [rolePolicyAttachment.RolepolicyattachmentBl
 ]]
 
 _kms_resources = []
-_eks_encryption_config = None
+_eks_encryption_config = []
 
 if _encryptCluster == True:
     _cluster_role_arn = "arn:aws:iam::${_accountId}:role/${_cluster_role_resource._name}"
@@ -132,12 +132,12 @@ if _encryptCluster == True:
         }
     }
     _kms_resources = [_kms_key_resource, _kms_alias_resource]
-    _eks_encryption_config = [{
+    _eks_encryption_config = [
         resources: ["secrets"]
         provider: {
             keyArn: "arn:aws:kms:${_region}:${_accountId}:alias/${_kms_alias_resource._name}"
         }
-    }]
+    ]
 
 _eks_cluster_resource = eksCluster.ClusterBlueprint {
     _name = "eks-cluster-${_id}"
