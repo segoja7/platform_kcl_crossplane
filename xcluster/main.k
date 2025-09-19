@@ -89,27 +89,27 @@ _kms_resources = []
 _eks_encryption_config = None
 
 if _encryptCluster == True:
-   _cluster_role_arn = "arn:aws:iam::${_accountId}:role/${_cluster_role_resource._name}"
+#    _cluster_role_arn = "arn:aws:iam::${_accountId}:role/${_cluster_role_resource._name}"
 
-   _kms_key_policy = json.encode({
-       "Version": "2012-10-17",
-       "Statement": [
-           {
-               "Sid": "Enable IAM User Permissions",
-               "Effect": "Allow",
-               "Principal": {"AWS": "arn:aws:iam::${_accountId}:root"},
-               "Action": "kms:*",
-               "Resource": "*"
-           },
-           {
-               "Sid": "Allow EKS service to use the key",
-               "Effect": "Allow",
-               "Principal": {"AWS": _cluster_role_arn},
-               "Action": ["kms:CreateGrant", "kms:DescribeKey"],
-               "Resource": "*"
-           }
-       ]
-   })
+#    _kms_key_policy = json.encode({
+#        "Version": "2012-10-17",
+#        "Statement": [
+#            {
+#                "Sid": "Enable IAM User Permissions",
+#                "Effect": "Allow",
+#                "Principal": {"AWS": "arn:aws:iam::${_accountId}:root"},
+#                "Action": "kms:*",
+#                "Resource": "*"
+#            },
+#            {
+#                "Sid": "Allow EKS service to use the key",
+#                "Effect": "Allow",
+#                "Principal": {"AWS": _cluster_role_arn},
+#                "Action": ["kms:CreateGrant", "kms:DescribeKey"],
+#                "Resource": "*"
+#            }
+#        ]
+#    })
 
    _kms_key_resource = kmsKey.KeyBlueprint {
        _name = "kms-key-eks-${_id}"
@@ -123,7 +123,26 @@ if _encryptCluster == True:
        _multiRegion = False
        _origin = "AWS_KMS"
        _pendingWindowInDays = 7
-       _policy = _kms_key_policy
+       _policy = |-
+            {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Sid": "Enable IAM User Permissions",
+                        "Effect": "Allow",
+                        "Principal": {"AWS": "arn:aws:iam::${_accountId}:root"},
+                        "Action": "kms:*",
+                        "Resource": "*"
+                    },
+                    {
+                        "Sid": "Allow EKS service to use the key",
+                        "Effect": "Allow",
+                        "Principal": {"AWS": _cluster_role_arn},
+                        "Action": ["kms:CreateGrant", "kms:DescribeKey"],
+                        "Resource": "*"
+                    }
+                ]
+            }
        _region = _region
        _tags = _tags | { Name = _name }
    }
