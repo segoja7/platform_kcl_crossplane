@@ -123,7 +123,7 @@ if _encryptCluster == True:
        _multiRegion = False
        _origin = "AWS_KMS"
        _pendingWindowInDays = 7
-       _policy = | 
+       _policy =  
         {
                     "Version": "2012-10-17",
                     "Statement": [
