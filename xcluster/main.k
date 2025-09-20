@@ -19,6 +19,7 @@ _endpointPublicAccess = observed_xr.spec.endpointPublicAccess or True
 _endpointPrivateAccess = observed_xr.spec.endpointPrivateAccess or True
 _networkId = observed_xr.spec.networkId 
 _clusterVersion = observed_xr.spec.clusterVersion
+_nodeGroupConfig = observed_xr.spec.nodeGroup or {}
 
 _cluster_assume_role_policy = json.encode({
     "Version": "2012-10-17",
@@ -176,4 +177,37 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
     _version = _clusterVersion
 }
 
-items = [_cluster_role_resource, _node_role_resource] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + [_eks_cluster_resource]
+
+_cluster_nodegroup_resource = eks_nodegroup.EksNodeGroupBlueprint {
+    _name = "cluster-nodegroup-${_id}"
+    _providerConfig = _providerConfig
+    _amiType = _nodeGroupConfig.amiType
+    _capacityType = _nodeGroupConfig.capacityType
+    _clusterNameSelector = {
+        matchControllerRef = True
+    }
+    _diskSize = _nodeGroupConfig.diskSize
+    _clusterName = _id
+    _instanceTypes = _nodeGroupConfig.instanceTypes
+    _nodeRoleRef = {
+        name = _node_role_resource._name
+    }
+    _region = _region
+    _scalingConfig = {
+        desiredSize = _nodeGroupConfig.desiredSize
+        maxSize = _nodeGroupConfig.maxSize or 2
+        minSize = _nodeGroupConfig.minSize or 1
+    }
+    _subnetSelectorRefs = [{
+        matchLabels = {
+            "claim-name": _networkId,
+            "subnet.type": "private"
+        }
+    }]
+    _tags = _tags | {Name = _name}
+    _updateConfig = {
+        maxUnavailablePercentage = _nodeGroupConfig.maxUnavailablePercentage
+    }
+}
+
+items = [_cluster_role_resource, _node_role_resource] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + [_eks_cluster_resource, _cluster_nodegroup_resource]

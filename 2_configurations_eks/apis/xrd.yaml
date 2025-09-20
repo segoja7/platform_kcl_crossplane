@@ -68,4 +68,40 @@ spec:
               clusterVersion:
                 type: string
                 description: "Kubernetes version for the cluster."
+              nodeGroup:
+                  type: object
+                  properties:
+                    amiType:
+                      type: string
+                      description: "AMI type for the cluster. Valid values are 'AL2_x86_64', 'AL2_x86_64_GPU', 'BOTTLEROCKET_ARM_64', and 'BOTTLEROCKET_x86_64'."
+                    diskSize:
+                      type: integer
+                      description: "Disk size in GiB for the cluster nodes."
+                      default: 20
+                    instanceTypes:
+                      type: array
+                      description: "List of instance types for the cluster nodes."
+                      items:
+                        type: string
+                      default: ["t3.medium"]
+                    minSize:
+                      type: integer
+                      default: 1
+                    maxSize:
+                      type: integer
+                      default: 3 # Aumentado para permitir escalado
+                    desiredSize:
+                      type: integer
+                      default: 2
+                    capacityType:
+                      type: string
+                      description: "Capacity type for the cluster nodes. Valid values are 'ON_DEMAND' and 'SPOT'."
+                      default: "ON_DEMAND"
+                    updateConfig:
+                      type: object
+                      properties:
+                        maxUnavailablePercentage:
+                          type: integer
+                          description: "Maximum percentage of nodes that can be unavailable during an update."
+                        default: 25
             required: ["id", "region", "accountId", "networkId"]
