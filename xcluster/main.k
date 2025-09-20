@@ -206,10 +206,8 @@ _cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
         }
     }
     _tags = _tags | {Name = _name}
-    _updateConfig = {
-        maxUnavailablePercentage = _nodeGroupConfig.updateConfig.maxUnavailablePercentage
-        force = _nodeGroupConfig.updateConfig.force
-        maxUnavailable = _nodeGroupConfig.updateConfig.maxUnavailable
+    if _nodeGroupConfig.updateConfig != None {
+        _updateConfig = _nodeGroupConfig.updateConfig
     }
 }
 

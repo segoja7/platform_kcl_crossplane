@@ -105,7 +105,6 @@ spec:
                         maxUnavailablePercentage:
                           type: integer
                           description: "Maximum percentage of nodes that can be unavailable during an update."
-                          default: 25
                         force:
                           type: boolean
                           description: "Force update even if it causes disruption."
@@ -113,5 +112,8 @@ spec:
                         maxUnavailable:
                           type: integer
                           description: "Maximum number of nodes that can be unavailable during an update."
-                          default: 1
+                      not:
+                        required:
+                          - maxUnavailable
+                          - maxUnavailablePercentage
             required: ["id", "region", "accountId", "networkId"]
