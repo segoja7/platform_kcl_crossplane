@@ -42,9 +42,9 @@ _argo_app_xcluster_resource = argo.ApplicationBlueprint {
     _source = {
         path = "xcluster"
         repoURL = "https://github.com/segoja7/platform_as_data"
-        # plugin = {
-        #     name = "kcl-v1.0"
-        # }
+        plugin = {
+            name = "kcl-v1.0"
+        }
     }
 } 
 
