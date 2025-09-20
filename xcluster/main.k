@@ -179,7 +179,7 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
 }
 
 
-_cluster_nodegroup_resource = eksNodegroup.EksNodeGroupBlueprint {
+_cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
     _name = "cluster-nodegroup-${_id}"
     _providerConfig = _providerConfig
     _amiType = _nodeGroupConfig.amiType
