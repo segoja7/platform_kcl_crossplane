@@ -186,6 +186,9 @@ _cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
     _capacityType = _nodeGroupConfig.capacityType
     _clusterNameSelector = {
         matchControllerRef = True
+        matchLabels = {
+            "crossplane.io/composite": _id
+        }
     }
     _diskSize = _nodeGroupConfig.diskSize
     _clusterName = _id
