@@ -184,11 +184,10 @@ _cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
     _providerConfig = _providerConfig
     _amiType = _nodeGroupConfig.amiType
     _capacityType = _nodeGroupConfig.capacityType
-    _clusterNameRef = {
-        name = _eks_cluster_resource._name
+    _clusterNameSelector = {
+        matchControllerRef = True
     }
     _diskSize = _nodeGroupConfig.diskSize
-    _clusterName = _id
     _instanceTypes = _nodeGroupConfig.instanceTypes
     _nodeRoleRef = {
         name = _node_role_resource._name
