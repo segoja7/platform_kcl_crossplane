@@ -32,7 +32,7 @@ _argo_app_xnetwork_claim_resource = argo.ApplicationBlueprint {
 }
 
 _argo_app_xcluster_resource = argo.ApplicationBlueprint {
-    _name = "xcluster-composition-kcl-native"
+    _name = "xcluster-composition"
     _namespace = "argocd"
     _destination = {
         server = "https://kubernetes.default.svc"
@@ -40,11 +40,11 @@ _argo_app_xcluster_resource = argo.ApplicationBlueprint {
     }
     _project = "default"
     _source = {
-        path = "xcluster"
+        path = "2_configurations_eks/apis/"
         repoURL = "https://github.com/segoja7/platform_as_data"
-        plugin = {
-            name = "kcl-v1.0"
-        }
+        # plugin = {
+        #     name = "kcl-v1.0"
+        # }
     }
 } 
 
