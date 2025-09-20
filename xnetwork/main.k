@@ -62,7 +62,9 @@ _subnet_resource = [
         _tags = _tags | {
             Name = _name
         }
-        _vpcIdSelector.matchControllerRef = True 
+        _vpcIdSelector = {
+            matchControllerRef = True
+        }
         }
     for s in _subnets
 ]
@@ -75,7 +77,9 @@ _internetGateway_resource = internetGateway.InternetgatewayBlueprint {
         _tags = _tags | {
             Name = _name
         } 
-        _vpcIdSelector.matchControllerRef = True 
+        _vpcIdSelector = {
+            matchControllerRef = True
+        }
 }
 
 _eip_resources = []
@@ -262,7 +266,9 @@ if len(_enabledInterfaceEndpoints) > 0:
         _providerConfig = _providerConfig
         _description = "Security Group for Interface VPC Endpoints"
         _groupName = _name
-        _vpcIdSelector = { matchControllerRef = True }
+        _vpcIdSelector = {
+            matchControllerRef = True
+        }
         _region = _region
         _tags = _tags | { Name = _name }
         _ingress = [{
@@ -296,7 +302,9 @@ if len(_enabledInterfaceEndpoints) > 0:
             _labels = _labels
             _providerConfig = _providerConfig
             _region = _region
-            _vpcIdSelector = { matchControllerRef = True }
+            _vpcIdSelector = {
+                matchControllerRef = True
+            }
             _tags = _tags | { Name = _name }
             _vpcEndpointType = "Interface"
             _serviceName = "com.amazonaws.${_region}.${service}"
