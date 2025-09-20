@@ -200,7 +200,7 @@ _cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
         minSize = _nodeGroupConfig.minSize
     }
     _subnetSelector = {
-        matchControllerRef = True
+        # matchControllerRef = True
         matchLabels = {
             "claim-name": _networkId,
             "subnet.type": "private"
