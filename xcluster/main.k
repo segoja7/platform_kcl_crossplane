@@ -206,9 +206,8 @@ _cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
         }
     }
     _tags = _tags | {Name = _name}
-    if _nodeGroupConfig.updateConfig != None {
+    if _nodeGroupConfig.updateConfig != None:
         _updateConfig = _nodeGroupConfig.updateConfig
-    }
 }
 
 items = [_cluster_role_resource, _node_role_resource] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + [_eks_cluster_resource, _cluster_nodegroup_resource]
