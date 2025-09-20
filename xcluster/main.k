@@ -195,8 +195,8 @@ _cluster_nodegroup_resource = eks_nodegroup.EksNodeGroupBlueprint {
     _region = _region
     _scalingConfig = {
         desiredSize = _nodeGroupConfig.desiredSize
-        maxSize = _nodeGroupConfig.maxSize or 2
-        minSize = _nodeGroupConfig.minSize or 1
+        maxSize = _nodeGroupConfig.maxSize 
+        minSize = _nodeGroupConfig.minSize
     }
     _subnetSelectorRefs = [{
         matchLabels = {
