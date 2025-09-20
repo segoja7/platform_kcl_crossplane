@@ -39,3 +39,4 @@ spec:
     updateConfig:
       maxUnavailablePercentage: 25
       force: true
+      maxUnavailable: 1
