@@ -28,7 +28,7 @@ spec:
   networkId: "xnetwork-example"
   clusterVersion: "1.33"
   nodeGroup:
-    amiType: "AL2_x86_64"
+    amiType: ""
     capacityType: "SPOT"
     diskSize: 20
     instanceTypes: 
