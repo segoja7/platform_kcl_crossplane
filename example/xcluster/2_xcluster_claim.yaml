@@ -38,3 +38,4 @@ spec:
     desiredSize: 1
     updateConfig:
       maxUnavailablePercentage: 25
+      force: true
