@@ -199,12 +199,13 @@ _cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
         maxSize = _nodeGroupConfig.maxSize 
         minSize = _nodeGroupConfig.minSize
     }
-    _subnetSelectorRefs = [{
+    _subnetSelector = {
+        matchControllerRef = True
         matchLabels = {
             "claim-name": _networkId,
             "subnet.type": "private"
         }
-    }]
+    }
     _tags = _tags | {Name = _name}
     _updateConfig = {
         maxUnavailablePercentage = _nodeGroupConfig.maxUnavailablePercentage
