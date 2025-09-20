@@ -4,6 +4,7 @@ import schemas.rolePolicyAttachment as rolePolicyAttachment
 import schemas.kmsKey as kmsKey
 import schemas.kmsAlias as kmsAlias
 import schemas.eksCluster as eksCluster
+import schemas.eksNodeGroup as eksNodegroup
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
@@ -178,7 +179,7 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
 }
 
 
-_cluster_nodegroup_resource = eks_nodegroup.EksNodeGroupBlueprint {
+_cluster_nodegroup_resource = eksNodegroup.EksNodeGroupBlueprint {
     _name = "cluster-nodegroup-${_id}"
     _providerConfig = _providerConfig
     _amiType = _nodeGroupConfig.amiType
