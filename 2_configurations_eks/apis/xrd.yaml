@@ -131,8 +131,5 @@ spec:
                     resolveConflicts:
                       type: string
                       description: "How to resolve version conflicts for the addon. Valid values are 'NONE', 'OVERWRITE', and 'PRESERVE'."
-                      enum: ["NONE", "OVERWRITE", "PRESERVE"]
-                not:
-                  required:
-                    - resolveConflicts                      
+                      enum: ["NONE", "OVERWRITE", "PRESERVE"]                     
             required: ["id", "region", "accountId", "networkId"]

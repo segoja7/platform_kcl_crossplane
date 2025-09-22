@@ -229,12 +229,14 @@ _cluster_addons_resource = [ eksAddon.AddonBlueprint {
     _name = "addon-${s.name}-${_id}"
     _providerConfig = _providerConfig
     _addonName = s.name
-    _addonVersion = s.version
+    if "version" in s and s.version != None:
+        _addonVersion = s.version
     _clusterNameSelector = {
         matchControllerRef = True
     }
     _region = _region
-    _resolveConflicts = s.resolveConflicts
+    if "resolveConflicts" in s and s.resolveConflicts != None:
+        _resolveConflicts = s.resolveConflicts
     _tags = _tags | {
         Name = "addon-${s.name}-${_id}"
     }
