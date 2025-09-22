@@ -39,15 +39,15 @@ spec:
     updateConfig:
       maxUnavailablePercentage: 25
       force: true
-  addons:
-   - name: eks-pod-identity-agent
-     version: "v1.3.8-eksbuild.2"
-     resolveConflicts: "OVERWRITE"
-   - name: vpc-cni
-    #  version: "latest"
-     resolveConflicts: "OVERWRITE"
-   - name: coredns
-    #  version: "latest"
-   - name: kube-proxy
-    #  version: "latest"
-     resolveConflicts: "OVERWRITE"
+  # addons:
+  #  - name: eks-pod-identity-agent
+  #    version: "v1.3.8-eksbuild.2"
+  #    resolveConflicts: "OVERWRITE"
+  #  - name: vpc-cni
+  #   #  version: "latest"
+  #    resolveConflicts: "OVERWRITE"
+  # #  - name: coredns
+  # #   #  version: "latest"
+  # #  - name: kube-proxy
+  # #   #  version: "latest"
+  #    resolveConflicts: "OVERWRITE"
