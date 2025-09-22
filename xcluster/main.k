@@ -224,7 +224,7 @@ _addons_vpc_cni_assume_role_policy = json.encode({
     }]
 })
 
-# --- Logic for VPC CNI IAM Role and Policy Attachment ---
+
 _cni_addon_config = [s for s in _addonsConfig if s.name == "vpc-cni"]
 _cni_resources = []
 _cni_role_resource_name = "role-addon-vpc-cni-cluster-${_id}"
@@ -269,9 +269,24 @@ _cluster_addons_resource = [ eksAddon.AddonBlueprint {
 } for s in _addonsConfig
 ]
 
+_nodegroup_items = []
+# If the vpc-cni addon is not being installed, we can create the nodegroup immediately.
+if len(_cni_addon_config) == 0:
+    _nodegroup_items = [_cluster_nodegroup_resource]
+else:
+    # If the vpc-cni addon is being installed, wait for it to become "ACTIVE"
+    # before creating the nodegroup. This ensures the CNI is ready to assign IPs
+    # to the nodes, allowing them to join the cluster.
+    ocds = option("params").ocds or {}
+    _vpc_cni_addon_name = "addon-vpc-cni-${_id}"
+    if ocds.get(_vpc_cni_addon_name)?.Resource?.status?.atProvider?.status == "ACTIVE":
+        _nodegroup_items = [_cluster_nodegroup_resource]
+    
+
+
+
 items = [
     _cluster_role_resource, 
     _node_role_resource,
     _eks_cluster_resource, 
-    _cluster_nodegroup_resource
-] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource
+] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + _nodegroup_items
