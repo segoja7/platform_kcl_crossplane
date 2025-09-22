@@ -116,4 +116,23 @@ spec:
                         required:
                           - maxUnavailable
                           - maxUnavailablePercentage
+              addons:
+                type: array
+                description: "List of EKS addons to install on the cluster."
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: "The addon name (ej. vpc-cni, coredns, kube-proxy)."
+                    version:
+                      type: string
+                      description: "The addon version. If not specified, the latest version is used."
+                    resolveConflicts:
+                      type: string
+                      description: "How to resolve version conflicts for the addon. Valid values are 'NONE', 'OVERWRITE', and 'PRESERVE'."
+                      enum: ["NONE", "OVERWRITE", "PRESERVE"]
+                not:
+                  required:
+                    - resolveConflicts                      
             required: ["id", "region", "accountId", "networkId"]

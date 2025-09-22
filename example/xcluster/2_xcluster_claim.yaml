@@ -39,3 +39,10 @@ spec:
     updateConfig:
       maxUnavailablePercentage: 25
       force: true
+  addons:
+   - name: vpc-cni
+     version: "latest"
+   - name: coredns
+     version: "latest"
+   - name: kube-proxy
+     version: "latest"

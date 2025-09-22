@@ -5,6 +5,7 @@ import schemas.kmsKey as kmsKey
 import schemas.kmsAlias as kmsAlias
 import schemas.eksCluster as eksCluster
 import schemas.eksNodeGroup as eksNodegroup
+import schemas.eksAddon as eksAddon
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
@@ -21,6 +22,7 @@ _endpointPrivateAccess = observed_xr.spec.endpointPrivateAccess or True
 _networkId = observed_xr.spec.networkId 
 _clusterVersion = observed_xr.spec.clusterVersion
 _nodeGroupConfig = observed_xr.spec.nodeGroup or {}
+#_addons = observed_xr.spec.addons or []
 
 _cluster_assume_role_policy = json.encode({
     "Version": "2012-10-17",
@@ -83,7 +85,7 @@ _node_policy_attachments_resource = [rolePolicyAttachment.RolepolicyattachmentBl
 } for s in [
     {name = "AmazonEKSWorkerNodePolicy", arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"},
     {name = "AmazonEC2ContainerRegistryReadOnly", arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"},
-    {name = "AmazonEKS-CNI-Policy", arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"}
+    #{name = "AmazonEKS-CNI-Policy", arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"}
 ]]
 
 _kms_resources = []
@@ -210,4 +212,41 @@ _cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
         _updateConfig = _nodeGroupConfig.updateConfig
 }
 
-items = [_cluster_role_resource, _node_role_resource] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + [_eks_cluster_resource, _cluster_nodegroup_resource]
+_addons_cni_assume_role_policy = json.encode({
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow",
+        "Principal": {"Service": "pods.eks.amazonaws.com"},
+        "Action": [
+            "sts:AssumeRole",
+            "sts:TagSession"
+        ]
+    }]
+})
+
+
+_cluster_addons_resource = eksAddon.AddonBlueprint {
+    _name = "addon-eks-pod-identity-agent-${_id}"
+
+
+    _providerConfig = _providerConfig
+    _addonName = "eks-pod-identity-agent"
+    _addonVersion = "latest" # Reemplazar valor
+    _clusterNameSelector = {
+        matchControllerRef = True
+    }
+    _region = _region
+    _resolveConflicts = "OVERWRITE"
+    _tags = _tags | {
+        Name = _name
+    }
+}
+
+items = [
+    _cluster_role_resource, 
+    _node_role_resource
+] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + [
+    _eks_cluster_resource, 
+    _cluster_nodegroup_resource,
+    _cluster_addons_resource
+]
