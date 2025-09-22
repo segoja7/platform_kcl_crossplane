@@ -22,7 +22,7 @@ _endpointPrivateAccess = observed_xr.spec.endpointPrivateAccess or True
 _networkId = observed_xr.spec.networkId 
 _clusterVersion = observed_xr.spec.clusterVersion
 _nodeGroupConfig = observed_xr.spec.nodeGroup or {}
-#_addons = observed_xr.spec.addons or []
+_addonsConfig = observed_xr.spec.addons or []
 
 _cluster_assume_role_policy = json.encode({
     "Version": "2012-10-17",
@@ -226,21 +226,19 @@ _addons_cni_assume_role_policy = json.encode({
 
 
 _cluster_addons_resource = eksAddon.AddonBlueprint {
-    _name = "addon-eks-pod-identity-agent-${_id}"
-
-
+    _name = "addon-${s.name}-${_id}"
     _providerConfig = _providerConfig
-    _addonName = "eks-pod-identity-agent"
-    _addonVersion = "Latest"
+    _addonName = s.name
+    _addonVersion = s.version
     _clusterNameSelector = {
         matchControllerRef = True
     }
     _region = _region
-    _resolveConflicts = "OVERWRITE"
+    _resolveConflicts = s.resolveConflicts
     _tags = _tags | {
         Name = _name
     }
-}
+} for s in _addonsConfig 
 
 items = [
     _cluster_role_resource, 
