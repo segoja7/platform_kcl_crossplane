@@ -224,22 +224,27 @@ _addons_vpc_cni_assume_role_policy = json.encode({
     }]
 })
 
-_addons_vpc_cni_role_resource = role.RoleBlueprint {
-    _name = "role-addon-vpc-cni-cluster-${_id}"
-    _providerConfig = _providerConfig
-    _assumeRolePolicyDocument = _addons_cni_assume_role_policy
-    _description = "role-addon-vpc-cni-cluster"
-    _tags = _tags | {
-        Name = _name
-    }
-}
+# --- Logic for VPC CNI IAM Role and Policy Attachment ---
+_cni_addon_config = [s for s in _addonsConfig if s.name == "vpc-cni"]
+_cni_resources = []
+_cni_role_resource_name = "role-addon-vpc-cni-cluster-${_id}"
 
-_addons_vpc_cni_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
-    _name = "policy-addon-vpc-cni-cluster-${_id}"
-    _providerConfig = _providerConfig
-    _roleName = _addons_vpc_cni_role_resource._name
-    _policyArn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-}
+if len(_cni_addon_config) > 0:
+    _addons_vpc_cni_role_resource = role.RoleBlueprint {
+        _name = _cni_role_resource_name
+        _providerConfig = _providerConfig
+        _assumeRolePolicyDocument = _addons_vpc_cni_assume_role_policy
+        _description = "Role for VPC CNI addon"
+        _tags = _tags | { Name = _name }
+    }
+    _cni_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
+        _name = "vpc-cni-policy-attachment-${_id}".lower()
+        _providerConfig = _providerConfig
+        _roleName = _cni_role_resource_name
+        _policyArn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+    }
+    _cni_resources = [_addons_vpc_cni_role_resource, _cni_policy_attachment_resource]
+
 
 _cluster_addons_resource = [ eksAddon.AddonBlueprint {
     _name = "addon-${s.name}-${_id}"
@@ -247,6 +252,11 @@ _cluster_addons_resource = [ eksAddon.AddonBlueprint {
     _addonName = s.name
     if "version" in s and s.version != None:
         _addonVersion = s.version
+
+    # Conditionally add the role ARN for the vpc-cni addon
+    if s.name == "vpc-cni" and len(_cni_addon_config) > 0:
+        _serviceAccountRoleARN = "arn:aws:iam::${_accountId}:role/${_cni_role_resource_name}"
+
     _clusterNameSelector = {
         matchControllerRef = True
     }
@@ -261,9 +271,7 @@ _cluster_addons_resource = [ eksAddon.AddonBlueprint {
 
 items = [
     _cluster_role_resource, 
-    _node_role_resource
-] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + [
+    _node_role_resource,
     _eks_cluster_resource, 
-] + _cluster_addons_resource + [
     _cluster_nodegroup_resource
-]
+] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource
