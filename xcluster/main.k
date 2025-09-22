@@ -225,7 +225,7 @@ _addons_cni_assume_role_policy = json.encode({
 })
 
 
-_cluster_addons_resource = eksAddon.AddonBlueprint {
+_cluster_addons_resource = [ eksAddon.AddonBlueprint {
     _name = "addon-${s.name}-${_id}"
     _providerConfig = _providerConfig
     _addonName = s.name
@@ -236,9 +236,10 @@ _cluster_addons_resource = eksAddon.AddonBlueprint {
     _region = _region
     _resolveConflicts = s.resolveConflicts
     _tags = _tags | {
-        Name = _name
+        Name = "addon-${s.name}-${_id}"
     }
-} for s in _addonsConfig 
+} for s in _addonsConfig
+]
 
 items = [
     _cluster_role_resource, 
