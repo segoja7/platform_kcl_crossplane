@@ -212,7 +212,7 @@ _cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
         _updateConfig = _nodeGroupConfig.updateConfig
 }
 
-_addons_cni_assume_role_policy = json.encode({
+_addons_vpc_cni_assume_role_policy = json.encode({
     "Version": "2012-10-17",
     "Statement": [{
         "Effect": "Allow",
@@ -224,6 +224,22 @@ _addons_cni_assume_role_policy = json.encode({
     }]
 })
 
+_addons_vpc_cni_role_resource = role.RoleBlueprint {
+    _name = "role-addon-vpc-cni-cluster-${_id}"
+    _providerConfig = _providerConfig
+    _assumeRolePolicyDocument = _addons_cni_assume_role_policy
+    _description = "role-addon-vpc-cni-cluster"
+    _tags = _tags | {
+        Name = _name
+    }
+}
+
+_addons_vpc_cni_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
+    _name = "policy-addon-vpc-cni-cluster-${_id}"
+    _providerConfig = _providerConfig
+    _roleName = _addons_vpc_cni_role_resource._name
+    _policyArn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+}
 
 _cluster_addons_resource = [ eksAddon.AddonBlueprint {
     _name = "addon-${s.name}-${_id}"
@@ -248,5 +264,6 @@ items = [
     _node_role_resource
 ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + [
     _eks_cluster_resource, 
-    _cluster_nodegroup_resource,
-] + _cluster_addons_resource
+] + _cluster_addons_resource + [
+    _cluster_nodegroup_resource
+]
