@@ -231,7 +231,7 @@ _cluster_addons_resource = eksAddon.AddonBlueprint {
 
     _providerConfig = _providerConfig
     _addonName = "eks-pod-identity-agent"
-    _addonVersion = "latest" # Reemplazar valor
+    _addonVersion = "Latest"
     _clusterNameSelector = {
         matchControllerRef = True
     }
