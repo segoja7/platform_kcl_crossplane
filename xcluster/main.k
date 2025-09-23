@@ -275,6 +275,18 @@ _cluster_addons_resource = [ eksAddon.AddonBlueprint {
 } for s in _addonsConfig
 ]
 
+_providerconfig_helm_resource = resources.providerConfigHelm {
+    _name = "provider-helm-${_id}"
+    _credentials = {
+        source = "Secret"
+        secretRef = {
+            namespace = _eks_cluster_resource.writeConnectionSecretToRef.namespace
+            name = _eks_cluster_resource.writeConnectionSecretToRef.name
+            key = "kubeconfig"
+        }
+    }
+}
+
 items = [
     _cluster_role_resource, 
     _node_role_resource,
