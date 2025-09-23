@@ -10,6 +10,7 @@ schema ProviderconfigBlueprint(providerconfig_schema.Providerconfig):
     _name: str
     _namespace?: str
     _labels?: {str:str}
+    _annotations?: {str:str}
     _credentials: providerconfig_schema.ProviderconfigspecCredentials
     _identity?: providerconfig_schema.ProviderconfigspecIdentity
 
@@ -18,6 +19,7 @@ schema ProviderconfigBlueprint(providerconfig_schema.Providerconfig):
         name = _name
         namespace = _namespace
         labels = _labels
+        annotations = _annotations
     }
     spec = {
         credentials = _credentials
@@ -30,7 +32,11 @@ schema ProviderconfigBlueprint(providerconfig_schema.Providerconfig):
 #     ProviderconfigBlueprint {
 #         _name = "example-value" # Reemplazar valor
 #         _namespace = "example-value" # Reemplazar valor
-#         _labels = {
+#  ]       _labels = {
+#             Name = "example-name"
+#             Environment = "development"
+#         } # Reemplazar valor
+#         _annotations = {
 #             Name = "example-name"
 #             Environment = "development"
 #         } # Reemplazar valor
@@ -41,4 +47,4 @@ schema ProviderconfigBlueprint(providerconfig_schema.Providerconfig):
 #             # Configure object fields as needed
 #         } # Reemplazar valor
 #     }
-# ]
+# 
