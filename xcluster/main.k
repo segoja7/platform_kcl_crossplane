@@ -6,6 +6,7 @@ import schemas.kmsAlias as kmsAlias
 import schemas.eksCluster as eksCluster
 import schemas.eksNodeGroup as eksNodegroup
 import schemas.eksAddon as eksAddon
+import schemas.providerConfigHelm as providerConfigHelm
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
@@ -275,7 +276,7 @@ _cluster_addons_resource = [ eksAddon.AddonBlueprint {
 } for s in _addonsConfig
 ]
 
-_providerconfig_helm_resource = resources.providerConfigHelm {
+_providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
     _name = "provider-helm-${_id}"
     _credentials = {
         source = "Secret"
