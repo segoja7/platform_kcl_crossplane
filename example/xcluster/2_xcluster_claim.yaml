@@ -48,6 +48,7 @@ spec:
      resolveConflicts: "OVERWRITE"
    - name: coredns
     #  version: "latest"
+     resolveConflicts: "OVERWRITE"
    - name: kube-proxy
     #  version: "latest"
      resolveConflicts: "OVERWRITE"

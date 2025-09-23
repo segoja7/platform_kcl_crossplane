@@ -254,8 +254,8 @@ _cluster_addons_resource = [ eksAddon.AddonBlueprint {
         _addonVersion = s.version
 
     # Conditionally add the role ARN for the vpc-cni addon
-    if s.name == "vpc-cni" and len(_cni_addon_config) > 0:
-        _serviceAccountRoleARN = "arn:aws:iam::${_accountId}:role/${_cni_role_resource_name}"
+    # if s.name == "vpc-cni" and len(_cni_addon_config) > 0:
+    #     _serviceAccountRoleARN = "arn:aws:iam::${_accountId}:role/${_cni_role_resource_name}"
 
     _clusterNameSelector = {
         matchControllerRef = True
