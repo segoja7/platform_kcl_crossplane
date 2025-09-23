@@ -23,6 +23,7 @@ _networkId = observed_xr.spec.networkId
 _clusterVersion = observed_xr.spec.clusterVersion
 _nodeGroupConfig = observed_xr.spec.nodeGroup or {}
 _addonsConfig = observed_xr.spec.addons or []
+_labels = {"claim-name" = _id}
 
 _cluster_assume_role_policy = json.encode({
     "Version": "2012-10-17",
@@ -145,6 +146,7 @@ if _encryptCluster == True:
 
 _eks_cluster_resource = eksCluster.ClusterBlueprint {
     _name = "eks-cluster-${_id}"
+    _labels = _labels
     _region = _region
     _providerConfig = _providerConfig
     _accessConfig = {

@@ -2,9 +2,9 @@
 apiVersion: segoja7.example/v1alpha1
 kind: XCLUSTER
 metadata:
-  name: xcluster-example
+  name: xcluster-example-segoja7
 spec:
-  id: xcluster-example
+  id: xcluster-example-segoja7
   region: us-east-1
   providerConfigName: segoja7
   tags:
