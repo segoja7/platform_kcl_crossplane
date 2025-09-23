@@ -281,8 +281,8 @@ _providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
     _credentials = {
         source = "Secret"
         secretRef = {
-            namespace = _eks_cluster_resource.writeConnectionSecretToRef.namespace
-            name = _eks_cluster_resource.writeConnectionSecretToRef.name
+            namespace = _eks_cluster_resource._writeConnectionSecretToRef.namespace
+            name = _eks_cluster_resource._writeConnectionSecretToRef.name
             key = "kubeconfig"
         }
     }
