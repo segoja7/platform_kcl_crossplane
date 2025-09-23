@@ -148,7 +148,7 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
     _name = "eks-cluster-${_id}"
     _labels = _labels
     _region = _region
-    _providerConfig = _providerConfig
+    _providerConfigRef = _providerConfig
     _accessConfig = {
         authenticationMode: _authenticationMode
     }
