@@ -180,6 +180,10 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
     }
     _tags = _tags | {Name = _name}
     _version = _clusterVersion
+    _writeConnectionSecretToRef = {
+        name = _name
+        namespace = "default"
+    }  
 }
 
 
