@@ -292,4 +292,6 @@ items = [
     _node_role_resource,
     _eks_cluster_resource, 
     _cluster_nodegroup_resource
-] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource
+] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
+    _providerconfig_helm_resource
+]
