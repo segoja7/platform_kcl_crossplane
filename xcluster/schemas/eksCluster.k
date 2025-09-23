@@ -10,9 +10,9 @@ schema ClusterBlueprint(cluster_schema.Cluster):
     _name: str
     _namespace?: str
     _labels?: {str:str}
+    _providerConfig: str
     _deletionPolicy?: "Orphan" | "Delete"
     _managementPolicies?: ["Observe" | "Create" | "Update" | "Delete" | "LateInitialize" | "*"]
-    _providerConfigRef?: cluster_schema.ClusterspecProviderconfigref
     _publishConnectionDetailsTo?: cluster_schema.ClusterspecPublishconnectiondetailsto
     _writeConnectionSecretToRef?: cluster_schema.ClusterspecWriteconnectionsecrettoref
     _accessConfig?: cluster_schema.ClusterspecforproviderAccessconfig
@@ -37,7 +37,6 @@ schema ClusterBlueprint(cluster_schema.Cluster):
     spec = {
         deletionPolicy = _deletionPolicy
         managementPolicies = _managementPolicies
-        providerConfigRef = _providerConfigRef
         publishConnectionDetailsTo = _publishConnectionDetailsTo
         writeConnectionSecretToRef = _writeConnectionSecretToRef
         forProvider = {
@@ -54,6 +53,7 @@ schema ClusterBlueprint(cluster_schema.Cluster):
             tags = _tags if _tags else {}
             version = _version
         }
+        providerConfigRef.name = _providerConfig
     }
 
 # --- Ejemplo de Uso ---
@@ -66,11 +66,9 @@ schema ClusterBlueprint(cluster_schema.Cluster):
 #             Name = "example-name"
 #             Environment = "development"
 #         } # Reemplazar valor
+#         _providerConfig = "example-value" # Reemplazar valor
 #         _deletionPolicy = "example-value" # Reemplazar valor
 #         _managementPolicies = [] # Reemplazar valor
-#         _providerConfigRef = {
-#             name = "example-resource-name"
-#         } # Reemplazar valor
 #         _publishConnectionDetailsTo = {
 #             # Configure object fields as needed
 #         } # Reemplazar valor
