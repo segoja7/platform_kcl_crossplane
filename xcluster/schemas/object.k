@@ -12,15 +12,15 @@ schema ObjectBlueprint(object_schema.Object):
     _labels?: {str:str}
     _annotations?: {str:str}
     _providerConfig: str
-    _connectionDetails?: [ObjectspecConnectiondetailsitem]
+    _connectionDetails?: [object_schema.ObjectspecConnectiondetailsitem]
     _deletionPolicy?: "Orphan" | "Delete"
     _managementPolicy?: "Default" | "ObserveCreateUpdate" | "ObserveDelete" | "Observe"
     _providerRef?: object_schema.ObjectspecProviderref
     _readiness?: object_schema.ObjectspecReadiness
-    _references?: [ObjectspecReferencesitem]
+    _references?: [object_schema.ObjectspecReferencesitem]
     _watch?: bool
     _writeConnectionSecretToRef?: object_schema.ObjectspecWriteconnectionsecrettoref
-    _manifest: object_schema.any
+    _manifest: any
 
     # Lógica de mapeo de parámetros simples a la estructura compleja
     metadata = {
@@ -46,35 +46,40 @@ schema ObjectBlueprint(object_schema.Object):
 
 # --- Ejemplo de Uso ---
 # Descomenta y ajusta los valores para usar este Blueprint en tu archivo 'main.k'.
-# items = [
-#     ObjectBlueprint {
-#         _name = "example-value" # Reemplazar valor
-#         _namespace = "example-value" # Reemplazar valor
-#         _labels = {
-#             Name = "example-name"
-#             Environment = "development"
-#         } # Reemplazar valor
-#         _annotations = {
-#             Name = "example-name"
-#             Environment = "development"
-#         } # Reemplazar valor
-#         _providerConfig = "example-value" # Reemplazar valor
-#         _connectionDetails = [] # Reemplazar valor
-#         _deletionPolicy = "example-value" # Reemplazar valor
-#         _managementPolicy = "example-value" # Reemplazar valor
-#         _providerRef = {
-#             name = "example-resource-name"
-#         } # Reemplazar valor
-#         _readiness = {
-#             # Configure object fields as needed
-#         } # Reemplazar valor
-#         _references = [] # Reemplazar valor
-#         _watch = True # Reemplazar valor
-#         _writeConnectionSecretToRef = {
-#             name = "example-resource-name"
-#         } # Reemplazar valor
-#         _manifest = {
-#             # Configure object fields as needed
-#         } # Reemplazar valor
-#     }
-# ]
+items = [
+    ObjectBlueprint {
+        _name = "example-value" # Reemplazar valor
+        _namespace = "example-value" # Reemplazar valor
+        _labels = {
+            Name = "example-name"
+            Environment = "development"
+        } # Reemplazar valor
+        _annotations = {
+            Name = "example-name"
+            Environment = "development"
+        } # Reemplazar valor
+        _providerConfig = "example-value" # Reemplazar valor
+        _connectionDetails = [] # Reemplazar valor
+        # _deletionPolicy = "example-value" # Reemplazar valor
+        # _managementPolicy = "example-value" # Reemplazar valor
+        _providerRef = {
+            name = "example-resource-name"
+        } # Reemplazar valor
+        _readiness = {
+            # Configure object fields as needed
+        } # Reemplazar valor
+        _references = [] # Reemplazar valor
+        _watch = True # Reemplazar valor
+        # _writeConnectionSecretToRef = {
+        #     name = "example-resource-name"
+        # } # Reemplazar valor
+        _manifest = {
+            apiVersion = "v1"
+            kind = "Namespace"
+            metadata = {
+                name = "example-namespace"
+                labels = _labels
+            }
+        }
+    }
+]
