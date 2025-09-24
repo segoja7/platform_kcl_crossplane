@@ -310,7 +310,7 @@ _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlu
 
 _kubernetes_object_resource = object.ObjectBlueprint {
     _name = "example-object-${_id}"
-    _providerConfig = "provider-kubernetes-${_id}"
+    _providerConfig = _providerconfig_kubernetes_resource._name
     _manifest = {
         apiVersion = "v1"
         kind = "Namespace"
