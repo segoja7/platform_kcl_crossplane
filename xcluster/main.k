@@ -277,20 +277,20 @@ _cluster_addons_resource = [ eksAddon.AddonBlueprint {
 } for s in _addonsConfig
 ]
 
-_providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
-    _name = "provider-helm-${_id}"
-    _annotations = {
-        "krm.kcl.dev/ready": "True"
-    }
-    _credentials = {
-        source = "Secret"
-        secretRef = {
-            namespace = _eks_cluster_resource._writeConnectionSecretToRef.namespace
-            name = _eks_cluster_resource._writeConnectionSecretToRef.name
-            key = "kubeconfig"
-        }
-    }
-}
+# _providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
+#     _name = "provider-helm-${_id}"
+#     _annotations = {
+#         "krm.kcl.dev/ready": "True"
+#     }
+#     _credentials = {
+#         source = "Secret"
+#         secretRef = {
+#             namespace = _eks_cluster_resource._writeConnectionSecretToRef.namespace
+#             name = _eks_cluster_resource._writeConnectionSecretToRef.name
+#             key = "kubeconfig"
+#         }
+#     }
+# }
 
 _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlueprint {
     _name = "provider-kubernetes-${_id}"
