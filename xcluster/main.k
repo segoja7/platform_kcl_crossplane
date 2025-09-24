@@ -8,6 +8,7 @@ import schemas.eksNodeGroup as eksNodegroup
 import schemas.eksAddon as eksAddon
 import schemas.providerConfigHelm as providerConfigHelm
 import schemas.providerConfigKubernetes as providerConfigKubernetes
+import schemas.object as object
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
@@ -307,6 +308,19 @@ _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlu
     }
 }
 
+_kubernetes_object_resource = object.ObjectBlueprint {
+    _name = "example-object-${_id}"
+    _providerConfig = "provider-kubernetes-${_id}"
+    _manifest = {
+        apiVersion = "v1"
+        kind = "Namespace"
+        metadata = {
+            name = "example-namespace-${_id}"
+            labels = _labels
+        }
+    }
+}
+
 items = [
     _cluster_role_resource, 
     _node_role_resource,
@@ -314,5 +328,6 @@ items = [
     _cluster_nodegroup_resource
 ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
     #_providerconfig_helm_resource,
-    _providerconfig_kubernetes_resource
+    _providerconfig_kubernetes_resource,
+    _kubernetes_object_resource
 ]
