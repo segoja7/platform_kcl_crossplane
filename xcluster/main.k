@@ -7,6 +7,7 @@ import schemas.eksCluster as eksCluster
 import schemas.eksNodeGroup as eksNodegroup
 import schemas.eksAddon as eksAddon
 import schemas.providerConfigHelm as providerConfigHelm
+import schemas.providerConfigKubernetes as providerConfigKubernetes
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
@@ -291,11 +292,27 @@ _providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
     }
 }
 
+_providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlueprint {
+    _name = "provider-kubernetes-${_id}"
+    _annotations = {
+        "krm.kcl.dev/ready": "True"
+    }
+    _credentials = {
+        source = "Secret"
+        secretRef = {
+            namespace = _eks_cluster_resource._writeConnectionSecretToRef.namespace
+            name = _eks_cluster_resource._writeConnectionSecretToRef.name
+            key = "kubeconfig"
+        }
+    }
+}
+
 items = [
     _cluster_role_resource, 
     _node_role_resource,
     _eks_cluster_resource, 
     _cluster_nodegroup_resource
 ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
-    _providerconfig_helm_resource
+    _providerconfig_helm_resource,
+    _providerconfig_kubernetes_resource
 ]
