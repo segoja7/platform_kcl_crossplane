@@ -331,3 +331,4 @@ items = [
     _providerconfig_kubernetes_resource,
     _kubernetes_object_resource
 ]
+
