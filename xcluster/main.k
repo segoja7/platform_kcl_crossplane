@@ -9,6 +9,7 @@ import schemas.eksAddon as eksAddon
 import schemas.providerConfigHelm as providerConfigHelm
 import schemas.providerConfigKubernetes as providerConfigKubernetes
 import schemas.object as object
+import schemas.release as release
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
@@ -278,23 +279,8 @@ _cluster_addons_resource = [ eksAddon.AddonBlueprint {
 } for s in _addonsConfig
 ]
 
-# _providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
-#     _name = "provider-helm-${_id}"
-#     _annotations = {
-#         "krm.kcl.dev/ready": "True"
-#     }
-#     _credentials = {
-#         source = "Secret"
-#         secretRef = {
-#             namespace = _eks_cluster_resource._writeConnectionSecretToRef.namespace
-#             name = _eks_cluster_resource._writeConnectionSecretToRef.name
-#             key = "kubeconfig"
-#         }
-#     }
-# }
-
-_providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlueprint {
-    _name = "provider-kubernetes-${_id}"
+_providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
+    _name = "provider-helm-${_id}"
     _annotations = {
         "krm.kcl.dev/ready": "True"
     }
@@ -308,18 +294,46 @@ _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlu
     }
 }
 
-_kubernetes_object_resource = object.ObjectBlueprint {
-    _name = "example-object-${_id}"
-    _providerConfig = _providerconfig_kubernetes_resource._name
-    _manifest = {
-        apiVersion = "v1"
-        kind = "Namespace"
-        metadata = {
-            name = "example-namespace-${_id}"
-            labels = _labels
-        }
+_release_helm_resource = release.ReleaseBlueprint {
+    _name = "release-helm-argocd-${_id}"
+    _providerConfig = _providerconfig_helm_resource._name
+    _chart = {
+        name = "argo-cd"
+        repository = "https://argoproj.github.io/argo-helm"
+        version = "7.9.0"
     }
+    _namespace = "argocd"
+
 }
+
+# _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlueprint {
+#     _name = "provider-kubernetes-${_id}"
+#     _annotations = {
+#         "krm.kcl.dev/ready": "True"
+#     }
+#     _credentials = {
+#         source = "Secret"
+#         secretRef = {
+#             namespace = _eks_cluster_resource._writeConnectionSecretToRef.namespace
+#             name = _eks_cluster_resource._writeConnectionSecretToRef.name
+#             key = "kubeconfig"
+#         }
+#     }
+# }
+
+# _kubernetes_ns_object_resource = object.ObjectBlueprint {
+#     _name = "example-object-${_id}"
+#     _providerConfig = _providerconfig_kubernetes_resource._name
+#     _manifest = {
+#         apiVersion = "v1"
+#         kind = "Namespace"
+#         metadata = {
+#             name = "argocd"
+#             labels = _labels
+#         }
+#     }
+#}
+
 
 items = [
     _cluster_role_resource, 
@@ -328,7 +342,8 @@ items = [
     _cluster_nodegroup_resource
 ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
     #_providerconfig_helm_resource,
-    _providerconfig_kubernetes_resource,
-    _kubernetes_object_resource
+    _release_helm_resource,
+    # _providerconfig_kubernetes_resource,
+    # _kubernetes_ns_object_resource
 ]
 
