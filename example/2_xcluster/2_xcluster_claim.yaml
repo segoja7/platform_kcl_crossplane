@@ -1,0 +1,54 @@
+# example/claim-eks.yaml
+apiVersion: segoja7.example/v1alpha1
+kind: XCLUSTER
+metadata:
+  name: xcluster-example-segoja7
+spec:
+  id: xcluster-example-segoja7
+  region: us-east-1
+  providerConfigName: segoja7
+  tags:
+    owner: "platform-team"
+    environment: "development"
+    project: "proyecto"
+    managed-by: "crossplane"
+  accountId: "476114125818"
+  encryptCluster: false
+  authenticationMode: "API_AND_CONFIG_MAP"
+  logging:
+    - "api" 
+    - "audit"
+    - "authenticator"
+    - "controllerManager"
+    - "scheduler"
+  endpointPublicAccess: true
+  endpointPrivateAccess: true
+  publicAccessCidrs: 
+    - "0.0.0.0/0"
+  networkId: "xnetwork-example"
+  clusterVersion: "1.33"
+  nodeGroup:
+    amiType: ""
+    capacityType: "SPOT"
+    diskSize: 20
+    instanceTypes: 
+     - "t3.medium"
+    minSize: 1
+    maxSize: 3
+    desiredSize: 1
+    updateConfig:
+      maxUnavailablePercentage: 25
+      force: true
+  addons:
+   - name: eks-pod-identity-agent
+     version: "v1.3.8-eksbuild.2"
+     resolveConflicts: "OVERWRITE"
+   - name: vpc-cni
+    #  version: "latest"
+     resolveConflicts: "OVERWRITE"
+   - name: coredns
+    #  version: "latest"
+     resolveConflicts: "OVERWRITE"
+   - name: kube-proxy
+    #  version: "latest"
+     resolveConflicts: "OVERWRITE"

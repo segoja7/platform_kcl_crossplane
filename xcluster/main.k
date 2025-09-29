@@ -294,17 +294,17 @@ _providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
     }
 }
 
-_release_helm_resource = release.ReleaseBlueprint {
-    _name = "release-helm-argocd-${_id}"
-    _providerConfig = _providerconfig_helm_resource._name
-    _chart = {
-        name = "argo-cd"
-        repository = "https://argoproj.github.io/argo-helm"
-        version = "7.9.0"
-    }
-    _namespace = "argocd"
+# _release_helm_resource = release.ReleaseBlueprint {
+#     _name = "release-helm-argocd-${_id}"
+#     _providerConfig = _providerconfig_helm_resource._name
+#     _chart = {
+#         name = "argo-cd"
+#         repository = "https://argoproj.github.io/argo-helm"
+#         version = "7.9.0"
+#     }
+#     _namespace = "argocd"
 
-}
+# }
 
 # _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlueprint {
 #     _name = "provider-kubernetes-${_id}"
@@ -341,8 +341,8 @@ items = [
     _eks_cluster_resource, 
     _cluster_nodegroup_resource
 ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
-    #_providerconfig_helm_resource,
-    _release_helm_resource,
+    _providerconfig_helm_resource,
+    #_release_helm_resource,
     # _providerconfig_kubernetes_resource,
     # _kubernetes_ns_object_resource
 ]
