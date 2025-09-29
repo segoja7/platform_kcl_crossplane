@@ -29,7 +29,7 @@ spec:
   clusterVersion: "1.33"
   nodeGroup:
     amiType: ""
-    capacityType: "SPOT"
+    capacityType: "ON_DEMAND"
     diskSize: 20
     instanceTypes: 
      - "t3.medium"
