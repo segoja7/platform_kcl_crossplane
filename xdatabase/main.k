@@ -66,4 +66,4 @@ _rds_sg_resource = securityGroup.SecuritygroupBlueprint {
     }
 }
 
-items = [_db_subnet_group_resource] + _rds_sg_resource
+items = [_db_subnet_group_resource, _rds_sg_resource]
