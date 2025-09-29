@@ -26,13 +26,13 @@ spec:
     dbInstanceClass: db.t3.micro
     dbName: exampledb
     engine: postgres
-    rdsEngineVersion: "17"
+    engineVersion: "17"
     masterUsername: adminuser
     maxAllocatedStorage: 30    
     multiAZ: false
     networkType: IPv4
     storageEncrypted: false
     publiclyAccessible: false
-    skipFinalSnapshotBeforeDeletion: true
+    skipFinalSnapshot: true
     storageType: gp3
     
