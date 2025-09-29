@@ -3,3 +3,4 @@
 **.test
 test/
 diagram_map.yaml
+py*
