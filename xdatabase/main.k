@@ -9,6 +9,7 @@ _region = observed_xr.spec.region
 _providerConfig = observed_xr.spec.providerConfigName or "default"
 _tags = observed_xr.spec.tags or {}
 _networkId = observed_xr.spec.networkId
+_labels = {"claim-name" = _id}
 rdsport = observed_xr.spec.rdsport
 ipRanges = observed_xr.spec.ipRanges 
 
