@@ -342,7 +342,7 @@ items = [
     _cluster_nodegroup_resource
 ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
     _providerconfig_helm_resource,
-    #_release_helm_resource,
+    _release_helm_resource,
     # _providerconfig_kubernetes_resource,
     # _kubernetes_ns_object_resource
 ]
