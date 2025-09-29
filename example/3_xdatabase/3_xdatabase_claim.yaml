@@ -14,8 +14,25 @@ spec:
     managed-by: "crossplane"
   networkId: "xnetwork-example"
   rdsport: 5432
-  ipRanges:
+  ipRanges: #todo add SecurityGroupRule
     - cidrIp: "0.0.0.0/0"
       description: "Allow all traffic"
     - cidrIp: "10.0.0.0/16"
       description: "Allow traffic from 10.0.0.0/16"
+  rdsDatabase: #TODO implement encryption with KMS, parameter group
+    allocatedStorage: 20
+    availabilityZone: us-east-1a
+    copyTagsToSnapshot: false
+    dbInstanceClass: db.t3.micro
+    dbName: exampledb
+    engine: postgres
+    rdsEngineVersion: "17"
+    masterUsername: adminuser
+    maxAllocatedStorage: 30    
+    multiAZ: false
+    networkType: IPv4
+    storageEncrypted: false
+    publiclyAccessible: false
+    skipFinalSnapshotBeforeDeletion: true
+    storageType: gp3
+    
