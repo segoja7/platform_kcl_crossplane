@@ -5,7 +5,7 @@ metadata:
 spec:
   group: segoja7.example
   names:
-    kind: Xdatabase
+    kind: XDATABASE
     plural: xdatabases
   versions:
   - name: v1alpha1
@@ -36,4 +36,4 @@ spec:
               networkId:
                 type: string
                 description: "ID of the network where the cluster will be deployed." 
-            required: ["id", "region", "accountId", "networkId"]
+            required: ["id", "region", "networkId"]

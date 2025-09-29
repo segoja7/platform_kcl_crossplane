@@ -1,8 +1,7 @@
-# configurations-eks/apis/composition.yaml
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: xdatabase.segoja7.example
+  name: xdatabases.segoja7.example
 spec:
   compositeTypeRef:
     apiVersion: segoja7.example/v1alpha1
