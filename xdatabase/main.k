@@ -18,7 +18,7 @@ _db_subnet_group_resource = dbSubnetGroup.DbsubnetgroupBlueprint {
     _subnetIdSelector = {
         matchLabels: {
             "claim-name": _networkId,
-            "subnet.type": "private"
+            "subnet.type": "database"
         }
     }
     _tags = _tags
