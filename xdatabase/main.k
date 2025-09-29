@@ -60,7 +60,7 @@ _rds_sg_resource = securityGroup.SecuritygroupBlueprint {
     _tags = _tags | { Name = _name }
     _vpcIdSelector = {
         matchControllerRef = True
-        matchLabels: {
+        matchLabels = {
             "claim-name": _networkId
         }
     }
