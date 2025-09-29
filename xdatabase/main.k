@@ -2,7 +2,7 @@ import json
 import schemas.dbSubnetGroup as dbSubnetGroup
 #import schemas.dbParamaterGroup as dbParamaterGroup
 import schemas.securityGroup as securityGroup
-import shcemas.dbInstance as dbInstance
+import schemas.dbInstance as dbInstance
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
