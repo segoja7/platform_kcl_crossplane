@@ -9,7 +9,6 @@ _region = observed_xr.spec.region
 _providerConfig = observed_xr.spec.providerConfigName or "default"
 _tags = observed_xr.spec.tags or {}
 _networkId = observed_xr.spec.networkId
-_labels = {"claim-name" = _id}
 rdsport = observed_xr.spec.rdsport
 ipRanges = observed_xr.spec.ipRanges 
 
@@ -59,7 +58,6 @@ _rds_sg_resource = securityGroup.SecuritygroupBlueprint {
     _region = _region
     _tags = _tags | { Name = _name }
     _vpcIdSelector = {
-        matchControllerRef = True
         matchLabels = {
             "claim-name": _networkId
         }
