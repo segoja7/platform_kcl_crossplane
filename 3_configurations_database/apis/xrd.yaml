@@ -36,4 +36,26 @@ spec:
               networkId:
                 type: string
                 description: "ID of the network where the cluster will be deployed." 
+              rdsport:
+                type: integer
+                description: "Port for the RDS instance."
+                default: 5432
+              ipRanges:
+                type: array
+                description: "List of IP ranges allowed to access the database."
+                items:
+                  type: object
+                  properties:
+                    cidrIp:
+                      type: string
+                      description: "CIDR IP range."
+                    description:
+                      type: string
+                      description: "Description for the IP range."
+                default: [
+                  {
+                    cidrIp: "0.0.0.0/0",
+                    description: "Allow all traffic"
+                  },
+                ]
             required: ["id", "region", "networkId"]

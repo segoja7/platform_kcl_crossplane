@@ -13,3 +13,9 @@ spec:
     project: "proyecto"
     managed-by: "crossplane"
   networkId: "xnetwork-example"
+  rdsport: 5432
+  ipRanges:
+    - cidrIp: "0.0.0.0/0"
+      description: "Allow all traffic"
+    - cidrIp: "10.0.0.0/16"
+      description: "Allow traffic from 10.0.0.0/16"
