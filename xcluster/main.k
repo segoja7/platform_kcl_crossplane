@@ -282,7 +282,7 @@ _cluster_addons_resource = [ eksAddon.AddonBlueprint {
 _providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
     _name = "provider-helm-${_id}"
     _annotations = {
-        "krm.kcl.dev/ready": "True"
+        "krm.kcl.dev/ready": True
     }
     _credentials = {
         source = "Secret"
