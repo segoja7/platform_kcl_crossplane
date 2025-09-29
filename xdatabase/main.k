@@ -133,4 +133,4 @@ _rds_instance_resource = dbInstance.DbinstanceBlueprint {
     }    
 }
 
-items = [_db_subnet_group_resource, _rds_sg_resource]
+items = [_db_subnet_group_resource, _rds_sg_resource, _rds_instance_resource]
