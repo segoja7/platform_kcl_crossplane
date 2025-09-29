@@ -1,0 +1,39 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xdatabases.segoja7.example
+spec:
+  group: segoja7.example
+  names:
+    kind: Xdatabase
+    plural: xdatabases
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              id:
+                type: string
+                description: "Unique ID for database and its resources."
+              region:
+                type: string
+                description: "AWS region for the database."
+              providerConfigName:
+                type: string
+                description: "Name of the ProviderConfig to use."
+                default: "default"
+              tags:
+                type: object
+                description: A map of tags to apply to all resources.
+                additionalProperties:
+                  type: string
+              networkId:
+                type: string
+                description: "ID of the network where the cluster will be deployed." 
+            required: ["id", "region", "accountId", "networkId"]

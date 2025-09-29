@@ -1,0 +1,15 @@
+# example/claim-eks.yaml
+apiVersion: segoja7.example/v1alpha1
+kind: XDATABASE
+metadata:
+  name: xdatabase-example-segoja7
+spec:
+  id: xdatabase-example-segoja7
+  region: us-east-1
+  providerConfigName: segoja7
+  tags:
+    owner: "platform-team"
+    environment: "development"
+    project: "proyecto"
+    managed-by: "crossplane"
+  networkId: "xnetwork-example"
