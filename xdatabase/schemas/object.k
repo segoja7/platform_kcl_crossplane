@@ -49,17 +49,17 @@ schema ObjectBlueprint(object_schema.Object):
 items = [
     ObjectBlueprint {
         _name = "example-value" # Reemplazar valor
-        _namespace = "example-value" # Reemplazar valor
-        _labels = {
-            Name = "example-name"
-            Environment = "development"
-        } # Reemplazar valor
-        _annotations = {
-            Name = "example-name"
-            Environment = "development"
-        } # Reemplazar valor
+        # _namespace = "example-value" # Reemplazar valor
+        # _labels = {
+        #     Name = "example-name"
+        #     Environment = "development"
+        # } # Reemplazar valor
+        # _annotations = {
+        #     Name = "example-name"
+        #     Environment = "development"
+        # } # Reemplazar valor
         _providerConfig = "example-value" # Reemplazar valor
-        _connectionDetails = [] # Reemplazar valor
+        # _connectionDetails = [] # Reemplazar valor
         # _deletionPolicy = "example-value" # Reemplazar valor
         # _managementPolicy = "example-value" # Reemplazar valor
         _providerRef = {
@@ -68,17 +68,29 @@ items = [
         _readiness = {
             # Configure object fields as needed
         } # Reemplazar valor
-        _references = [] # Reemplazar valor
-        _watch = True # Reemplazar valor
+        _references = [
+            {
+                patchesFrom = {
+                    apiVersion = "v1"
+                    kind = "Secret"
+                    name = "name-of-secret"
+                    namespace = "default"
+                    fieldPath = "data"
+                }
+                toFieldPath = "data"
+            }
+        ] # Reemplazar valor
+        # _watch = True # Reemplazar valor
         # _writeConnectionSecretToRef = {
         #     name = "example-resource-name"
         # } # Reemplazar valor
         _manifest = {
             apiVersion = "v1"
-            kind = "Namespace"
+            kind = "Secret"
             metadata = {
-                name = "example-namespace"
-                labels = _labels
+                name = "rds-credentials"
+                labels = {} # Reemplazar con labels apropiados
+                namespace = "default"
             }
         }
     }

@@ -148,17 +148,19 @@ _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlu
 _rds_instance_secret_resource = object.ObjectBlueprint {
     _name = "rds-credentials-${_id}"
     _references = [
-        patchesFrom{
-            apiVersion = "v1"
-            kind = "Secret"
-            name = _rds_instance_resource.spec.writeConnectionSecretToRef.name
-            namespace = _rds_instance_resource.spec.writeConnectionSecretToRef.namespace
-            fieldPath = "data"
+        {
+            patchesFrom = {
+                apiVersion = "v1"
+                kind = "Secret"
+                name = _rds_instance_resource.spec.writeConnectionSecretToRef.name
+                namespace = _rds_instance_resource.spec.writeConnectionSecretToRef.namespace
+                fieldPath = "data"
+            }
+            toFieldPath = "data"
         }
-        toFieldPath = "data"
     ]
-    forProvider = {
-        _manifest = {
+    
+    _manifest = {
             apiVersion = "v1"
             kind = "Secret"
             metadata = {
@@ -168,7 +170,6 @@ _rds_instance_secret_resource = object.ObjectBlueprint {
             type = "Opaque"
             data = {}
         }
-    }
     _providerConfig = _providerconfig_kubernetes_resource._name
 
 }
