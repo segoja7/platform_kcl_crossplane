@@ -8,6 +8,8 @@ import schemas.eksNodeGroup as eksNodegroup
 import schemas.eksAddon as eksAddon
 import schemas.providerConfigHelm as providerConfigHelm
 import schemas.release as release
+import schemas.providerConfigKubernetes as providerConfigKubernetes
+import schemas.object as object
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
@@ -302,10 +304,118 @@ _release_helm_resource = release.ReleaseBlueprint {
         version = "7.9.0"
     }
     _namespace = "argocd"
-
+    _values = {
+        "repoServer": {
+            "volumes": [
+                {
+                    "name": "kcl-binary",
+                    "emptyDir": {}
+                },
+                {
+                    "name": "kcl-plugin-config",
+                    "configMap": {
+                        "name": "kcl-plugin"
+                    }
+                }
+            ],
+            "initContainers": [
+                {
+                    "name": "install-kcl",
+                    "image": "kcllang/kcl:v0.11.3",
+                    "command": ["sh", "-c", "cp /usr/local/bin/kcl /kcl-binary/"],
+                    "volumeMounts": [
+                        {
+                            "name": "kcl-binary",
+                            "mountPath": "/kcl-binary"
+                        }
+                    ]
+                }
+            ],
+            "extraContainers": [
+                {
+                    "name": "kcl-plugin",
+                    "command": ["/var/run/argocd/argocd-cmp-server"],
+                    "image": "quay.io/argoproj/argocd:v2.14.11",
+                    "securityContext": {
+                        "runAsNonRoot": True,
+                        "runAsUser": 999
+                    },
+                    "volumeMounts": [
+                        {
+                            "mountPath": "/var/run/argocd",
+                            "name": "var-files"
+                        },
+                        {
+                            "mountPath": "/home/argocd/cmp-server/plugins",
+                            "name": "plugins"
+                        },
+                        {
+                            "mountPath": "/usr/local/bin/kcl",
+                            "name": "kcl-binary",
+                            "subPath": "kcl"
+                        },
+                        {
+                            "mountPath": "/home/argocd/cmp-server/config/plugin.yaml",
+                            "name": "kcl-plugin-config",
+                            "subPath": "plugin.yaml"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
 }
 
+_providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlueprint {
+    _name = "provider-kubernetes-${_id}"
+    _annotations = {
+        "krm.kcl.dev/ready": "True"
+    }
+    _credentials = {
+        source = "Secret"
+        secretRef = {
+            namespace = _eks_cluster_resource._writeConnectionSecretToRef.namespace
+            name = _eks_cluster_resource._writeConnectionSecretToRef.name
+            key = "kubeconfig"
+        }
+    }
+}
 
+_object_argo_cm_resource = object.ObjectBlueprint {
+    _name = "kcl-plugin-configmap"
+    _manifest = {
+        apiVersion = "v1"
+        kind = "ConfigMap"
+        metadata = {
+            name = "kcl-plugin"
+            namespace = "argocd"
+        }
+        data = {
+            "plugin.yaml": """apiVersion: argoproj.io/v1alpha1
+kind: ConfigManagementPlugin
+metadata:
+  name: kcl
+spec:
+  version: v1.0
+  generate:
+    command: ["sh", "-c"]
+    args:
+      - |
+        export KCL_CACHE_PATH=/tmp
+        export KCL_PKG_PATH=/tmp
+        tempfile=$(mktemp)
+        kcl run -q -o $tempfile > /dev/null 2>&1
+        error=$?
+        if [ $error -eq 0 ]; then
+          cat $tempfile
+          rm $tempfile
+        fi
+        exit $error
+"""
+        }
+    }
+    _providerConfig = _providerconfig_kubernetes_resource._name
+}
 
 items = [
     _cluster_role_resource, 
@@ -314,6 +424,8 @@ items = [
     _cluster_nodegroup_resource
 ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
     _providerconfig_helm_resource,
-    _release_helm_resource
+    _release_helm_resource,
+    _providerconfig_kubernetes_resource,
+    _object_argo_cm_resource
 ]
 
