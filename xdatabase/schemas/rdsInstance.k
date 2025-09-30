@@ -87,7 +87,7 @@ schema RdsinstanceBlueprint(rdsinstance_schema.Rdsinstance):
         labels = _labels
         annotations = _annotations
     }
-    spec = {`
+    spec = {
         deletionPolicy = _deletionPolicy
         managementPolicies = _managementPolicies
         publishConnectionDetailsTo = _publishConnectionDetailsTo
@@ -158,7 +158,7 @@ schema RdsinstanceBlueprint(rdsinstance_schema.Rdsinstance):
             vpcSecurityGroupIds = _vpcSecurityGroupIds
         }
         providerConfigRef.name = _providerConfig
-    }}
+    }
 
 # --- Ejemplo de Uso ---
 # Descomenta y ajusta los valores para usar este Blueprint en tu archivo 'main.k'.
