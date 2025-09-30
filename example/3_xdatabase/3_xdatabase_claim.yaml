@@ -19,7 +19,7 @@ spec:
       description: "Allow all traffic"
     - cidrIp: "10.0.0.0/16"
       description: "Allow traffic from 10.0.0.0/16"
-  rdsDatabase: #TODO implement encryption with KMS, parameter group
+  rdsDatabase: #TODO implement: encryption with KMS, parameter group
     allocatedStorage: 20
     availabilityZone: us-east-1a
     copyTagsToSnapshot: false
@@ -34,5 +34,5 @@ spec:
     publiclyAccessible: false
     skipFinalSnapshot: true
     storageType: gp3
-  clusterId: "xcluster-example-segoja7"
+  clusterId: "eks-cluster-xcluster-example" #ID of the cluster where the rds secret will be created
     
