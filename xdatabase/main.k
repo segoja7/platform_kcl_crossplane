@@ -100,9 +100,6 @@ _rds_instance_resource = rdsInstance.RdsinstanceBlueprint {
     _copyTagsToSnapshot = _rdsDatabaseConfig.copyTagsToSnapshot
     _dbInstanceClass = _rdsDatabaseConfig.dbInstanceClass
     _dbName = _rdsDatabaseConfig.dbName
-    # _dbParameterGroupNameSelector = {
-    #     matchControllerRef = True
-    # }
     _engine = _rdsDatabaseConfig.engine
     _engineVersion = _rdsDatabaseConfig.engineVersion
     _masterUsername = _rdsDatabaseConfig.masterUsername
@@ -118,9 +115,9 @@ _rds_instance_resource = rdsInstance.RdsinstanceBlueprint {
     _vpcSecurityGroupIDSelector = {
         matchControllerRef = True
     }
-    _dbParameterGroupNameSelector = {
-        matchControllerRef = True
-    }
+    # _dbParameterGroupNameSelector = {
+    #     matchControllerRef = True
+    # }
     _dbSubnetGroupNameSelector = {
         matchControllerRef = True
     }
