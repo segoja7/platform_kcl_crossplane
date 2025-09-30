@@ -56,8 +56,8 @@ _rds_sg_resource = securityGroup.SecuritygroupBlueprint {
     _providerConfig = _providerConfig
     _description = "Security Group for rds instance ${_id}"
     _egress = [{
-        fromPort = 0
-        toPort = 0
+        # fromPort = 0
+        # toPort = 0
         ipProtocol = "-1"
         ipRanges = [
             { 
