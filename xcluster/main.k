@@ -7,8 +7,6 @@ import schemas.eksCluster as eksCluster
 import schemas.eksNodeGroup as eksNodegroup
 import schemas.eksAddon as eksAddon
 import schemas.providerConfigHelm as providerConfigHelm
-import schemas.providerConfigKubernetes as providerConfigKubernetes
-import schemas.object as object
 import schemas.release as release
 
 observed_xr = option("params").oxr
@@ -284,6 +282,7 @@ _providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
     _annotations = {
         "krm.kcl.dev/ready": "True"
     }
+    _labels = _labels
     _credentials = {
         source = "Secret"
         secretRef = {
@@ -306,33 +305,6 @@ _release_helm_resource = release.ReleaseBlueprint {
 
 }
 
-# _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlueprint {
-#     _name = "provider-kubernetes-${_id}"
-#     _annotations = {
-#         "krm.kcl.dev/ready": "True"
-#     }
-#     _credentials = {
-#         source = "Secret"
-#         secretRef = {
-#             namespace = _eks_cluster_resource._writeConnectionSecretToRef.namespace
-#             name = _eks_cluster_resource._writeConnectionSecretToRef.name
-#             key = "kubeconfig"
-#         }
-#     }
-# }
-
-# _kubernetes_ns_object_resource = object.ObjectBlueprint {
-#     _name = "example-object-${_id}"
-#     _providerConfig = _providerconfig_kubernetes_resource._name
-#     _manifest = {
-#         apiVersion = "v1"
-#         kind = "Namespace"
-#         metadata = {
-#             name = "argocd"
-#             labels = _labels
-#         }
-#     }
-#}
 
 
 items = [
@@ -342,8 +314,6 @@ items = [
     _cluster_nodegroup_resource
 ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
     _providerconfig_helm_resource,
-    _release_helm_resource,
-    # _providerconfig_kubernetes_resource,
-    # _kubernetes_ns_object_resource
+    _release_helm_resource
 ]
 

@@ -34,4 +34,5 @@ spec:
     publiclyAccessible: false
     skipFinalSnapshot: true
     storageType: gp3
+  clusterId: "xcluster-example-segoja7"
     

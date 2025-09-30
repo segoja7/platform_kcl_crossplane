@@ -162,5 +162,7 @@ spec:
                     type: boolean
                     description: "Whether the database is publicly accessible."
                     default: false
-
+              clusterId:
+                type: string
+                description: "ID of the cluster where the rds secret will be created."
             required: ["id", "region", "networkId","rdsDatabase","ipRanges", "rdsport"]

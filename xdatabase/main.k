@@ -3,6 +3,8 @@ import schemas.dbSubnetGroup as dbSubnetGroup
 #import schemas.dbParamaterGroup as dbParamaterGroup
 import schemas.securityGroup as securityGroup
 import schemas.rdsInstance as rdsInstance
+import schemas.providerConfigKubernetes as providerConfigKubernetes
+import schemas.object as object
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
@@ -10,6 +12,7 @@ _region = observed_xr.spec.region
 _providerConfig = observed_xr.spec.providerConfigName or "default"
 _tags = observed_xr.spec.tags or {}
 _networkId = observed_xr.spec.networkId
+_clusterId = observed_xr.spec.clusterId
 _labels = {"claim-name" = _id}
 rdsport = observed_xr.spec.rdsport
 ipRanges = observed_xr.spec.ipRanges
@@ -126,5 +129,49 @@ _rds_instance_resource = rdsInstance.RdsinstanceBlueprint {
         name = "rds-credentials-${_id}" 
     }    
 }
+
+_providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlueprint {
+    _name = "provider-kubernetes-${_id}"
+    _annotations = {
+        "krm.kcl.dev/ready": "True"
+    }
+    _credentials = {
+        source = "Secret"
+        secretRef = {
+            namespace = "default"
+            name = "eks-cluster-${_clusterId}"
+            key = "kubeconfig"
+        }
+    }
+}
+
+_rds_instance_secret_resource = object.ObjectBlueprint {
+    _name = "rds-credentials-${_id}"
+    _references = [
+        {
+            apiVersion = "v1"
+            kind = "Secret"
+            name = _rds_instance_resource.spec.writeConnectionSecretToRef.name
+            namespace = _rds_instance_resource.spec.writeConnectionSecretToRef.namespace
+            fieldPath = "data"
+        }
+        toFieldPath = "data"
+    ]
+    _forProvider = {
+        manifest = {
+            apiVersion = "v1"
+            kind = "Secret"
+            metadata = {
+                name = "rds-credentials-${_id}"
+                namespace = "default"
+            }
+            type = "Opaque"
+            data = {}
+        }
+    }
+    _providerConfig = _providerconfig_kubernetes_resource._name
+
+}
+
 
 items = [_db_subnet_group_resource, _rds_sg_resource, _rds_instance_resource]
