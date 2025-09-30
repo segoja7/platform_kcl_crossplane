@@ -139,7 +139,7 @@ _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlu
         source = "Secret"
         secretRef = {
             namespace = "default"
-            name = "eks-cluster-${_clusterId}"
+            name = _clusterId
             key = "kubeconfig"
         }
     }
