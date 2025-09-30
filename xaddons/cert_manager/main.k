@@ -5,7 +5,7 @@ import schemas.podIdentityAssociation as podIdentityAssociation
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
 _region = observed_xr.spec.region
-_providerConfig = observed_xr.spec.providerConfigName or "default"
+_providerConfig = observed_xr.spec.providerConfigName
 _tags = observed_xr.spec.tags or {}
 _clusterId = observed_xr.spec.clusterId
 
@@ -41,7 +41,7 @@ _pod_identity_association_resource = podIdentityAssociation.Podidentityassociati
     _name = "pod-identity-association-cert-manager-${_id}"
     _clusterNameSelector = {
         matchLabels = {
-            "claim-name" = _clusterId
+            "claim-name": _clusterId
         }
     }
     _disableSessionTags = False
