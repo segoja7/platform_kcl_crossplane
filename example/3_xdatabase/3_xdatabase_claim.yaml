@@ -30,7 +30,6 @@ spec:
     masterUsername: adminuser
     maxAllocatedStorage: 30    
     multiAZ: false
-    networkType: IPv4
     storageEncrypted: false
     publiclyAccessible: false
     skipFinalSnapshot: true

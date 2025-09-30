@@ -158,10 +158,6 @@ spec:
                     type: string
                     description: "The type of storage to use."
                     default: "gp3"
-                  networkType:
-                    type: string
-                    description: "The network type to use."
-                    default: "IPv4"
                   publiclyAccessible:
                     type: boolean
                     description: "Whether the database is publicly accessible."
