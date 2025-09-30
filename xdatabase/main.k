@@ -2,7 +2,7 @@ import json
 import schemas.dbSubnetGroup as dbSubnetGroup
 #import schemas.dbParamaterGroup as dbParamaterGroup
 import schemas.securityGroup as securityGroup
-import schemas.dbInstance as dbInstance
+import schemas.rdsInstance as rdsInstance
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
@@ -89,7 +89,7 @@ _rds_sg_resource = securityGroup.SecuritygroupBlueprint {
 
 
 
-_rds_instance_resource = dbInstance.DbinstanceBlueprint {
+_rds_instance_resource = rdsInstance.RdsinstanceBlueprint {
     _name = "db-instance-${_id}"
     _labels = _labels
     _providerConfig = _providerConfig
