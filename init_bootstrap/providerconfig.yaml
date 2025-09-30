@@ -9,3 +9,15 @@ spec:
       namespace: crossplane-system
       name: aws-secrets
       key: creds
+---
+apiVersion: aws.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: segoja7-eks
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      key: creds
+      name: aws-secrets
+      namespace: crossplane-system
