@@ -13,6 +13,7 @@ import schemas.object as object
 import schemas.openIDConnectProvider as openidconnectprovider
 
 observed_xr = option("params").oxr
+observed_composed_resources = option("params").ocds or {}
 _id = observed_xr.spec.id
 _region = observed_xr.spec.region
 _providerConfig = observed_xr.spec.providerConfigName or "default"
@@ -418,22 +419,22 @@ spec:
     _providerConfig = _providerconfig_kubernetes_resource._name
 }
 
-_oidc_resource = openidconnectprovider.OpenidconnectproviderBlueprint {
-    _name = "openid-eks-${_id}"
-    _providerConfig = _providerConfig
-    _clientIDList = [
-        "sts.amazonaws.com"
-    ]
-    _thumbprintList = [
-        "63462dda480d8b900e0a7dbfaf6238a62ba4fce0" 
-    ]
-    _url = _eks_cluster_resource.status.identity.oidc.issuer.replace("https://", "")
-        
-    _tags = _tags | {
-        Name = _name
-    }
-}
+_oidc_resources = []
+observed_cluster_name = "eks-cluster-${_id}"
 
+oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.resource?.status?.atProvider?.identity[0]?.oidc[0]?.issuer or ""
+
+# Only create the OpenIDConnectProvider resource if the URL was successfully found.
+if oidc_issuer_url != "":
+    _oidc_resource = openidconnectprovider.OpenidconnectproviderBlueprint {
+        _name = "openid-eks-${_id}"
+        _providerConfig = _providerConfig
+        _clientIDList = [ "sts.amazonaws.com" ]
+        _thumbprintList = [ "63462dda480d8b900e0a7dbfaf6238a62ba4fce0" ]
+        _url = oidc_issuer_url.replace("https://", "")
+        _tags = _tags | { Name = _name }
+    }
+    _oidc_resources = [_oidc_resource]
 
 items = [
     _cluster_role_resource, 
@@ -444,7 +445,6 @@ items = [
     _providerconfig_helm_resource,
     _release_helm_resource,
     _providerconfig_kubernetes_resource,
-    _object_argo_cm_resource,
-    _oidc_resource
-]
+    _object_argo_cm_resource
+] + _oidc_resources
 
