@@ -39,11 +39,7 @@ _cert_manager_role_resource = role.RoleBlueprint {
 
 _pod_identity_association_resource = podIdentityAssociation.PodidentityassociationBlueprint {
     _name = "pod-identity-association-cert-manager-${_id}"
-    _clusterNameSelector = {
-        matchLabels = {
-            "claim-name": _clusterId
-        }
-    }
+    _clusterName = _clusterId
     _disableSessionTags = False
     _namespace = "cert-manager"
     _region = _region

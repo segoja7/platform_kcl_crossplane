@@ -7,7 +7,7 @@ spec:
     source: Secret
     secretRef:
       namespace: crossplane-system
-      name: aws-secrets
+      name: aws-secret
       key: creds
 ---
 apiVersion: aws.upbound.io/v1beta1
@@ -19,5 +19,8 @@ spec:
     source: Secret
     secretRef:
       key: creds
-      name: aws-secrets
+      name: aws-secret
       namespace: crossplane-system
+
+
+#kubectl create secret generic aws-secret   --namespace=crossplane-system   --from-file=creds=<>
