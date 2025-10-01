@@ -10,25 +10,27 @@ import schemas.providerConfigHelm as providerConfigHelm
 import schemas.release as release
 import schemas.providerConfigKubernetes as providerConfigKubernetes
 import schemas.object as object
-import schemas.openIDConnectProvider as openidconnectprovider
+import schemas.openIDConnectProvider as openIDConnectProvider
 
-observed_xr = option("params").oxr
-observed_composed_resources = option("params").ocds or {}
-_id = observed_xr.spec.id
-_region = observed_xr.spec.region
-_providerConfig = observed_xr.spec.providerConfigName or "default"
-_tags = observed_xr.spec.tags or {}
-_encryptCluster = observed_xr.spec.encryptCluster or False
-_accountId = observed_xr.spec.accountId or "account_id_not_set"
-_authenticationMode = observed_xr.spec.authenticationMode or "API_AND_CONFIG_MAP"
-_logTypes = observed_xr.spec.logging or []
-_publicAccessCidrs = observed_xr.spec.publicAccessCidrs or ["0.0.0.0/0"]
-_endpointPublicAccess = observed_xr.spec.endpointPublicAccess or True
-_endpointPrivateAccess = observed_xr.spec.endpointPrivateAccess or True
-_networkId = observed_xr.spec.networkId 
-_clusterVersion = observed_xr.spec.clusterVersion
-_nodeGroupConfig = observed_xr.spec.nodeGroup or {}
-_addonsConfig = observed_xr.spec.addons or []
+oxr = option("params").oxr
+_ocds = option("params").ocds or {}
+dxr = option("params").dxr
+
+_id = oxr.spec.id
+_region = oxr.spec.region
+_providerConfig = oxr.spec.providerConfigName or "default"
+_tags = oxr.spec.tags or {}
+_encryptCluster = oxr.spec.encryptCluster or False
+_accountId = oxr.spec.accountId or "account_id_not_set"
+_authenticationMode = oxr.spec.authenticationMode or "API_AND_CONFIG_MAP"
+_logTypes = oxr.spec.logging or []
+_publicAccessCidrs = oxr.spec.publicAccessCidrs or ["0.0.0.0/0"]
+_endpointPublicAccess = oxr.spec.endpointPublicAccess or True
+_endpointPrivateAccess = oxr.spec.endpointPrivateAccess or True
+_networkId = oxr.spec.networkId 
+_clusterVersion = oxr.spec.clusterVersion
+_nodeGroupConfig = oxr.spec.nodeGroup or {}
+_addonsConfig = oxr.spec.addons or []
 _labels = {"claim-name" = _id}
 
 _cluster_assume_role_policy = json.encode({
@@ -49,13 +51,13 @@ _node_assume_role_policy = json.encode({
                 "ec2.amazonaws.com"
             ]
         },
-        #"eks.amazonaws.com" 
         "Action": "sts:AssumeRole"
     }]
 })
 
 _cluster_role_resource = role.RoleBlueprint {
     _name = "role-eks-cluster-${_id}"
+    _labels = _labels
     _providerConfig = _providerConfig
     _assumeRolePolicyDocument = _cluster_assume_role_policy
     _description = "role-eks-cluster"
@@ -66,6 +68,7 @@ _cluster_role_resource = role.RoleBlueprint {
 
 _node_role_resource = role.RoleBlueprint {
     _name = "role-eks-node-${_id}"
+    _labels = _labels
     _providerConfig = _providerConfig
     _assumeRolePolicyDocument = _node_assume_role_policy
     _description = "role-eks-nodes"
@@ -76,6 +79,7 @@ _node_role_resource = role.RoleBlueprint {
 
 _cluster_policy_attachment_resource = [rolePolicyAttachment.RolepolicyattachmentBlueprint {
     _name = "eks-cluster-policy-${s.name}-${_id}".lower()
+    _labels = _labels
     _providerConfig = _providerConfig
     _roleName = _cluster_role_resource._name
     _policyArn = s.arn
@@ -86,6 +90,7 @@ _cluster_policy_attachment_resource = [rolePolicyAttachment.Rolepolicyattachment
 
 _node_policy_attachments_resource = [rolePolicyAttachment.RolepolicyattachmentBlueprint {
     _name = "eks-cluster-node-policy-${s.name}-${_id}".lower()
+    _labels = _labels
     _providerConfig = _providerConfig
     _roleName = _node_role_resource._name
     _policyArn = s.arn
@@ -103,6 +108,7 @@ if _encryptCluster == True:
 
     _kms_key_resource = kmsKey.KeyBlueprint {
         _name = "kms-key-eks-${_id}"
+        _labels = _labels
         _providerConfig = _providerConfig
         _description = "KMS key for EKS encryption"
         _enableKeyRotation = True
@@ -132,10 +138,11 @@ if _encryptCluster == True:
                 }
             ]
         })
-        _tags = _tags | {Name: _name}
+        _tags = _tags | {Name = _name}
     }
     _kms_alias_resource = kmsAlias.AliasBlueprint {
         _name = "alias-eks-${_id}"
+        _labels = _labels
         _providerConfig = _providerConfig
         _region = _region
         _targetKeyIdRef = {
@@ -195,6 +202,7 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
 
 _cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
     _name = "cluster-nodegroup-${_id}"
+    _labels = _labels
     _providerConfig = _providerConfig
     _amiType = _nodeGroupConfig.amiType
     _capacityType = _nodeGroupConfig.capacityType
@@ -213,7 +221,6 @@ _cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
         minSize = _nodeGroupConfig.minSize
     }
     _subnetSelector = {
-        # matchControllerRef = True
         matchLabels = {
             "claim-name": _networkId,
             "subnet.type": "private"
@@ -244,6 +251,7 @@ _cni_role_resource_name = "role-addon-vpc-cni-cluster-${_id}"
 if len(_cni_addon_config) > 0:
     _addons_vpc_cni_role_resource = role.RoleBlueprint {
         _name = _cni_role_resource_name
+        _labels = _labels
         _providerConfig = _providerConfig
         _assumeRolePolicyDocument = _addons_vpc_cni_assume_role_policy
         _description = "Role for VPC CNI addon"
@@ -251,6 +259,7 @@ if len(_cni_addon_config) > 0:
     }
     _cni_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
         _name = "vpc-cni-policy-attachment-${_id}".lower()
+        _labels = _labels
         _providerConfig = _providerConfig
         _roleName = _cni_role_resource_name
         _policyArn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
@@ -260,15 +269,11 @@ if len(_cni_addon_config) > 0:
 
 _cluster_addons_resource = [ eksAddon.AddonBlueprint {
     _name = "addon-${s.name}-${_id}"
+    _labels = _labels
     _providerConfig = _providerConfig
     _addonName = s.name
     if "version" in s and s.version != None:
         _addonVersion = s.version
-
-    # Conditionally add the role ARN for the vpc-cni addon
-    # if s.name == "vpc-cni" and len(_cni_addon_config) > 0:
-    #     _serviceAccountRoleARN = "arn:aws:iam::${_accountId}:role/${_cni_role_resource_name}"
-
     _clusterNameSelector = {
         matchControllerRef = True
     }
@@ -283,10 +288,10 @@ _cluster_addons_resource = [ eksAddon.AddonBlueprint {
 
 _providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
     _name = "provider-helm-${_id}"
+    _labels = _labels
     _annotations = {
         "krm.kcl.dev/ready": "True"
     }
-    _labels = _labels
     _credentials = {
         source = "Secret"
         secretRef = {
@@ -299,6 +304,7 @@ _providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
 
 _release_helm_resource = release.ReleaseBlueprint {
     _name = "release-helm-argocd-${_id}"
+    _labels = _labels
     _providerConfig = _providerconfig_helm_resource._name
     _chart = {
         name = "argo-cd"
@@ -370,6 +376,7 @@ _release_helm_resource = release.ReleaseBlueprint {
 
 _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlueprint {
     _name = "provider-kubernetes-${_id}"
+    _labels = _labels
     _annotations = {
         "krm.kcl.dev/ready": "True"
     }
@@ -385,6 +392,7 @@ _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlu
 
 _object_argo_cm_resource = object.ObjectBlueprint {
     _name = "kcl-plugin-configmap"
+    _labels = _labels
     _manifest = {
         apiVersion = "v1"
         kind = "ConfigMap"
@@ -419,22 +427,24 @@ spec:
     _providerConfig = _providerconfig_kubernetes_resource._name
 }
 
-_oidc_resources = []
 observed_cluster_name = "eks-cluster-${_id}"
 
-oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.resource?.status?.atProvider?.identity[0]?.oidc[0]?.issuer or ""
+# Use optional chaining to safely extract the issuer URL directly.
+oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.status?.atProvider?.identity?.oidc?.issuer or ""
 
-# Only create the OpenIDConnectProvider resource if the URL was successfully found.
-if oidc_issuer_url != "":
-    _oidc_resource = openidconnectprovider.OpenidconnectproviderBlueprint {
+# Create OpenIDConnectProvider only when we have a real OIDC URL
+_oidc_resources = []
+if oidc_issuer_url and oidc_issuer_url != "":
+    _oidc_resource = openIDConnectProvider.OpenidconnectproviderBlueprint {
         _name = "openid-eks-${_id}"
         _providerConfig = _providerConfig
         _clientIDList = [ "sts.amazonaws.com" ]
-        _thumbprintList = [ "63462dda480d8b900e0a7dbfaf6238a62ba4fce0" ]
-        _url = oidc_issuer_url.replace("https://", "")
+        _thumbprintList = [ "9e99a48a9960b14926bb7f3b02e22da2b0ab7280" ]
+        _url = oidc_issuer_url #.replace("https://", "")
         _tags = _tags | { Name = _name }
     }
     _oidc_resources = [_oidc_resource]
+
 
 items = [
     _cluster_role_resource, 
@@ -447,4 +457,3 @@ items = [
     _providerconfig_kubernetes_resource,
     _object_argo_cm_resource
 ] + _oidc_resources
-

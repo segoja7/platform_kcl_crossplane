@@ -1,6 +1,6 @@
 import json
 import schemas.role as role
-import schemas.podIdentityAssociation as podIdentityAssociation
+#import schemas.podIdentityAssociation as podIdentityAssociation
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
@@ -37,27 +37,27 @@ _cert_manager_role_resource = role.RoleBlueprint {
     }
 }
 
-_pod_identity_association_resource = podIdentityAssociation.PodidentityassociationBlueprint {
-    _name = "pod-identity-association-cert-manager-${_id}"
-    _clusterNameSelector = {
-        matchLabels = {
-            "claim-name": _clusterId
-        }
-    }
-    _disableSessionTags = False
-    _namespace = "cert-manager"
-    _region = _region
-    _roleArnRef = {
-        name = _cert_manager_role_resource._name
-    }
-    _serviceAccount = "cert-manager"
-    _tags = _tags | {
-        Name = _name
-    }
-    _providerConfig = _providerConfig
-}
+# _pod_identity_association_resource = podIdentityAssociation.PodidentityassociationBlueprint {
+#     _name = "pod-identity-association-cert-manager-${_id}"
+#     _clusterNameSelector = {
+#         matchLabels = {
+#             "claim-name": _clusterId
+#         }
+#     }
+#     _disableSessionTags = False
+#     _namespace = "cert-manager"
+#     _region = _region
+#     _roleArnRef = {
+#         name = _cert_manager_role_resource._name
+#     }
+#     _serviceAccount = "cert-manager"
+#     _tags = _tags | {
+#         Name = _name
+#     }
+#     _providerConfig = _providerConfig
+# }
 
 items = [
     _cert_manager_role_resource,
-    _pod_identity_association_resource
+    #_pod_identity_association_resource
 ]
