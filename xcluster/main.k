@@ -10,6 +10,7 @@ import schemas.providerConfigHelm as providerConfigHelm
 import schemas.release as release
 import schemas.providerConfigKubernetes as providerConfigKubernetes
 import schemas.object as object
+import schemas.openIDConnectProvider as openidconnectprovider
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
@@ -417,6 +418,23 @@ spec:
     _providerConfig = _providerconfig_kubernetes_resource._name
 }
 
+_oidc_resource = openidconnectprovider.OpenidconnectproviderBlueprint {
+    _name = "openid-eks-${_id}"
+    _providerConfig = _providerConfig
+    _clientIDList = [
+        "sts.amazonaws.com"
+    ]
+    _thumbprintList = [
+        "63462dda480d8b900e0a7dbfaf6238a62ba4fce0" 
+    ]
+    _url = _eks_cluster_resource.status.identity.oidc.issuer.replace("https://", "")
+        
+    _tags = _tags | {
+        Name = _name
+    }
+}
+
+
 items = [
     _cluster_role_resource, 
     _node_role_resource,
@@ -426,6 +444,7 @@ items = [
     _providerconfig_helm_resource,
     _release_helm_resource,
     _providerconfig_kubernetes_resource,
-    _object_argo_cm_resource
+    _object_argo_cm_resource,
+    _oidc_resource
 ]
 

@@ -26,10 +26,10 @@ spec:
 # spec:
 #   package: xpkg.upbound.io/upbound/provider-opentofu:v1
 #---
-apiVersion: pkg.crossplane.io/v1
-kind: Provider
-metadata:
-  name: upbound-provider-aws-eks
-spec:
-  package: xpkg.upbound.io/upbound/provider-aws-eks:v2
+# apiVersion: pkg.crossplane.io/v1
+# kind: Provider
+# metadata:
+#   name: upbound-provider-aws-eks
+# spec:
+#   package: xpkg.upbound.io/upbound/provider-aws-eks:v2
 
