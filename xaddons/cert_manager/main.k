@@ -10,10 +10,10 @@ _clusterId = observed_xr.spec.clusterId
 _accountId = observed_xr.spec.accountId
 
 # Get OIDC issuer URL from cluster
-_ocds = option("params").ocds or {}
+#_ocds = option("params").ocds or {}
 _cluster_name = "eks-cluster-${_clusterId}"
-_oidc_issuer_url = _ocds[_cluster_name]?.Resource?.status?.atProvider?.identity?.oidc?.issuer or ""
-_oidc_path = _oidc_issuer_url.replace("https://", "") if _oidc_issuer_url else ""
+oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.status?.atProvider?.identity?.oidc?.issuer or ""
+_oidc_path = oidc_issuer_url.replace("https://", "") if oidc_issuer_url else ""
 
 _cert_manager_assume_role_policy = json.encode({
     "Version": "2012-10-17",
@@ -25,7 +25,7 @@ _cert_manager_assume_role_policy = json.encode({
         "Action": "sts:AssumeRoleWithWebIdentity",
         "Condition": {
             "StringEquals": {
-                "${_oidc_path}:sub": "system:serviceaccount:cert-manager:cert-manager",
+                "${_oidc_path}:sub": "system:serviceaccount:cert-manager:cert-manager", #TODO: fix _oidc_path
                 "${_oidc_path}:aud": "sts.amazonaws.com"
             }
         }
