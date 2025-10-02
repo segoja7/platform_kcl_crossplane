@@ -63,7 +63,9 @@ _cert_manager_policy_attachment_resource = rolePolicyAttachment.Rolepolicyattach
     _name = "cert-manager-policy-${_id}"
     _providerConfig = _providerConfig
     _roleName = _cert_manager_role_resource._name
-    _policy = _cert_manager_policy
+    _policyArnSelector = {
+        matchControllerRef = True
+    }
 }
 
 items = [
