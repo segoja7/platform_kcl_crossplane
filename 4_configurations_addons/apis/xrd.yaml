@@ -1,0 +1,39 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xaddons.segoja7.example
+spec:
+  group: segoja7.example
+  names:
+    kind: XADDON
+    plural: xaddons
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              id:
+                type: string
+                description: "Unique ID for addons and its resources."
+              providerConfigName:
+                type: string
+                description: "Name of the ProviderConfig to use."
+                default: "default"
+              tags:
+                type: object
+                description: A map of tags to apply to all resources.
+                additionalProperties:
+                  type: string
+              accountId:
+                type: string
+                description: "AWS Account ID for IRSA configuration."
+              clusterId:
+                type: string
+                description: "Cluster ID for resource naming."
+            required: ["id", "accountId", "clusterId"]

@@ -1,5 +1,3 @@
-#import cert_manager.main as cert_manager
-import irsa.main as irsa
+import cert_manager.main as cert_manager
 
-#items = cert_manager.items + irsa.items
-items = irsa.items
+items = cert_manager.items

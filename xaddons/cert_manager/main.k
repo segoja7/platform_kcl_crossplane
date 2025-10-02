@@ -1,29 +1,50 @@
 import json
 import schemas.role as role
-#import schemas.podIdentityAssociation as podIdentityAssociation
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
-_region = observed_xr.spec.region
 _providerConfig = observed_xr.spec.providerConfigName
 _tags = observed_xr.spec.tags or {}
 _clusterId = observed_xr.spec.clusterId
+_accountId = observed_xr.spec.accountId
 
-# _id = "my-cluster"
-# _region = "us-east-1"
-# _providerConfig = "default"
-# _tags = {}
-# _clusterId = "my-cluster"
+# Get OIDC issuer URL from cluster
+_ocds = option("params").ocds or {}
+_cluster_name = "eks-cluster-${_clusterId}"
+_oidc_issuer_url = _ocds[_cluster_name]?.Resource?.status?.atProvider?.identity?.oidc?.issuer or ""
+_oidc_path = _oidc_issuer_url.replace("https://", "") if _oidc_issuer_url else ""
 
 _cert_manager_assume_role_policy = json.encode({
     "Version": "2012-10-17",
     "Statement": [{
         "Effect": "Allow",
-        "Principal": {"Service": "pods.eks.amazonaws.com"},
+        "Principal": {
+            "Federated": "arn:aws:iam::${_accountId}:oidc-provider/${_oidc_path}"
+        },
+        "Action": "sts:AssumeRoleWithWebIdentity",
+        "Condition": {
+            "StringEquals": {
+                "${_oidc_path}:sub": "system:serviceaccount:cert-manager:cert-manager",
+                "${_oidc_path}:aud": "sts.amazonaws.com"
+            }
+        }
+    }]
+})
+
+_cert_manager_policy = json.encode({
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow",
         "Action": [
-            "sts:AssumeRole",
-            "sts:TagSession"
-        ]
+            "route53:GetChange",
+            "route53:ChangeResourceRecordSets",
+            "route53:ListResourceRecordSets"
+        ],
+        "Resource": "arn:aws:route53:::hostedzone/*"
+    }, {
+        "Effect": "Allow", 
+        "Action": "route53:ListHostedZonesByName",
+        "Resource": "*"
     }]
 })
 
@@ -31,33 +52,16 @@ _cert_manager_role_resource = role.RoleBlueprint {
     _name = "role-cert-manager-${_id}"
     _providerConfig = _providerConfig
     _assumeRolePolicyDocument = _cert_manager_assume_role_policy
-    _description = "Pod Identity role for cert-manager in EKS cluster"
+    _description = "IRSA role for cert-manager"
+    _inlinePolicy = [{
+        name = "cert-manager-policy"
+        policy = _cert_manager_policy
+    }]
     _tags = _tags | {
         Name = _name
     }
 }
 
-# _pod_identity_association_resource = podIdentityAssociation.PodidentityassociationBlueprint {
-#     _name = "pod-identity-association-cert-manager-${_id}"
-#     _clusterNameSelector = {
-#         matchLabels = {
-#             "claim-name": _clusterId
-#         }
-#     }
-#     _disableSessionTags = False
-#     _namespace = "cert-manager"
-#     _region = _region
-#     _roleArnRef = {
-#         name = _cert_manager_role_resource._name
-#     }
-#     _serviceAccount = "cert-manager"
-#     _tags = _tags | {
-#         Name = _name
-#     }
-#     _providerConfig = _providerConfig
-# }
-
 items = [
-    _cert_manager_role_resource,
-    #_pod_identity_association_resource
+    _cert_manager_role_resource
 ]

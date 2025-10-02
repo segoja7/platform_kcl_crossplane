@@ -429,7 +429,6 @@ spec:
 
 observed_cluster_name = "eks-cluster-${_id}"
 
-# Use optional chaining to safely extract the issuer URL directly.
 oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.status?.atProvider?.identity?.oidc?.issuer or ""
 
 # Create OpenIDConnectProvider only when we have a real OIDC URL
