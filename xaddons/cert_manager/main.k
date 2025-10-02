@@ -63,9 +63,7 @@ _cert_manager_policy_attachment_resource = rolePolicyAttachment.Rolepolicyattach
     _name = "cert-manager-policy-${_id}"
     _providerConfig = _providerConfig
     _roleName = _cert_manager_role_resource._name
-    _policyArnSelector = {
-        matchControllerRef = True
-    }
+    _policyArn = "arn:aws:iam::aws:policy/AmazonRoute53FullAccess"
 }
 
 items = [
