@@ -1,5 +1,6 @@
 import json
 import schemas.role as role
+import schemas.rolePolicyAttachment as rolePolicyAttachment
 
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
@@ -53,15 +54,19 @@ _cert_manager_role_resource = role.RoleBlueprint {
     _providerConfig = _providerConfig
     _assumeRolePolicyDocument = _cert_manager_assume_role_policy
     _description = "IRSA role for cert-manager"
-    _inlinePolicy = [{
-        name = "cert-manager-policy"
-        policy = _cert_manager_policy
-    }]
     _tags = _tags | {
         Name = _name
     }
 }
 
+_cert_manager_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
+    _name = "cert-manager-policy-${_id}"
+    _providerConfig = _providerConfig
+    _roleName = _cert_manager_role_resource._name
+    _policy = _cert_manager_policy
+}
+
 items = [
-    _cert_manager_role_resource
+    _cert_manager_role_resource,
+    _cert_manager_policy_attachment_resource
 ]
