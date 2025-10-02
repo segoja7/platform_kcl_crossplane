@@ -33,7 +33,7 @@ spec:
               accountId:
                 type: string
                 description: "AWS Account ID for IRSA configuration."
-              clusterId:
+              clusterClaimName:
                 type: string
-                description: "Cluster ID for resource naming."
-            required: ["id", "accountId", "clusterId"]
+                description: "Cluster Claim Name for resource naming."
+            required: ["id", "accountId", "clusterClaimName"]

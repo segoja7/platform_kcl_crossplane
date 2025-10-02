@@ -1,72 +1,69 @@
 import json
-import schemas.role as role
-import schemas.rolePolicyAttachment as rolePolicyAttachment
 
-observed_xr = option("params").oxr
-_id = observed_xr.spec.id
-_providerConfig = observed_xr.spec.providerConfigName
-_tags = observed_xr.spec.tags or {}
-_clusterId = observed_xr.spec.clusterId
-_accountId = observed_xr.spec.accountId
+# Get inputs with safe defaults
+observed_xr = option("params").oxr or {}
+_id = observed_xr.spec?.id or "default-id"
+_providerConfig = observed_xr.spec?.providerConfigName or "segoja7"
+_clusterClaimName = observed_xr.spec?.clusterClaimName or ""
 
-# Get OIDC issuer URL from cluster
-#_ocds = option("params").ocds or {}
-_cluster_name = "eks-cluster-${_clusterId}"
-oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.status?.atProvider?.identity?.oidc?.issuer or ""
-_oidc_path = oidc_issuer_url.replace("https://", "") if oidc_issuer_url else ""
-
-_cert_manager_assume_role_policy = json.encode({
-    "Version": "2012-10-17",
-    "Statement": [{
-        "Effect": "Allow",
-        "Principal": {
-            "Federated": "arn:aws:iam::${_accountId}:oidc-provider/${_oidc_path}"
-        },
-        "Action": "sts:AssumeRoleWithWebIdentity",
-        "Condition": {
-            "StringEquals": {
-                "${_oidc_path}:sub": "system:serviceaccount:cert-manager:cert-manager", #TODO: fix _oidc_path
-                "${_oidc_path}:aud": "sts.amazonaws.com"
+# Request extra resources siguiendo el patrón del test
+extraResourcesRequest = {
+    apiVersion: "meta.krm.kcl.dev/v1alpha1",
+    kind: "ExtraResources",
+    metadata: {
+        annotations: {
+            "krm.kcl.dev/composition-resource-name": "extra-resources-request"
+        }
+    },
+    requirements: {
+        ekscluster: {
+            apiVersion: "eks.aws.crossplane.io/v1beta1",
+            kind: "Cluster",
+            matchLabels: {
+                "claim-name": _clusterClaimName
             }
         }
-    }]
-})
-
-_cert_manager_policy = json.encode({
-    "Version": "2012-10-17",
-    "Statement": [{
-        "Effect": "Allow",
-        "Action": [
-            "route53:GetChange",
-            "route53:ChangeResourceRecordSets",
-            "route53:ListResourceRecordSets"
-        ],
-        "Resource": "arn:aws:route53:::hostedzone/*"
-    }, {
-        "Effect": "Allow", 
-        "Action": "route53:ListHostedZonesByName",
-        "Resource": "*"
-    }]
-})
-
-_cert_manager_role_resource = role.RoleBlueprint {
-    _name = "role-cert-manager-${_id}"
-    _providerConfig = _providerConfig
-    _assumeRolePolicyDocument = _cert_manager_assume_role_policy
-    _description = "IRSA role for cert-manager"
-    _tags = _tags | {
-        Name = _name
     }
 }
 
-_cert_manager_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
-    _name = "cert-manager-policy-${_id}"
-    _providerConfig = _providerConfig
-    _roleName = _cert_manager_role_resource._name
-    _policyArn = "arn:aws:iam::aws:policy/AmazonRoute53FullAccess"
+# Get extra resources
+er = option("params").extraResources or {}
+_cluster_name = "NO_CLUSTER_FOUND"
+
+# Check if extra resources were returned
+if "ekscluster" in er and er.ekscluster:
+    clusters = er.ekscluster
+    if clusters and len(clusters) > 0:
+        cluster = clusters[0].Resource if "Resource" in clusters[0] else clusters[0]
+        _cluster_name = cluster.get("metadata", {}).get("name", "UNNAMED_CLUSTER")
+
+# Crear role simple con valor del cluster
+cert_manager_role = {
+    "apiVersion": "iam.aws.crossplane.io/v1beta1",
+    "kind": "Role",
+    "metadata": {
+        "annotations": {
+            "crossplane.io/external-name": "cert-manager-role-{}".format(_id),
+            "crossplane.io/composition-resource-name": "cert-manager-role"
+        }
+    },
+    "spec": {
+        "forProvider": {
+            "assumeRolePolicyDocument": json.encode({
+                "Version": "2012-10-17",
+                "Statement": [{
+                    "Effect": "Allow",
+                    "Principal": {"Service": "ec2.amazonaws.com"},
+                    "Action": "sts:AssumeRole"
+                }]
+            }),
+            "description": "Role for cluster: {}".format(_cluster_name)
+        },
+        "providerConfigRef": {
+            "name": _providerConfig
+        }
+    }
 }
 
-items = [
-    _cert_manager_role_resource,
-    _cert_manager_policy_attachment_resource
-]
+# Return only the role - ExtraResources is just for internal request
+items = [cert_manager_role]
