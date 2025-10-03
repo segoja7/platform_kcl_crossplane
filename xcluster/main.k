@@ -443,17 +443,17 @@ if oidc_issuer_url and oidc_issuer_url != "":
         _providerConfig = _providerConfig
         _clientIDList = [ "sts.amazonaws.com" ]
         _thumbprintList = [ "9e99a48a9960b14926bb7f3b02e22da2b0ab7280" ]
-        _url = oidc_issuer_url #.replace("https://", "")
+        _url = oidc_issuer_url
         _tags = _tags | { Name = _name }
     }
     _oidc_resources = [_oidc_resource]
 
-# Crear recursos para helm addons usando sintaxis KCL correcta
+
 _helm_addon_resources = []
 if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
     _issuer_url = oidc_issuer_url.replace("https://", "")
     
-    # Crear todos los recursos usando list comprehension
+    
     _policies_resources = [policy.PolicyBlueprint {
         _name = "policy-${s.name}-${_id}"
         _providerConfig = _providerConfig
