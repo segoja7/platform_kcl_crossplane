@@ -435,7 +435,8 @@ observed_cluster_name = "eks-cluster-${_id}"
 observed_network_name = "vpc-${_networkId}"
 
 oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.status?.atProvider?.identity?.oidc?.issuer or ""
-vpc_id = option("params")?.ocds?[observed_network_name]?.Resource?.status?.atProvider?.vpcId or ""
+#vpc_id = option("params")?.ocds?[observed_network_name]?.Resource?.status?.atProvider?.vpcId or ""
+vpcid = option("params")?.ocds?["vpc-xnetwork-example"]?.Resource?.status?.atProvider?.vpcId or ""
 
 # Create OpenIDConnectProvider only when we have a real OIDC URL
 _oidc_resources = []
@@ -507,7 +508,7 @@ if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
         _values = (s.values or {}) | ({
             # Especific Configuration for AWS Load Balancer Controller
             "clusterName": _id,
-            "vpcId": vpc_id,
+            "vpcId": vpcid,
             "region": _region,
             "serviceAccount": {
                 "name": s.serviceAccountName,
