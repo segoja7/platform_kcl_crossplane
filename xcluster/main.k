@@ -444,19 +444,19 @@ if oidc_issuer_url and oidc_issuer_url != "":
     }
     _oidc_resources = [_oidc_resource]
 
-
+_issuer_url = oidc_issuer_url.replace("https://", "")
 _cert_manager_assume_role_policy = json.encode({
     "Version": "2012-10-17",
     "Statement": [{
         "Effect": "Allow",
         "Principal": {
-            "Federated": "arn:aws:iam::${_accountId}:oidc-provider/${${oidc_issuer_url.replace("https://", "")}}"
+            "Federated": "arn:aws:iam::${_accountId}:oidc-provider/${_issuer_url}"
         },
         "Action": "sts:AssumeRoleWithWebIdentity",
         "Condition": {
             "StringEquals": {
-                "${oidc_issuer_url.replace("https://", "")}:sub": "system:serviceaccount:cert-manager:cert-manager", #TODO: fix _oidc_path
-                "${oidc_issuer_url.replace("https://", "")}:aud": "sts.amazonaws.com"
+                "${_issuer_url}:sub": "system:serviceaccount:cert-manager:cert-manager", #TODO: fix _oidc_path
+                "${_issuer_url}:aud": "sts.amazonaws.com"
             }
         }
     }]
