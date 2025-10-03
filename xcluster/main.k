@@ -435,11 +435,11 @@ spec:
 extraResourcesRequest = {
     "apiVersion": "meta.krm.kcl.dev/v1alpha1",
     "kind": "ExtraResources",
-    "metadata": {
-        "annotations": {
-            "krm.kcl.dev/composition-resource-name": "extra-resources-network"
-        }
-    },
+    # "metadata": {
+    #     "annotations": {
+    #         "krm.kcl.dev/composition-resource-name": "extra-resources-network"
+    #     }
+    # },
     "requirements": {
         "vpc": {
             "apiVersion": "ec2.aws.crossplane.io/v1beta1",
