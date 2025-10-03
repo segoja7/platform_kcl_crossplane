@@ -461,22 +461,32 @@ _cert_manager_assume_role_policy = json.encode({
         }
     }]
 })
-_cert_manager_policy = json.encode({
-"Version": "2012-10-17",
-"Statement": [{
-    "Effect": "Allow",
-    "Action": [
-        "route53:GetChange",
-        "route53:ChangeResourceRecordSets",
-        "route53:ListResourceRecordSets"
-    ],
-    "Resource": "arn:aws:route53:::hostedzone/*"
-    }, {
-    "Effect": "Allow", 
-    "Action": "route53:ListHostedZonesByName",
-    "Resource": "*"
-    }]
-})
+# _cert_manager_policy = json.encode({
+# "Version": "2012-10-17",
+# "Statement": [{
+#     "Effect": "Allow",
+#     "Action": [
+#         "route53:GetChange",
+#         "route53:ChangeResourceRecordSets",
+#         "route53:ListResourceRecordSets"
+#     ],
+#     "Resource": "arn:aws:route53:::hostedzone/*"
+#     }, {
+#     "Effect": "Allow", 
+#     "Action": "route53:ListHostedZonesByName",
+#     "Resource": "*"
+#     }]
+# })
+
+_cert_manager_role_resource = role.RoleBlueprint {
+    _name = "role-cert-manager-${_id}"
+    _providerConfig = _providerConfig
+    _assumeRolePolicyDocument = _cert_manager_assume_role_policy
+    _description = "IRSA role for cert-manager"
+    _tags = _tags | {
+        Name = _name
+    }
+}
     
 _cert_manager_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
     _name = "cert-manager-policy-${_id}"
