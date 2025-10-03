@@ -91,7 +91,7 @@ spec:
     - name: aws-load-balancer-controller
       chart: "aws-load-balancer-controller"
       repository: "https://aws.github.io/eks-charts"
-      version: "2.14.0"
+      version: "1.13.4"
       namespace: kube-system
       createNamespace: false
       values:
