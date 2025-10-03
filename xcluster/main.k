@@ -454,7 +454,7 @@ extraResourcesRequest = {
 # Get extra resources
 er = option("params").extraResources or {}
 # dxr = {**oxr}
-_vpc_id = er?.vpc[0]?.Resource?.status?.atProvider?.vpcId or ""
+_vpc_id = er.vpc[0].Resource.status.atProvider.vpcId
 
 # Extract VPC ID from extra resources
 # if "vpc" in er and er.vpc and len(er.vpc) > 0:
