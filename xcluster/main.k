@@ -11,6 +11,8 @@ import schemas.release as release
 import schemas.providerConfigKubernetes as providerConfigKubernetes
 import schemas.object as object
 import schemas.openIDConnectProvider as openIDConnectProvider
+import schemas.policy as policy
+
 
 oxr = option("params").oxr
 _ocds = option("params").ocds or {}
@@ -32,6 +34,8 @@ _clusterVersion = oxr.spec.clusterVersion
 _nodeGroupConfig = oxr.spec.nodeGroup or {}
 _addonsConfig = oxr.spec.addons or []
 _labels = {"claim-name" = _id}
+_helmAddonsConfig = oxr.spec.helmAddonsConfig or []
+
 
 _cluster_assume_role_policy = json.encode({
     "Version": "2012-10-17",
@@ -444,56 +448,70 @@ if oidc_issuer_url and oidc_issuer_url != "":
     }
     _oidc_resources = [_oidc_resource]
 
-_issuer_url = oidc_issuer_url.replace("https://", "")
-_cert_manager_assume_role_policy = json.encode({
-    "Version": "2012-10-17",
-    "Statement": [{
-        "Effect": "Allow",
-        "Principal": {
-            "Federated": "arn:aws:iam::${_accountId}:oidc-provider/${_issuer_url}"
-        },
-        "Action": "sts:AssumeRoleWithWebIdentity",
-        "Condition": {
-            "StringEquals": {
-                "${_issuer_url}:sub": "system:serviceaccount:cert-manager:cert-manager", #TODO: fix _oidc_path
-                "${_issuer_url}:aud": "sts.amazonaws.com"
-            }
-        }
-    }]
-})
-# _cert_manager_policy = json.encode({
-# "Version": "2012-10-17",
-# "Statement": [{
-#     "Effect": "Allow",
-#     "Action": [
-#         "route53:GetChange",
-#         "route53:ChangeResourceRecordSets",
-#         "route53:ListResourceRecordSets"
-#     ],
-#     "Resource": "arn:aws:route53:::hostedzone/*"
-#     }, {
-#     "Effect": "Allow", 
-#     "Action": "route53:ListHostedZonesByName",
-#     "Resource": "*"
-#     }]
-# })
-
-_cert_manager_role_resource = role.RoleBlueprint {
-    _name = "role-cert-manager-${_id}"
-    _providerConfig = _providerConfig
-    _assumeRolePolicyDocument = _cert_manager_assume_role_policy
-    _description = "IRSA role for cert-manager"
-    _tags = _tags | {
-        Name = _name
-    }
-}
+# Crear recursos para helm addons usando sintaxis KCL correcta
+_helm_addon_resources = []
+if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
+    _issuer_url = oidc_issuer_url.replace("https://", "")
     
-_cert_manager_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
-    _name = "cert-manager-policy-${_id}"
-    _providerConfig = _providerConfig
-    _roleName = _cert_manager_role_resource._name
-    _policyArn = "arn:aws:iam::aws:policy/AmazonRoute53FullAccess"
-}
+    # Crear todos los recursos usando list comprehension
+    _policies_resources = [policy.PolicyBlueprint {
+        _name = "policy-${s.name}-${_id}"
+        _providerConfig = _providerConfig
+        _description = "Policy for ${s.name}"
+        _document = s.customPolicy
+        _tags = _tags | { Name = _name }
+    } for s in _helmAddonsConfig if "serviceAccountName" in s and "customPolicy" in s]
+    
+    _roles_resources = [role.RoleBlueprint {
+        _name = "role-${s.name}-${_id}"
+        _providerConfig = _providerConfig
+        _assumeRolePolicyDocument = json.encode({
+            "Version": "2012-10-17",
+            "Statement": [{
+                "Effect": "Allow",
+                "Principal": {
+                    "Federated": "arn:aws:iam::${_accountId}:oidc-provider/${_issuer_url}"
+                },
+                "Action": "sts:AssumeRoleWithWebIdentity",
+                "Condition": {
+                    "StringEquals": {
+                        "${_issuer_url}:sub": "system:serviceaccount:${s.namespace}:${s.serviceAccountName}",
+                        "${_issuer_url}:aud": "sts.amazonaws.com"
+                    }
+                }
+            }]
+        })
+        _description = "IRSA role for ${s.name}"
+        _tags = _tags | { Name = _name }
+    } for s in _helmAddonsConfig if "serviceAccountName" in s and "customPolicy" in s]
+    
+    _policy_attachments_resources = [rolePolicyAttachment.RolepolicyattachmentBlueprint {
+        _name = "policy-attachment-${s.name}-${_id}"
+        _providerConfig = _providerConfig
+        _roleName = "role-${s.name}-${_id}"
+        _policyArn = "arn:aws:iam::${_accountId}:policy/policy-${s.name}-${_id}"
+    } for s in _helmAddonsConfig if "serviceAccountName" in s and "customPolicy" in s]
+    
+    _releases_resources = [release.ReleaseBlueprint {
+        _name = "release-helm-${s.name}-${_id}"
+        _labels = _labels
+        _providerConfig = _providerconfig_helm_resource._name
+        _chart = {
+            name = s.chart
+            repository = s.repository   
+            version = s.version
+        }
+        _namespace = s.namespace
+        _values = (s.values or {}) | ({
+            "serviceAccount": {
+                "annotations": {
+                    "eks.amazonaws.com/role-arn": "arn:aws:iam::${_accountId}:role/role-${s.name}-${_id}"
+                }
+            }
+        } if "serviceAccountName" in s else {})
+    } for s in _helmAddonsConfig]
+    
+    _helm_addon_resources = _policies_resources + _roles_resources + _policy_attachments_resources + _releases_resources
 
 items = [
     _cluster_role_resource, 
@@ -505,7 +523,4 @@ items = [
     _release_helm_resource,
     _providerconfig_kubernetes_resource,
     _object_argo_cm_resource
-] + _oidc_resources + [
-    _cert_manager_role_resource,
-    _cert_manager_policy_attachment_resource
-]
+] + _oidc_resources + _helm_addon_resources
