@@ -495,7 +495,7 @@ if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
     } for s in _helmAddonsConfig if "serviceAccountName" in s and "customPolicy" in s]
     
     _releases_resources = [release.ReleaseBlueprint {
-        _name = "${s.name}-${_id}"
+        _name = "${s.name}"
         _labels = _labels
         _providerConfig = _providerconfig_helm_resource._name
         _chart = {
