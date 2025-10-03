@@ -445,6 +445,47 @@ if oidc_issuer_url and oidc_issuer_url != "":
     _oidc_resources = [_oidc_resource]
 
 
+_cert_manager_assume_role_policy = json.encode({
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow",
+        "Principal": {
+            "Federated": "arn:aws:iam::${_accountId}:oidc-provider/${${oidc_issuer_url.replace("https://", "")}}"
+        },
+        "Action": "sts:AssumeRoleWithWebIdentity",
+        "Condition": {
+            "StringEquals": {
+                "${oidc_issuer_url.replace("https://", "")}:sub": "system:serviceaccount:cert-manager:cert-manager", #TODO: fix _oidc_path
+                "${oidc_issuer_url.replace("https://", "")}:aud": "sts.amazonaws.com"
+            }
+        }
+    }]
+})
+_cert_manager_policy = json.encode({
+"Version": "2012-10-17",
+"Statement": [{
+    "Effect": "Allow",
+    "Action": [
+        "route53:GetChange",
+        "route53:ChangeResourceRecordSets",
+        "route53:ListResourceRecordSets"
+    ],
+    "Resource": "arn:aws:route53:::hostedzone/*"
+    }, 
+    {
+    "Effect": "Allow", 
+    "Action": "route53:ListHostedZonesByName",
+    "Resource": "*"
+    }]
+})
+    
+_cert_manager_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
+    _name = "cert-manager-policy-${_id}"
+    _providerConfig = _providerConfig
+    _roleName = _cert_manager_role_resource._name
+    _policyArn = "arn:aws:iam::aws:policy/AmazonRoute53FullAccess"
+}
+
 items = [
     _cluster_role_resource, 
     _node_role_resource,
@@ -455,4 +496,7 @@ items = [
     _release_helm_resource,
     _providerconfig_kubernetes_resource,
     _object_argo_cm_resource
-] + _oidc_resources
+] + _oidc_resources + [
+    _cert_manager_role_resource,
+    _cert_manager_policy_attachment_resource
+]
