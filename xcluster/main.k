@@ -431,12 +431,38 @@ spec:
     _providerConfig = _providerconfig_kubernetes_resource._name
 }
 
-observed_cluster_name = "eks-cluster-${_id}"
-observed_network_name = "vpc-${_networkId}"
+# Request extra resources para obtener el VPC del network
+extraResourcesRequest = {
+    "apiVersion": "meta.krm.kcl.dev/v1alpha1",
+    "kind": "ExtraResources",
+    "metadata": {
+        "annotations": {
+            "krm.kcl.dev/composition-resource-name": "extra-resources-network"
+        }
+    },
+    "requirements": {
+        "vpc": {
+            "apiVersion": "ec2.aws.crossplane.io/v1beta1",
+            "kind": "VPC",
+            "matchLabels": {
+                "claim-name": _networkId
+            }
+        }
+    }
+}
 
+# Get extra resources
+er = option("params").extraResources or {}
+vpc_id = ""
+
+# Extract VPC ID from extra resources
+if "vpc" in er and er.vpc and len(er.vpc) > 0:
+    vpc_resource = er.vpc[0].Resource if "Resource" in er.vpc[0] else er.vpc[0]
+    vpc_id = vpc_resource.get("status", {}).get("atProvider", {}).get("vpcId", "")
+
+observed_cluster_name = _eks_cluster_resource._name
 oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.status?.atProvider?.identity?.oidc?.issuer or ""
-#vpc_id = option("params")?.ocds?[observed_network_name]?.Resource?.status?.atProvider?.vpcId or ""
-vpcid = option("params")?.ocds?["vpc-xnetwork-example"]?.Resource?.status?.atProvider?.vpcId or ""
+
 
 # Create OpenIDConnectProvider only when we have a real OIDC URL
 _oidc_resources = []
@@ -508,7 +534,7 @@ if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
         _values = (s.values or {}) | ({
             # Especific Configuration for AWS Load Balancer Controller
             "clusterName": _id,
-            "vpcId": vpcid,
+            "vpcId": vpc_id,
             "region": _region,
             "serviceAccount": {
                 "name": s.serviceAccountName,
@@ -530,6 +556,7 @@ if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
     _helm_addon_resources = _policies_resources + _roles_resources + _policy_attachments_resources + _releases_resources
 
 items = [
+    extraResourcesRequest,
     _cluster_role_resource, 
     _node_role_resource,
     _eks_cluster_resource, 
