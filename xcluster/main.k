@@ -453,12 +453,13 @@ extraResourcesRequest = {
 
 # Get extra resources
 er = option("params").extraResources or {}
-_vpc_id = ""
+# dxr = {**oxr}
+_vpc_id = er?.vpc[0]?.Resource?.status?.atProvider?.vpcId or ""
 
 # Extract VPC ID from extra resources
-if "vpc" in er and er.vpc and len(er.vpc) > 0:
-    vpc_resource = er.vpc[0].Resource if "Resource" in er.vpc[0] else er.vpc[0]
-    _vpc_id = vpc_resource.get("status", {}).get("atProvider", {}).get("vpcId", "")
+# if "vpc" in er and er.vpc and len(er.vpc) > 0:
+#     vpc_resource = er.vpc[0].Resource if "Resource" in er.vpc[0] else er.vpc[0]
+#     _vpc_id = vpc_resource.get("status", {}).get("atProvider", {}).get("vpcId", "")
 
 observed_cluster_name = _eks_cluster_resource._name
 oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.status?.atProvider?.identity?.oidc?.issuer or ""
