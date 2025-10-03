@@ -432,8 +432,10 @@ spec:
 }
 
 observed_cluster_name = "eks-cluster-${_id}"
+observed_network_name = "vpc-${_networkId}"
 
 oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.status?.atProvider?.identity?.oidc?.issuer or ""
+vpc_id = option("params")?.ocds?[observed_network_name]?.Resource?.status?.atProvider?.id or ""
 
 # Create OpenIDConnectProvider only when we have a real OIDC URL
 _oidc_resources = []
@@ -503,6 +505,18 @@ if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
         }
         _namespace = s.namespace
         _values = (s.values or {}) | ({
+            # Especific Configuration for AWS Load Balancer Controller
+            "clusterName": _id,
+            "vpcId": vpc_id,
+            "region": _region,
+            "serviceAccount": {
+                "name": s.serviceAccountName,
+                "annotations": {
+                    "eks.amazonaws.com/role-arn": "arn:aws:iam::${_accountId}:role/role-${s.name}-${_id}"
+                }
+            }
+        } if s.name == "aws-load-balancer-controller" else {
+            # Configuration for another charts with service account
             "serviceAccount": {
                 "name": s.serviceAccountName,
                 "annotations": {
