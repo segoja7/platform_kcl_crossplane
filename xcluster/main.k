@@ -435,7 +435,7 @@ observed_cluster_name = "eks-cluster-${_id}"
 observed_network_name = "vpc-${_networkId}"
 
 oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.status?.atProvider?.identity?.oidc?.issuer or ""
-vpc_id = option("params")?.ocds?[observed_network_name]?.Resource?.status?.atProvider?.id or ""
+vpc_id = option("params")?.ocds?[observed_network_name]?.Resource?.status?.atProvider?.vpcId or ""
 
 # Create OpenIDConnectProvider only when we have a real OIDC URL
 _oidc_resources = []
