@@ -504,6 +504,7 @@ if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
         _namespace = s.namespace
         _values = (s.values or {}) | ({
             "serviceAccount": {
+                "name": s.serviceAccountName,
                 "annotations": {
                     "eks.amazonaws.com/role-arn": "arn:aws:iam::${_accountId}:role/role-${s.name}-${_id}"
                 }
