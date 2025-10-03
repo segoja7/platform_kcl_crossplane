@@ -453,12 +453,12 @@ extraResourcesRequest = {
 
 # Get extra resources
 er = option("params").extraResources or {}
-vpc_id = ""
+_vpc_id = ""
 
 # Extract VPC ID from extra resources
 if "vpc" in er and er.vpc and len(er.vpc) > 0:
     vpc_resource = er.vpc[0].Resource if "Resource" in er.vpc[0] else er.vpc[0]
-    vpc_id = vpc_resource.get("status", {}).get("atProvider", {}).get("vpcId", "")
+    _vpc_id = vpc_resource.get("status", {}).get("atProvider", {}).get("vpcId", "")
 
 observed_cluster_name = _eks_cluster_resource._name
 oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.status?.atProvider?.identity?.oidc?.issuer or ""
@@ -534,7 +534,7 @@ if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
         _values = (s.values or {}) | ({
             # Especific Configuration for AWS Load Balancer Controller
             "clusterName": _id,
-            "vpcId": vpc_id,
+            "vpcId": _vpc_id,
             "region": _region,
             "serviceAccount": {
                 "name": s.serviceAccountName,
