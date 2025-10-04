@@ -16,7 +16,7 @@ spec:
       apiVersion: krm.kcl.dev/v1alpha1
       kind: KCLRun
       spec:
-        target: Resources
+        # target: Resources #TODO
         source: github.com/segoja7/platform_as_data/xcluster
   - step: auto-ready
     functionRef:
