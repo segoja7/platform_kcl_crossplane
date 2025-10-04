@@ -435,11 +435,6 @@ spec:
 extraResourcesRequest = {
     "apiVersion": "meta.krm.kcl.dev/v1alpha1",
     "kind": "ExtraResources",
-    # "metadata": {
-    #     "annotations": {
-    #         "krm.kcl.dev/composition-resource-name": "extra-resources-network"
-    #     }
-    # },
     "requirements": {
         "vpc": {
             "apiVersion": "ec2.aws.crossplane.io/v1beta1",
@@ -454,12 +449,9 @@ extraResourcesRequest = {
 # Get extra resources
 er = option("params").extraResources or {}
 # dxr = {**oxr}
-_vpc_id = er?.vpc[0]?.Resource?.status?.atProvider?.vpcId if er?.vpc else ""
-
-# Extract VPC ID from extra resources
-# if "vpc" in er and er.vpc and len(er.vpc) > 0:
-#     vpc_resource = er.vpc[0].Resource if "Resource" in er.vpc[0] else er.vpc[0]
-#     _vpc_id = vpc_resource.get("status", {}).get("atProvider", {}).get("vpcId", "")
+_vpc_id = ""
+if er?.vpc and len(er.vpc) > 0:
+    _vpc_id = er.vpc[0]?.Resource?.status?.atProvider?.vpcId or ""
 
 observed_cluster_name = _eks_cluster_resource._name
 oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.status?.atProvider?.identity?.oidc?.issuer or ""
