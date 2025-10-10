@@ -64,6 +64,18 @@ spec:
           enabled: true
         serviceAccount:
           create: true
+        serviceMutatorWebhookConfig:
+          failurePolicy: Ignore
+        webhookConfig:
+          timeoutSeconds: 30
+        replicaCount: 2
+        resources:
+          limits:
+            cpu: 200m
+            memory: 500Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
       serviceAccountName: aws-load-balancer-controller
       customPolicy: |
         {
@@ -402,20 +414,43 @@ spec:
         }
     - name: cert-manager
       chart: "cert-manager"
-      repository: "https://charts.jetstack.io"
+      repository: "oci://quay.io/jetstack/charts"
       version: "v1.19.0"
       namespace: cert-manager
       createNamespace: true
       values:
         crds:
           enabled: true
-        # startupapicheck:
-        #   timeout: 10m
-        # webhook:
-        #   timeoutSeconds: 30
-        #webhook.securePort=10260
+        webhook:
+          timeoutSeconds: 30
+          securePort: 10251
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+        startupapicheck:
+          enabled: true
+          timeout: "5m"
+          backoffLimit: 6
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+        dns01RecursiveNameservers: "8.8.8.8:53"
+        dns01RecursiveNameserversOnly: true
         extraArgs:
-          - --dns01-recursive-nameservers-only,--dns01-recursive-nameservers=8.8.8.8:53
+          - --dns01-recursive-nameservers-only
+          - --dns01-recursive-nameservers=8.8.8.8:53
       serviceAccountName: cert-manager
       customPolicy: |
         {

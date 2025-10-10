@@ -23,7 +23,7 @@ spec:
     allocatedStorage: 20
     availabilityZone: us-east-1a
     copyTagsToSnapshot: false
-    dbInstanceClass: db.t3.micro
+    dbInstanceClass: db.t4g.micro
     dbName: exampledb
     engine: postgres
     engineVersion: "17"
@@ -34,5 +34,5 @@ spec:
     publiclyAccessible: false
     skipFinalSnapshot: true
     storageType: gp3
-  clusterId: "eks-cluster-xcluster-example" #ID of the cluster where the rds secret will be created
+  clusterId: "xcluster-example-segoja7" #ID of the cluster where the rds secret will be created
     
