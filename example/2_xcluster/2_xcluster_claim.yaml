@@ -28,11 +28,11 @@ spec:
   networkId: "xnetwork-example"
   clusterVersion: "1.33"
   nodeGroup:
-    amiType: ""
+    amiType: "BOTTLEROCKET_ARM_64"
     capacityType: "ON_DEMAND"
     diskSize: 20
     instanceTypes: 
-     - "t3.medium"
+     - "t4g.large"
     minSize: 1
     maxSize: 3
     desiredSize: 1
@@ -53,41 +53,6 @@ spec:
     #  version: "latest"
      resolveConflicts: "OVERWRITE"
   helmAddonsConfig:
-    # - name: cert-manager
-    #   chart: "cert-manager"
-    #   repository: "https://charts.jetstack.io"
-    #   version: "v1.18.2"
-    #   namespace: cert-manager
-    #   createNamespace: true
-    #   values:
-    #     crds:
-    #       enabled: true
-    #     extraArgs:
-    #       - --dns01-recursive-nameservers-only
-    #       - --dns01-recursive-nameservers=8.8.8.8:53
-    #     # serviceAccount:
-    #     #   annotations:
-    #     #     eks.amazonaws.com/role-arn: "arn:aws:iam::ACCOUNT_ID:role/sa-cert-manager-PROJECT_NAME"
-    #   serviceAccountName: cert-manager
-    #   customPolicy: |
-    #     {
-    #       "Version": "2012-10-17",
-    #       "Statement": [
-    #         {
-    #           "Effect": "Allow",
-    #           "Action": [
-    #             "route53:ChangeResourceRecordSets",
-    #             "route53:ListResourceRecordSets"
-    #           ],
-    #           "Resource": "arn:aws:route53:::hostedzone/*"
-    #         },
-    #         {
-    #           "Effect": "Allow", 
-    #           "Action": "route53:ListHostedZonesByName",
-    #           "Resource": "*"
-    #         }
-    #       ]
-    #     }
     - name: aws-load-balancer-controller
       chart: "aws-load-balancer-controller"
       repository: "https://aws.github.io/eks-charts"
@@ -351,4 +316,133 @@ spec:
                     "Resource": "*"
                 }
             ]
+        }
+    # - name: ingress-nginx
+    #   chart: "ingress-nginx"
+    #   repository: "https://kubernetes.github.io/ingress-nginx"
+    #   version: "4.13.3"
+    #   namespace: ingress-nginx
+    #   createNamespace: true
+    #   values:
+    #     controller:
+    #       config:
+    #         hosts: false
+    #       service:
+    #         type: LoadBalancer
+    #         annotations:
+    #           service.beta.kubernetes.io/aws-load-balancer-name: "ingress-idp"
+    #           service.beta.kubernetes.io/aws-load-balancer-type: "external"
+    #           service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    #           service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+    #         loadBalancerClass: "service.k8s.aws/nlb"
+    #         targetPorts:
+    #           https: https
+    #       extraArgs:
+    #         enable-ssl-passthrough: true
+    - name: external-dns
+      chart: "external-dns"
+      repository: "https://kubernetes-sigs.github.io/external-dns/"
+      version: "1.19.0"
+      namespace: external-dns
+      createNamespace: true
+      values:
+        replicaCount: 2
+        rbac:
+          create: true
+        installCRDs: true
+        serviceAccount:
+          create: true
+          name: "external-dns"
+        webhook:
+          port: 9443
+        automountServiceAccountToken: true
+        provider:
+          name: "aws"
+        aws:
+          region: "us-east-1"
+          zoneType: "public"
+        interval: "1m"
+        policy: "sync"
+        registry: "txt"
+        sources: 
+          - "service"
+          - "ingress"
+        metrics:
+          enabled: false
+          serviceMonitor:
+            enabled: false
+        podDisruptionBudget:
+          minAvailable: 1
+      serviceAccountName: external-dns
+      customPolicy: |
+        {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+            "Effect": "Allow",
+            "Action": [
+                "route53:ChangeResourceRecordSets",
+                "route53:ListResourceRecordSets",
+                "route53:ListTagsForResources"
+            ],
+            "Resource": [
+                "arn:aws:route53:::hostedzone/*"
+            ]
+            },
+            {
+            "Effect": "Allow",
+            "Action": [
+                "route53:ListHostedZones"
+            ],
+            "Resource": [
+                "*"
+            ]
+            }
+        ]
+        }
+    - name: cert-manager
+      chart: "cert-manager"
+      repository: "https://charts.jetstack.io"
+      version: "v1.19.0"
+      namespace: cert-manager
+      createNamespace: true
+      values:
+        crds:
+          enabled: true
+        # startupapicheck:
+        #   timeout: 10m
+        # webhook:
+        #   timeoutSeconds: 30
+        #webhook.securePort=10260
+        extraArgs:
+          - --dns01-recursive-nameservers-only,--dns01-recursive-nameservers=8.8.8.8:53
+      serviceAccountName: cert-manager
+      customPolicy: |
+        {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+            "Effect": "Allow",
+            "Action": "route53:GetChange",
+            "Resource": "arn:aws:route53:::change/*"
+            },
+            {
+            "Effect": "Allow",
+            "Action": [
+                "route53:ChangeResourceRecordSets",
+                "route53:ListResourceRecordSets"
+            ],
+            "Resource": "arn:aws:route53:::hostedzone/*",
+            "Condition": {
+                "ForAllValues:StringEquals": {
+                "route53:ChangeResourceRecordSetsRecordTypes": ["TXT"]
+                }
+            }
+            },
+            {
+            "Effect": "Allow",
+            "Action": "route53:ListHostedZonesByName",
+            "Resource": "*"
+            }
+        ]
         }

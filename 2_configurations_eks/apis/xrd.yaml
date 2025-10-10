@@ -76,7 +76,7 @@ spec:
                     amiType:
                       type: string
                       description: "AMI type for the cluster. Valid values are 'AL2_x86_64', 'AL2_x86_64_GPU', 'BOTTLEROCKET_ARM_64', and 'BOTTLEROCKET_x86_64'."
-                      default: "AL2_x86_64"
+                      #default: "AL2_x86_64"
                     diskSize:
                       type: integer
                       description: "Disk size in GiB for the cluster nodes."
