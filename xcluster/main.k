@@ -309,7 +309,7 @@ _providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
 }
 
 _release_helm_resource = release.ReleaseBlueprint {
-    _name = "release-helm-argocd-${_id}"
+    _name = "argocd-${_id}"
     _labels = _labels
     _providerConfig = _providerconfig_helm_resource._name
     _chart = {
