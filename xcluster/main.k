@@ -329,13 +329,18 @@ _release_helm_resource = release.ReleaseBlueprint {
             "ingress": {
                 "enabled": True,
                 "ingressClassName": "nginx",
-                "hostname": "argo.segoja7.com",
                 "annotations": {
                     "nginx.ingress.kubernetes.io/backend-protocol": "HTTP",
                     "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
                 },
-                "tls": True,
-                "secretName": _certificateSecretName
+               "extraTls": [
+                   {
+                       "hosts": [
+                           "argo.segoja7.com" 
+                       ],
+                       "secretName": _certificateSecretName 
+                   }
+               ]
             }
         },           
         "repoServer": {
