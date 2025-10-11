@@ -309,7 +309,7 @@ _providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
 }
 
 _release_helm_resource = release.ReleaseBlueprint {
-    _name = "argocd-${_id}"
+    _name = "argocd"
     _labels = _labels
     _providerConfig = _providerconfig_helm_resource._name
     _chart = {
@@ -325,7 +325,7 @@ _release_helm_resource = release.ReleaseBlueprint {
         },
         "configs": {
             "params": {
-                "server.insecure": True
+                "server.insecure": False
             }
         },
         "server": {
@@ -343,15 +343,7 @@ _release_helm_resource = release.ReleaseBlueprint {
                 "aws": {
                     "serviceType": "ClusterIP",
                     "backendProtocolVersion": "GRPC"
-                },
-                "tls": [
-                   {
-                       "hosts": [
-                           "argo.segoja7.com" 
-                       ],
-                       "secretName": _certificateSecretName 
-                   }
-                ]
+                }
             }
         },           
         "repoServer": {
