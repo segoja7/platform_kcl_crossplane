@@ -330,10 +330,24 @@ _release_helm_resource = release.ReleaseBlueprint {
                 "enabled": True,
                 "ingressClassName": "alb",
                 "annotations": {
-                    "nginx.ingress.kubernetes.io/backend-protocol": "HTTP",
-                    "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+                    "alb.ingress.kubernetes.io/scheme": "internet-facing",
+                    "alb.ingress.kubernetes.io/target-type": "ip",
+                    "alb.ingress.kubernetes.io/backend-protocol": "HTTP",
+                    "alb.ingress.kubernetes.io/listen-ports": '[{"HTTP": 80}, {"HTTPS": 443}]',
+                    "alb.ingress.kubernetes.io/ssl-redirect": "443"
                 },
-               "extraTls": [
+                "hosts": [
+                    {
+                        "host": "argo.segoja7.com",
+                        "paths": [
+                            {
+                                "path": "/",
+                                "pathType": "Prefix"
+                            }
+                        ]
+                    }
+                ],
+               "tls": [
                    {
                        "hosts": [
                            "argo.segoja7.com" 
