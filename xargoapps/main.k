@@ -63,8 +63,8 @@ import schemas as argo
 # }
 
 
-_argo_app_example_basick8s_resource = argo.ApplicationBlueprint {
-    _name = "kcl-test-app"
+_argo_root_app_resource = argo.ApplicationBlueprint {
+    _name = "kcl-root"
     _namespace = "argocd"
     _destination = {
         server = "https://kubernetes.default.svc"
@@ -72,18 +72,24 @@ _argo_app_example_basick8s_resource = argo.ApplicationBlueprint {
     }
     _project = "default"
     _source = {
-        path = "example_basic_k8s"
+        path = "xargoapps/gitops_manifests/apps"
         repoURL = "https://github.com/segoja7/platform_as_data"
         targetRevision = "HEAD"
         plugin = {
             name = "kcl-v1.0"
         }
     }
+    _syncPolicy = {
+        automated = {
+            prune = True
+            selfHeal = True
+        }
+    }    
 } 
 
 
 items = [
-    _argo_app_example_basick8s_resource 
+    _argo_root_app_resource 
     # _argo_app_xnetwork_resource, 
     # _argo_app_xnetwork_claim_resource. 
     # _argo_app_xcluster_resource,

@@ -1,8 +1,7 @@
 apiVersion: opentofu.upbound.io/v1beta1
 kind: ProviderConfig
 metadata:
-  # This is the default ProviderConfig that Workspaces will use if they
-  # don't specify a providerConfigRef.
+  # This is the default ProviderConfig that Workspaces will use
   name: default2
 spec:
   configuration: |

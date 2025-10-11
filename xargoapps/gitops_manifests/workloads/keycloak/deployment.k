@@ -1,0 +1,108 @@
+apiVersion = "apps/v1"
+kind = "Deployment"
+metadata = {
+    name = "keycloak"
+    namespace = "default"
+}
+spec = {
+    replicas = 2
+    selector = {
+        matchLabels = {
+            app = "keycloak"
+        }
+    }
+    template = {
+        metadata = {
+            labels = {
+                app = "keycloak"
+            }
+        }
+        spec = {
+            containers = [
+                {
+                    name = "keycloak"
+                    image = "quay.io/keycloak/keycloak:latest"
+                    args = ["start"]
+                    ports = [
+                        {
+                            containerPort = 8443
+                        }
+                    ]
+                    envFrom = [
+                        {
+                            secretRef = {
+                                name = "postgres-secrets"
+                            }
+                        }
+                    ]
+                    env = [
+                        {
+                            name = "KEYCLOAK_ADMIN"
+                            value = "admin"
+                        },
+                        {
+                            name = "KEYCLOAK_ADMIN_PASSWORD"
+                            valueFrom = {
+                                secretKeyRef = {
+                                    name = "postgres-secrets"
+                                    key = "password"
+                                }
+                            }
+                        },
+                        {
+                            name = "KC_DB"
+                            value = "postgres"
+                        },
+                        {
+                            name = "KC_DB_URL"
+                            value = "jdbc:postgresql://$(endpoint):$(port)/keycloak"
+                        },
+                        {
+                            name = "KC_DB_USERNAME"
+                            value = "$(username)"
+                        },
+                        {
+                            name = "KC_DB_PASSWORD"
+                            value = "$(password)"
+                        },
+                        {
+                            name = "KC_HOSTNAME"
+                            value = "keycloak.segoja7.com"
+                        },
+                        {
+                            name = "KC_FEATURES"
+                            value = "hostname"
+                        },
+                        {
+                            name = "KC_HTTPS_CERTIFICATE_FILE"
+                            value = "/etc/x509/https/tls.crt"
+                        },
+                        {
+                            name = "KC_HTTPS_CERTIFICATE_KEY_FILE"
+                            value = "/etc/x509/https/tls.key"
+                        },
+                        {
+                            name = "KC_HTTPS_PORT"
+                            value = "8443"
+                        }
+                    ]
+                    volumeMounts = [
+                        {
+                            name = "tls-certs"
+                            mountPath = "/etc/x509/https"
+                            readOnly = True
+                        }
+                    ]
+                }
+            ]
+            volumes = [
+                {
+                    name = "tls-certs"
+                    secret = {
+                        secretName = "mysecret"
+                    }
+                }
+            ]
+        }
+    }
+}
