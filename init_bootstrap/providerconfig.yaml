@@ -10,17 +10,17 @@ spec:
       name: aws-secret
       key: creds
 ---
-# apiVersion: aws.upbound.io/v1beta1
-# kind: ProviderConfig
-# metadata:
-#   name: segoja7-eks
-# spec:
-#   credentials:
-#     source: Secret
-#     secretRef:
-#       key: creds
-#       name: aws-secret
-#       namespace: crossplane-system
+apiVersion: argocd.crossplane.io/v1alpha1
+kind: ProviderConfig
+metadata:
+  name: argocd-provider
+spec:
+  credentials:
+    secretRef:
+      key: Data
+      name: eks-cluster-xcluster-example-segoja7 #remote cluster (xcluster composition)
+      namespace: default
+    source: Secret
 
 
 #kubectl create secret generic aws-secret   --namespace=crossplane-system   --from-file=creds=<>

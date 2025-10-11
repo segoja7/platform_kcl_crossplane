@@ -376,6 +376,10 @@ _release_helm_resource = release.ReleaseBlueprint {
             ]
         }
     }
+    _writeConnectionSecretToRef = {
+        name: _name
+        namespace: "default"
+    } 
 }
 
 _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlueprint {
