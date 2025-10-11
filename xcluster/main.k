@@ -320,6 +320,9 @@ _release_helm_resource = release.ReleaseBlueprint {
     # _createNamespace = False
     _namespace = "argocd"
     _values = {
+        "global": {
+            "domain": "argo.segoja7.com"
+        },
         "configs": {
             "params": {
                 "server.insecure": True
@@ -328,6 +331,7 @@ _release_helm_resource = release.ReleaseBlueprint {
         "server": {
             "ingress": {
                 "enabled": True,
+                "controller": "aws",
                 "ingressClassName": "alb",
                 "annotations": {
                     "alb.ingress.kubernetes.io/scheme": "internet-facing",
@@ -336,25 +340,18 @@ _release_helm_resource = release.ReleaseBlueprint {
                     "alb.ingress.kubernetes.io/listen-ports": '[{"HTTP": 80}, {"HTTPS": 443}]',
                     "alb.ingress.kubernetes.io/ssl-redirect": "443"
                 },
-                "hosts": [
-                    {
-                        "host": "argo.segoja7.com",
-                        "paths": [
-                            {
-                                "path": "/",
-                                "pathType": "Prefix"
-                            }
-                        ]
-                    }
-                ],
-               "tls": [
+                "aws": {
+                    "serviceType": "ClusterIP",
+                    "backendProtocolVersion": "GRPC"
+                },
+                "tls": [
                    {
                        "hosts": [
                            "argo.segoja7.com" 
                        ],
                        "secretName": _certificateSecretName 
                    }
-               ]
+                ]
             }
         },           
         "repoServer": {
