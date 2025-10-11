@@ -554,12 +554,12 @@ if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
 
 #create certificate only when cert-manager is ready.  
 observed_cert_manager_release = "cert-manager" #TODO: this line assume that release have cert-manager name
-cert_manager_release = option("params")?.ocds?[observed_cert_manager_release]?.Resource?.status?.conditions?.status or ""
+cert_manager_release = option("params")?.ocds?[observed_cert_manager_release]?.Resource?.status?.conditions[0]?.status or ""
 
 
 # Create certificates only when we have a real OIDC URL
 _cert_manager_resources = []
-if cert_manager_release != "":
+if cert_manager_release == "True":
     _certificate_resource = object.ObjectBlueprint {
         _name = "cert-manager-certificate-${_id}"
         _labels = _labels
