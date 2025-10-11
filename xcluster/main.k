@@ -333,8 +333,8 @@ _release_helm_resource = release.ReleaseBlueprint {
         name = "argo-cd"
         repository = "https://argoproj.github.io/argo-helm"
         version = "7.9.0"
-        createNamespace = False
     }
+    # _createNamespace = False
     _namespace = "argocd"
     _values = {
         "repoServer": {
