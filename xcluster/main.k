@@ -573,6 +573,11 @@ if cert_manager_release == "True":
             spec = {
                 dnsNames = _domainNames
                 secretName = _certificateSecretName
+                secretTemplate = {
+                    annotations = {
+                        "reflector.v1.k8s.emberstack.com/reflection-allowed": "true"
+                    }
+                }
                 revisionHistoryLimit = 1
                 issuerRef = {
                     name = "clusterissuer-${_id}"
