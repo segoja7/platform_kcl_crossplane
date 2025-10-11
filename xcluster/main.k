@@ -649,7 +649,7 @@ items = [
     _cluster_nodegroup_resource
 ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
     _providerconfig_helm_resource,
-    _argo_namespace_resource,
+    # _argo_namespace_resource,
     _release_helm_resource,
     _providerconfig_kubernetes_resource,
     _object_argo_cm_resource
