@@ -330,20 +330,7 @@ _release_helm_resource = release.ReleaseBlueprint {
         },
         "server": {
             "ingress": {
-                "enabled": True,
-                "controller": "aws",
-                "ingressClassName": "alb",
-                "annotations": {
-                    "alb.ingress.kubernetes.io/scheme": "internet-facing",
-                    "alb.ingress.kubernetes.io/target-type": "ip",
-                    "alb.ingress.kubernetes.io/backend-protocol": "HTTP",
-                    "alb.ingress.kubernetes.io/listen-ports": '[{"HTTP": 80}, {"HTTPS": 443}]',
-                    "alb.ingress.kubernetes.io/ssl-redirect": "443"
-                },
-                "aws": {
-                    "serviceType": "ClusterIP",
-                    "backendProtocolVersion": "GRPC"
-                }
+                "enabled": False
             }
         },           
         "repoServer": {
@@ -422,6 +409,109 @@ _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlu
             key = "kubeconfig"
         }
     }
+}
+
+_object_argogrpc_service = object.ObjectBlueprint {
+    _name = "argogrpc-service"
+    _labels = _labels
+    _manifest = {
+        apiVersion = "v1"
+        kind = "Service"
+        metadata = {
+            name = "argogrpc"
+            namespace = "argocd"
+            annotations = {
+                "alb.ingress.kubernetes.io/backend-protocol-version": "GRPC"
+            }
+            labels = {
+                app = "argogrpc"
+            }
+        }
+        spec = {
+            ports = [
+                {
+                    name = "443"
+                    port = 443
+                    protocol = "TCP"
+                    targetPort = 8080
+                }
+            ]
+            selector = {
+                "app.kubernetes.io/name" = "argocd-server"
+            }
+            sessionAffinity = "None"
+            type = "NodePort"
+        }
+    }
+    _providerConfig = _providerconfig_kubernetes_resource._name
+}
+
+_object_argocd_ingress = object.ObjectBlueprint {
+    _name = "argocd-ingress"
+    _labels = _labels
+    _manifest = {
+        apiVersion = "networking.k8s.io/v1"
+        kind = "Ingress"
+        metadata = {
+            name = "argocd"
+            namespace = "argocd"
+            annotations = {
+                "alb.ingress.kubernetes.io/scheme": "internet-facing"
+                "alb.ingress.kubernetes.io/target-type": "ip"
+                "alb.ingress.kubernetes.io/backend-protocol": "HTTPS"
+                "alb.ingress.kubernetes.io/conditions.argogrpc": '[{"field":"http-header","httpHeaderConfig":{"httpHeaderName": "Content-Type", "values":["application/grpc"]}}]'
+                "alb.ingress.kubernetes.io/listen-ports": '[{"HTTP": 80}, {"HTTPS": 443}]'
+                "alb.ingress.kubernetes.io/ssl-redirect": "443"
+                "alb.ingress.kubernetes.io/healthcheck-path": "/grpc.health.v1.Health/Check"
+                "alb.ingress.kubernetes.io/success-codes": "0"
+            }
+        }
+        spec = {
+            ingressClassName = "alb"
+            rules = [
+                {
+                    host = "argo.segoja7.com"
+                    http = {
+                        paths = [
+                            {
+                                path = "/"
+                                pathType = "Prefix"
+                                backend = {
+                                    service = {
+                                        name = "argogrpc"
+                                        port = {
+                                            number = 443
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                path = "/"
+                                pathType = "Prefix"
+                                backend = {
+                                    service = {
+                                        name = "argocd-server"
+                                        port = {
+                                            number = 443
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+            tls = [
+                {
+                    hosts = [
+                        "argo.segoja7.com"
+                    ]
+                    secretName = _certificateSecretName
+                }
+            ]
+        }
+    }
+    _providerConfig = _providerconfig_kubernetes_resource._name
 }
 
 _object_argo_cm_resource = object.ObjectBlueprint {
@@ -660,5 +750,7 @@ items = [
     _providerconfig_helm_resource,
     _release_helm_resource,
     _providerconfig_kubernetes_resource,
+    _object_argogrpc_service,
+    _object_argocd_ingress,
     _object_argo_cm_resource
 ] + _oidc_resources + _helm_addon_resources + _cert_manager_resources
