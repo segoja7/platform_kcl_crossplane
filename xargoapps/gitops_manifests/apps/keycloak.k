@@ -1,6 +1,6 @@
+import ..schemas as argo
 
-
-_argo_app_example_basick8s_resource = argo.ApplicationBlueprint {
+_argo_app_keycloak_resource = argo.ApplicationBlueprint {
     _name = "kcl-keycloak"
     _namespace = "keycloak" #TODO: Finalizers
     _destination = {
