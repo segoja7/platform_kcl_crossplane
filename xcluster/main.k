@@ -653,7 +653,8 @@ if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
 
 #create certificate only when cert-manager is ready.  
 observed_cert_manager_release = "cert-manager" #TODO: this line assume that release have cert-manager name
-cert_manager_release = option("params")?.ocds?[observed_cert_manager_release]?.Resource?.status?.conditions[0]?.status or ""
+cert_manager_release_conditions = option("params")?.ocds?[observed_cert_manager_release]?.Resource?.status?.conditions
+cert_manager_release = cert_manager_release_conditions[0].status if cert_manager_release_conditions and len(cert_manager_release_conditions) > 0 else ""
 
 
 # Create certificates only when we have a real OIDC URL
