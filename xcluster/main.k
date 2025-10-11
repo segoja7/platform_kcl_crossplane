@@ -590,7 +590,7 @@ if cert_manager_release == "True":
             apiVersion = "cert-manager.io/v1"
             kind = "ClusterIssuer"
             metadata = {
-                name = "ClusterIssuer-${_id}"
+                name = "clusterissuer-${_id}"
             }
             spec = {
                 acme = {
