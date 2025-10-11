@@ -328,7 +328,7 @@ _release_helm_resource = release.ReleaseBlueprint {
         "server": {
             "ingress": {
                 "enabled": True,
-                "ingressClassName": "nginx",
+                "ingressClassName": "alb",
                 "annotations": {
                     "nginx.ingress.kubernetes.io/backend-protocol": "HTTP",
                     "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
