@@ -174,7 +174,19 @@ spec:
                     - not:
                         required: ["serviceAccountName"]
                     - required: ["serviceAccountName", "customPolicy"]
-            required: ["id", "region", "accountId", "networkId"]
+              hostedZoneID:
+                type: string
+                default: Z084056021QR5BJUSPGN7
+              domainNames:
+                type: array
+                description: List of domain names for SSL certificates
+                items:
+                  type: string
+              certificateSecretName:
+                type: string
+                description: Name of the Kubernetes secret for SSL certificates
+                default: ssl-cert-default
+            required: ["id", "region", "accountId", "networkId", "hostedZoneID", "domainNames", "certificateSecretName"]
           # status:
           #   type: object
           #   properties:

@@ -52,6 +52,10 @@ spec:
    - name: kube-proxy
     #  version: "latest"
      resolveConflicts: "OVERWRITE"
+  hostedZoneID: "Z084056021QR5BJUSPGN7"
+  domainNames: 
+   - "*.segoja7.com"
+  certificateSecretName: "ssl-wildcard-idp"
   helmAddonsConfig:
     # - name: aws-load-balancer-controller
     #   chart: "aws-load-balancer-controller"
@@ -481,3 +485,9 @@ spec:
             }
         ]
         }
+    - name: reflector
+      chart: "reflector"
+      repository: "https://emberstack.github.io/helm-charts" #for cert-manager wildcard.
+      version: "9.1.34"
+      namespace: reflector
+      createNamespace: true

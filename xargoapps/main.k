@@ -62,6 +62,19 @@ import schemas as argo
 #     }
 # }
 
+_argo_cluster_resource = argo.ClusterBlueprint {
+    _name = "xcluster-dev"
+    _config = {
+        kubeconfigSecretRef = {
+            name = "eks-cluster-xcluster-example-segoja7"
+            namespace = "default"
+            key = "kubeconfig"
+        }
+    }
+    _name = "xcluster-dev"
+    _providerConfig = 
+}
+
 
 _argo_root_app_resource = argo.ApplicationBlueprint {
     _name = "kcl-root"

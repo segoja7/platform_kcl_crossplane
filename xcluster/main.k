@@ -35,7 +35,9 @@ _nodeGroupConfig = oxr.spec.nodeGroup or {}
 _addonsConfig = oxr.spec.addons or []
 _labels = {"claim-name" = _id}
 _helmAddonsConfig = oxr.spec.helmAddonsConfig or []
-
+_domainNames = oxr.spec.domainNames
+_certificateSecretName = oxr.spec.certificateSecretName 
+_hostedZoneID = oxr.spec.hostedZoneID or "hosted_zone_id_not_set"
 
 _cluster_assume_role_policy = json.encode({
     "Version": "2012-10-17",
@@ -376,10 +378,7 @@ _release_helm_resource = release.ReleaseBlueprint {
             ]
         }
     }
-    _writeConnectionSecretToRef = {
-        name: _name
-        namespace: "default"
-    } 
+    
 }
 
 _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlueprint {
@@ -552,6 +551,71 @@ if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
     
     _helm_addon_resources = _policies_resources + _roles_resources + _policy_attachments_resources + _releases_resources
 
+
+#create certificate only when cert-manager is ready.  
+observed_cert_manager_release = "cert-manager" #TODO: this line assume that release have cert-manager name
+cert_manager_release = option("params")?.ocds?[observed_cert_manager_release]?.Resource?.status?.conditions?.status or ""
+
+
+# Create certificates only when we have a real OIDC URL
+_cert_manager_resources = []
+if cert_manager_release != "":
+    _certificate_resource = object.ObjectBlueprint {
+        _name = "cert-manager-certificate-${_id}"
+        _labels = _labels
+        _manifest = {
+            apiVersion = "cert-manager.io/v1"
+            kind = "Certificate"
+            metadata = {
+                name = "certificate-${_id}"
+                namespace = "cert-manager"
+            }
+            spec = {
+                dnsNames = _domainNames
+                secretName = _certificateSecretName
+                revisionHistoryLimit = 1
+                issuerRef = {
+                    name = "clusterissuer-${_id}"
+                    kind = "ClusterIssuer"
+                    group = "cert-manager.io"
+                    }
+            }
+        }
+        _providerConfig = _providerconfig_kubernetes_resource._name
+    }
+    _clusterissuer_resource = object.ObjectBlueprint {
+        _name = "cert-manager-clusterissuer-${_id}"
+        _labels = _labels
+        _manifest = {
+            apiVersion = "cert-manager.io/v1"
+            kind = "ClusterIssuer"
+            metadata = {
+                name = "ClusterIssuer-${_id}"
+            }
+            spec = {
+                acme = {
+                    server = "https://acme-staging-v02.api.letsencrypt.org/directory"
+                    privateKeySecretRef = {
+                        name = "${_id}-key"
+                    }
+                    solvers = [
+                        {
+                            dns01 = {
+                                route53 = {
+                                    hostedZoneID = _hostedZoneID
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+        _providerConfig = _providerconfig_kubernetes_resource._name
+    }
+    _cert_manager_resources = [_certificate_resource, _clusterissuer_resource]
+
+
+
 items = [
     extraResourcesRequest,
     _cluster_role_resource, 
@@ -563,4 +627,4 @@ items = [
     _release_helm_resource,
     _providerconfig_kubernetes_resource,
     _object_argo_cm_resource
-] + _oidc_resources + _helm_addon_resources
+] + _oidc_resources + _helm_addon_resources + _cert_manager_resources
