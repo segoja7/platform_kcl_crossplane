@@ -308,23 +308,6 @@ _providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
     }
 }
 
-# _argo_namespace_resource = object.ObjectBlueprint {
-#     _name = "argo-namespace-${_id}"
-#     _labels = _labels
-#     _manifest = {
-#         apiVersion = "v1"
-#         kind = "Namespace"
-#         metadata = {
-#             name = "argocd" 
-#             annotations = {
-#                 #Reflector: "annotations for copy secret of certificate in ns argocd from cert-manager for ingress-nginx"
-#                 "reflector.v1.k8s.emberstack.com/reflects": "cert-manager/${_certificateSecretName}"
-#             }
-#         }
-#     }
-#     _providerConfig = _providerconfig_kubernetes_resource._name
-# }
-
 _release_helm_resource = release.ReleaseBlueprint {
     _name = "release-helm-argocd-${_id}"
     _labels = _labels
@@ -337,6 +320,24 @@ _release_helm_resource = release.ReleaseBlueprint {
     # _createNamespace = False
     _namespace = "argocd"
     _values = {
+        "configs": {
+            "params": {
+                "server.insecure": True
+            }
+        },
+        "server": {
+            "ingress": {
+                "enabled": True,
+                "ingressClassName": "nginx",
+                "hostname": "argo.segoja7.com",
+                "annotations": {
+                    "nginx.ingress.kubernetes.io/backend-protocol": "HTTP",
+                    "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+                },
+                "tls": True,
+                "secretName": _certificateSecretName
+            }
+        },           
         "repoServer": {
             "volumes": [
                 {
@@ -649,7 +650,6 @@ items = [
     _cluster_nodegroup_resource
 ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
     _providerconfig_helm_resource,
-    # _argo_namespace_resource,
     _release_helm_resource,
     _providerconfig_kubernetes_resource,
     _object_argo_cm_resource
