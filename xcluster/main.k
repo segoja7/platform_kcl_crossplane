@@ -325,7 +325,7 @@ _release_helm_resource = release.ReleaseBlueprint {
         },
         "configs": {
             "params": {
-                "server.insecure": False
+                "server.insecure": True
             }
         },
         "server": {
