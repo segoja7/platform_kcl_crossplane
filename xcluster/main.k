@@ -456,8 +456,7 @@ _object_argocd_ingress = object.ObjectBlueprint {
             name = "argocd-server-ingress"
             namespace = "argocd"
             annotations = {
-                "nginx.ingress.kubernetes.io/ssl-passthrough": "true"
-                "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS"
+                "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
             }
         }
         spec = {
