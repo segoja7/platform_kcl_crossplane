@@ -326,6 +326,12 @@ _release_helm_resource = release.ReleaseBlueprint {
         "configs": {
             "params": {
                 "server.insecure": True
+            },
+            "cm": {
+                "accounts.provider-argocd": "apiKey"
+            },
+            "rbac": {
+                "policy.csv": "g, provider-argocd, role:admin"
             }
         },
         "server": {
@@ -411,40 +417,6 @@ _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlu
     }
 }
 
-_object_argogrpc_service = object.ObjectBlueprint {
-    _name = "argogrpc-service"
-    _labels = _labels
-    _manifest = {
-        apiVersion = "v1"
-        kind = "Service"
-        metadata = {
-            name = "argogrpc"
-            namespace = "argocd"
-            annotations = {
-                "alb.ingress.kubernetes.io/backend-protocol-version": "GRPC"
-            }
-            labels = {
-                app = "argogrpc"
-            }
-        }
-        spec = {
-            ports = [
-                {
-                    name = "443"
-                    port = 443
-                    protocol = "TCP"
-                    targetPort = 8080
-                }
-            ]
-            selector = {
-                "app.kubernetes.io/name" = "argocd-server"
-            }
-            sessionAffinity = "None"
-            type = "NodePort"
-        }
-    }
-    _providerConfig = _providerconfig_kubernetes_resource._name
-}
 
 _object_argocd_ingress = object.ObjectBlueprint {
     _name = "argocd-ingress"
