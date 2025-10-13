@@ -66,7 +66,7 @@ deploy = {
                             },
                             {
                                 name = "KC_DB_URL_DATABASE"
-                                value = "keycloak"
+                                value = "exampledb"
                             },
                             {
                                 name = "KC_DB_USERNAME"
