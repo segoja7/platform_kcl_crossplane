@@ -1,6 +1,7 @@
 import schemas.applicationNative as argo
+import manifests
 
-argo_app_keycloak_resource = argo.ApplicationBlueprint {
+argo.ApplicationBlueprint {
     _name = "kcl-keycloak"
     _namespace = "argocd"
     _finalizers = [
@@ -30,6 +31,6 @@ argo_app_keycloak_resource = argo.ApplicationBlueprint {
     }
 }
 
-# items = [
-#   argo_app_keycloak_resource
-# ]
+# manifests.yaml_stream([
+#     argo_app_keycloak_resource
+# ])
