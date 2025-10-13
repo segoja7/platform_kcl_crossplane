@@ -29,4 +29,7 @@ _argo_app_keycloak_resource = argo.ApplicationBlueprint {
         ]
     }
 }
- 
+
+items = [
+    _argo_app_keycloak_resource
+]
