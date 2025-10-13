@@ -1,10 +1,10 @@
-import ..schemas as argo
+import schemas.applicationNative as argo
 
 _argo_app_keycloak_resource = argo.ApplicationBlueprint {
     _name = "kcl-keycloak"
     _namespace = "argocd"
     _destination = {
-        name = "xcluster"
+        name = "hub-cluster-xargoapp-example-segoja7"
         namespace = "keycloak"
     }
     _project = "default"
