@@ -99,7 +99,7 @@ deploy = {
                     {
                         name = "tls-certs"
                         secret = {
-                            secretName = "ssl-cert-idp-keycloak"
+                            secretName = "ssl-wildcard-idp"
                         }
                     }
                 ]
