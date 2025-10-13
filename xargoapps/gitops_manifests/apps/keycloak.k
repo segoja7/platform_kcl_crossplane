@@ -4,7 +4,7 @@ _argo_app_keycloak_resource = argo.ApplicationBlueprint {
     _name = "kcl-keycloak"
     _namespace = "argocd"
     _destination = {
-        server = "https://kubernetes.default.svc"
+        name = "xcluster"
         namespace = "keycloak"
     }
     _project = "default"
@@ -25,4 +25,6 @@ _argo_app_keycloak_resource = argo.ApplicationBlueprint {
             "CreateNamespace=true"
         ]
     }
-} 
+}
+
+items = [_argo_app_keycloak_resource] 

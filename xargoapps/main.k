@@ -78,8 +78,9 @@ _argo_cluster_resource = argo.ClusterBlueprint {
 
 _argo_root_app_resource = argo.ApplicationBlueprint {
     _name = "kcl-root"
+    _namespace = "argocd"
     _destination = {
-        server = _argo_cluster_resource._clusterName
+        server = "https://kubernetes.default.svc"
         namespace = "argocd"
     }
     _project = "default"
