@@ -1,0 +1,5 @@
+[dependencies]
+  [dependencies.xargoapps]
+    name = "xargoapps"
+    full_name = "xargoapps_0.0.1"
+    version = "0.0.1"
