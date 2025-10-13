@@ -28,13 +28,6 @@ deploy = {
                                 containerPort = 8443
                             }
                         ]
-                        envFrom = [
-                            {
-                                secretRef = {
-                                    name = "rds-credentials-xdatabase-example-segoja7"
-                                }
-                            }
-                        ]
                         env = [
                             {
                                 name = "KEYCLOAK_ADMIN"
@@ -55,15 +48,43 @@ deploy = {
                             },
                             {
                                 name = "KC_DB_URL"
-                                value = "jdbc:postgresql://$(endpoint):$(port)/keycloak"
+                                value = "jdbc:postgresql://$(RDS_ENDPOINT):$(RDS_PORT)/keycloak"
+                            },
+                            {
+                                name = "RDS_ENDPOINT"
+                                valueFrom = {
+                                    secretKeyRef = {
+                                        name = "rds-credentials-xdatabase-example-segoja7"
+                                        key = "endpoint"
+                                    }
+                                }
+                            },
+                            {
+                                name = "RDS_PORT"
+                                valueFrom = {
+                                    secretKeyRef = {
+                                        name = "rds-credentials-xdatabase-example-segoja7"
+                                        key = "port"
+                                    }
+                                }
                             },
                             {
                                 name = "KC_DB_USERNAME"
-                                value = "$(username)"
+                                valueFrom = {
+                                    secretKeyRef = {
+                                        name = "rds-credentials-xdatabase-example-segoja7"
+                                        key = "username"
+                                    }
+                                }
                             },
                             {
                                 name = "KC_DB_PASSWORD"
-                                value = "$(password)"
+                                valueFrom = {
+                                    secretKeyRef = {
+                                        name = "rds-credentials-xdatabase-example-segoja7"
+                                        key = "password"
+                                    }
+                                }
                             },
                             {
                                 name = "KC_HOSTNAME"
