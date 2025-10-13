@@ -47,11 +47,7 @@ deploy = {
                                 value = "postgres"
                             },
                             {
-                                name = "KC_DB_URL"
-                                value = "jdbc:postgresql://$(RDS_ENDPOINT):$(RDS_PORT)/keycloak"
-                            },
-                            {
-                                name = "RDS_ENDPOINT"
+                                name = "KC_DB_URL_HOST"
                                 valueFrom = {
                                     secretKeyRef = {
                                         name = "rds-credentials-xdatabase-example-segoja7"
@@ -60,13 +56,17 @@ deploy = {
                                 }
                             },
                             {
-                                name = "RDS_PORT"
+                                name = "KC_DB_URL_PORT"
                                 valueFrom = {
                                     secretKeyRef = {
                                         name = "rds-credentials-xdatabase-example-segoja7"
                                         key = "port"
                                     }
                                 }
+                            },
+                            {
+                                name = "KC_DB_URL_DATABASE"
+                                value = "keycloak"
                             },
                             {
                                 name = "KC_DB_USERNAME"
