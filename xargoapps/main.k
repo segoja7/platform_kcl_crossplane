@@ -96,9 +96,9 @@ _argo_root_app_resource = argo.ApplicationBlueprint {
         path = "xargoapps/gitops_manifests/apps"
         repoURL = "https://github.com/segoja7/platform_as_data"
         targetRevision = "HEAD"
-        plugin = {
-            name = "kcl-v1.0"
-        }
+        # plugin = {
+        #     name = "kcl-v1.0"
+        # }
     }
     _syncPolicy = {
         automated = {
