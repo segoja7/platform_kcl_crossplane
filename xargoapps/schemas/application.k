@@ -2,7 +2,7 @@
 
 import modules.applications_argocd_crossplane_io.v1alpha1.applications_argocd_crossplane_io_v1alpha1_Application as application_schema
 
-schema ApplicationBlueprint(application_schema.Application):
+schema CrossplaneApplicationBlueprint(application_schema.Application):
     """Este Blueprint simplifica la creación de un recurso Application,
     exponiendo una selección inteligente de campos requeridos y opcionales comunes."""
 

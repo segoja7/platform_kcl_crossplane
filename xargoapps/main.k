@@ -84,7 +84,7 @@ _argo_cluster_resource = argo.ClusterBlueprint {
 }
 
 
-_argo_root_app_resource = argo.ApplicationBlueprint {
+_argo_root_app_resource = argo.CrossplaneApplicationBlueprint {
     _name = "kcl-root"
     _namespace = "argocd"
     _destination = {
