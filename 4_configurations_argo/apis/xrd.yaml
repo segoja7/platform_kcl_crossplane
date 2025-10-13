@@ -1,0 +1,38 @@
+# configurations-eks/apis/xrd.yaml
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xargoapps.segoja7.example
+spec:
+  group: segoja7.example
+  names:
+    kind: XARGOAPP
+    plural: xargoapps
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              id:
+                type: string
+                description: "ID único para sus recursos."
+              kubeconfigSecret:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: "secret name of kubeconfig for register cluster in argo hub"
+                    namespace:
+                      type: string
+                      description: "namespace of secret name of kubeconfig for register cluster in argo hub"
+                    keyKubeconfig:
+                      type: string
+                      description: "key of secret name of kubeconfig for register cluster in argo hub"
+            required: ["id", "kubeconfigSecret"]
+

@@ -62,17 +62,25 @@ import schemas as argo
 #     }
 # }
 
+oxr = option("params").oxr
+_ocds = option("params").ocds or {}
+dxr = option("params").dxr
+
+_id = oxr.spec.id
+_providerConfig = oxr.spec.providerConfigName or "default"
+_kubeconfigSecret = oxr.spec.kubeconfigSecret
+
 _argo_cluster_resource = argo.ClusterBlueprint {
-    _name = "xcluster-dev"
-    _providerConfig = "argocd-provider"
+    _name = "hub-cluster-${_id}"
+    _providerConfig = _providerConfig
     _config = {
         kubeconfigSecretRef = {
-            name = "eks-cluster-xcluster-example-segoja7"
-            namespace = "default"
-            key = "kubeconfig"
+            name = _kubeconfigSecret.name #"eks-cluster-xcluster-example-segoja7"
+            namespace = _kubeconfigSecret.namespace #"default"
+            key = _kubeconfigSecret.keyKubeconfig #"kubeconfig"
         }
     }
-    _clusterName = "xcluster"
+    _clusterName = _name
 }
 
 
@@ -98,7 +106,7 @@ _argo_root_app_resource = argo.ApplicationBlueprint {
             selfHeal = True
         }
     }
-    _providerConfig = "argocd-provider"    
+    _providerConfig = _providerConfig    
 } 
 
 
