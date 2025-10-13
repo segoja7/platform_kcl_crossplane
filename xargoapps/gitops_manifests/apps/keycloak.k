@@ -9,7 +9,7 @@ _argo_app_keycloak_resource = argo.ApplicationBlueprint {
     }
     _project = "default"
     _source = {
-        path = "xargoapps/gitops_manifests/workloads/dev/keycloak"
+        path = "xargoapps/gitops_manifests/workloads/dev/keycloak/main.k"
         repoURL = "https://github.com/segoja7/platform_as_data"
         targetRevision = "HEAD"
         plugin = {
