@@ -17,6 +17,7 @@ _labels = {"claim-name" = _id}
 rdsport = observed_xr.spec.rdsport
 ipRanges = observed_xr.spec.ipRanges
 _rdsDatabaseConfig = observed_xr.spec.rdsDatabase or {}
+_secretReflectorNamespaces = observed_xr.spec.secretReflectorNamespaces or ""
 
 _db_subnet_group_resource = dbSubnetGroup.DbsubnetgroupBlueprint {
     _name = "db-subnet-group-${_id}"
@@ -147,31 +148,21 @@ _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlu
 
 _rds_instance_secret_resource = object.ObjectBlueprint {
     _name = "rds-credentials-${_id}"
-    _references = [
-        {
-            patchesFrom = {
-                apiVersion = "v1"
-                kind = "Secret"
-                name = _rds_instance_resource.spec.writeConnectionSecretToRef.name
-                namespace = _rds_instance_resource.spec.writeConnectionSecretToRef.namespace
-                fieldPath = "data"
-            }
-            toFieldPath = "data"
-        }
-    ]
-    
     _manifest = {
-            apiVersion = "v1"
-            kind = "Secret"
-            metadata = {
-                name = "rds-credentials-${_id}"
-                namespace = "default"
+        apiVersion = "v1"
+        kind = "Secret"
+        metadata = {
+            name = "rds-credentials-${_id}"
+            namespace = "default"
+            annotations = {
+                "reflector.v1.k8s.emberstack.com/reflection-allowed": "true",
+                "reflector.v1.k8s.emberstack.com/reflection-auto-enabled": "true",
+                "reflector.v1.k8s.emberstack.com/reflection-auto-namespaces": "keycloak"
             }
-            type = "Opaque"
-            data = {}
         }
+        type = "Opaque"
+    }
     _providerConfig = _providerconfig_kubernetes_resource._name
-
 }
 
 
