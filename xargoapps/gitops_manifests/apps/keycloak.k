@@ -3,6 +3,9 @@ import schemas.applicationNative as argo
 _argo_app_keycloak_resource = argo.ApplicationBlueprint {
     _name = "kcl-keycloak"
     _namespace = "argocd"
+    _finalizers = [
+            "resources-finalizer.argocd.argoproj.io"
+    ] 
     _destination = {
         name = "hub-cluster-xargoapp-example-segoja7"
         namespace = "keycloak"

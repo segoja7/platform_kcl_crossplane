@@ -11,6 +11,7 @@ schema ApplicationBlueprint(application_schema.Application):
     _namespace?: str
     _labels?: {str:str}
     _annotations?: {str:str}
+    _finalizers?: [str]
     _destination: application_schema.ApplicationspecDestination
     _ignoreDifferences?: [application_schema.ApplicationspecIgnoredifferencesitem]
     _info?: [application_schema.ApplicationspecInfoitem]
@@ -27,6 +28,7 @@ schema ApplicationBlueprint(application_schema.Application):
         namespace = _namespace
         labels = _labels
         annotations = _annotations
+        finalizers = _finalizers
     }
     spec = {
         destination = _destination
@@ -54,6 +56,7 @@ schema ApplicationBlueprint(application_schema.Application):
 #             "app.kubernetes.io/name" = "example-app"
 #             "app.kubernetes.io/version" = "1.0.0"
 #         } # Reemplazar valor
+#         _finalizers = [] # Reemplazar valor
 #         _destination = {
 #             # Configure object fields as needed
 #         } # Reemplazar valor
