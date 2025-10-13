@@ -22,6 +22,9 @@ spec:
               id:
                 type: string
                 description: "ID único para sus recursos."
+              providerConfigName:
+                type: string
+                description: "Nombre del ProviderConfig a usar."
               kubeconfigSecret:
                   type: object
                   properties:
