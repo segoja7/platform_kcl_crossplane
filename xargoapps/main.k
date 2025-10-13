@@ -88,7 +88,7 @@ _argo_root_app_resource = argo.ApplicationBlueprint {
     _name = "kcl-root"
     _namespace = "argocd"
     _destination = {
-        server = "https://kubernetes.default.svc"
+        server = _argo_cluster_resource._clusterName
         namespace = "argocd"
     }
     _project = "default"
@@ -96,9 +96,9 @@ _argo_root_app_resource = argo.ApplicationBlueprint {
         path = "xargoapps/gitops_manifests/apps"
         repoURL = "https://github.com/segoja7/platform_as_data"
         targetRevision = "HEAD"
-        # plugin = {
-        #     name = "kcl-v1.0"
-        # }
+        plugin = {
+            name = "kcl-v1.0"
+        }
     }
     _syncPolicy = {
         automated = {
