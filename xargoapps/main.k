@@ -88,7 +88,7 @@ _argo_root_app_resource = argo.CrossplaneApplicationBlueprint {
     _name = "kcl-root"
     _namespace = "argocd"
     _destination = {
-        server = _argo_cluster_resource._clusterName
+        server = "hub-cluster-xargoapp-example-segoja7"
         namespace = "argocd"
     }
     _project = "default"
