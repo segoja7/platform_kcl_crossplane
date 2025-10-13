@@ -64,6 +64,7 @@ import schemas as argo
 
 _argo_cluster_resource = argo.ClusterBlueprint {
     _name = "xcluster-dev"
+    _providerConfig = "argocd-provider"
     _config = {
         kubeconfigSecretRef = {
             name = "eks-cluster-xcluster-example-segoja7"
@@ -71,17 +72,15 @@ _argo_cluster_resource = argo.ClusterBlueprint {
             key = "kubeconfig"
         }
     }
-    _name = "xcluster-dev"
-    _providerConfig = 
+    _clusterName = "xcluster"
 }
 
 
 _argo_root_app_resource = argo.ApplicationBlueprint {
     _name = "kcl-root"
-    _namespace = "argocd"
     _destination = {
-        server = "https://kubernetes.default.svc"
-        namespace = "default"
+        server = _argo_cluster_resource._clusterName
+        namespace = "argocd"
     }
     _project = "default"
     _source = {
@@ -97,12 +96,14 @@ _argo_root_app_resource = argo.ApplicationBlueprint {
             prune = True
             selfHeal = True
         }
-    }    
+    }
+    _providerConfig = "argocd-provider"    
 } 
 
 
 items = [
-    _argo_root_app_resource 
+    _argo_cluster_resource ,
+    _argo_root_app_resource
     # _argo_app_xnetwork_resource, 
     # _argo_app_xnetwork_claim_resource. 
     # _argo_app_xcluster_resource,

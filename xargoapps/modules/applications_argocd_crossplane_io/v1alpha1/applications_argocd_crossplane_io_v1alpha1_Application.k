@@ -9,7 +9,7 @@ DO NOT EDIT MANUALLY.
 
 schema Application:
     """
-    Application is a definition of Application resource.
+    An Application is a managed resource that represents an ArgoCD Application
 
     Attributes
     ----------
@@ -24,968 +24,94 @@ schema Application:
         Cannot be updated.
         In CamelCase.
         More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-    metadata : any, required
+    metadata : any, optional
         No description available.
-    operation : ApplicationOperation, optional
-        Operation contains information about a requested or running operation
     spec : ApplicationSpec, required
-        ApplicationSpec represents desired application state. Contains link to repository with application definition and additional parameters link definition revision.
+        A ApplicationSpec defines the desired state of an ArgoCD Application.
     status : ApplicationStatus, optional
-        ApplicationStatus contains status information for the application
+        A ApplicationStatus represents the observed state of an ArgoCD Application.
     """
-    apiVersion : str = "argoproj.io/v1alpha1"
+    apiVersion : str = "applications.argocd.crossplane.io/v1alpha1"
     kind : str = "Application"
-    metadata : any
-    operation? : ApplicationOperation
+    metadata? : any
     spec : ApplicationSpec
     status? : ApplicationStatus
 
-schema ApplicationOperation:
-    """
-    Operation contains information about a requested or running operation
-
-    Attributes
-    ----------
-    info : [ApplicationoperationInfoitem], optional
-        Info is a list of informational items for this operation
-    initiatedBy : ApplicationoperationInitiatedby, optional
-        InitiatedBy contains information about who initiated the operations
-    retry : ApplicationoperationRetry, optional
-        Retry controls the strategy to apply if a sync fails
-    sync : ApplicationoperationSync, optional
-        Sync contains parameters for the operation
-    """
-    info? : [ApplicationoperationInfoitem]
-    initiatedBy? : ApplicationoperationInitiatedby
-    retry? : ApplicationoperationRetry
-    sync? : ApplicationoperationSync
-
-schema ApplicationoperationInfoitem:
-    """
-    ApplicationoperationInfoitem schema.
-
-    Attributes
-    ----------
-    name : str, required
-        No description available.
-    value : str, required
-        No description available.
-    """
-    name : str
-    value : str
-
-schema ApplicationoperationInitiatedby:
-    """
-    InitiatedBy contains information about who initiated the operations
-
-    Attributes
-    ----------
-    automated : bool, optional
-        Automated is set to true if operation was initiated automatically by the application controller.
-    username : str, optional
-        Username contains the name of a user who started operation
-    """
-    automated? : bool
-    username? : str
-
-schema ApplicationoperationRetry:
-    """
-    Retry controls the strategy to apply if a sync fails
-
-    Attributes
-    ----------
-    backoff : ApplicationoperationretryBackoff, optional
-        Backoff controls how to backoff on subsequent retries of failed syncs
-    limit : int, optional
-        Limit is the maximum number of attempts for retrying a failed sync. If set to 0, no retries will be performed.
-    """
-    backoff? : ApplicationoperationretryBackoff
-    limit? : int
-
-schema ApplicationoperationretryBackoff:
-    """
-    Backoff controls how to backoff on subsequent retries of failed syncs
-
-    Attributes
-    ----------
-    duration : str, optional
-        Duration is the amount to back off. Default unit is seconds, but could also be a duration (e.g. "2m", "1h")
-    factor : int, optional
-        Factor is a factor to multiply the base duration after each failed retry
-    maxDuration : str, optional
-        MaxDuration is the maximum amount of time allowed for the backoff strategy
-    """
-    duration? : str
-    factor? : int
-    maxDuration? : str
-
-schema ApplicationoperationSync:
-    """
-    Sync contains parameters for the operation
-
-    Attributes
-    ----------
-    autoHealAttemptsCount : int, optional
-        SelfHealAttemptsCount contains the number of auto-heal attempts
-    dryRun : bool, optional
-        DryRun specifies to perform a `kubectl apply --dry-run` without actually performing the sync
-    manifests : [str], optional
-        Manifests is an optional field that overrides sync source with a local directory for development
-    prune : bool, optional
-        Prune specifies to delete resources from the cluster that are no longer tracked in git
-    resources : [ApplicationoperationsyncResourcesitem], optional
-        Resources describes which resources shall be part of the sync
-    revision : str, optional
-        Revision is the revision (Git) or chart version (Helm) which to sync the application to
-        If omitted, will use the revision specified in app spec.
-    revisions : [str], optional
-        Revisions is the list of revision (Git) or chart version (Helm) which to sync each source in sources field for the application to
-        If omitted, will use the revision specified in app spec.
-    source : ApplicationoperationsyncSource, optional
-        Source overrides the source definition set in the application.
-        This is typically set in a Rollback operation and is nil during a Sync operation
-    sources : [ApplicationoperationsyncSourcesitem], optional
-        Sources overrides the source definition set in the application.
-        This is typically set in a Rollback operation and is nil during a Sync operation
-    syncOptions : [str], optional
-        SyncOptions provide per-sync sync-options, e.g. Validate=false
-    syncStrategy : ApplicationoperationsyncSyncstrategy, optional
-        SyncStrategy describes how to perform the sync
-    """
-    autoHealAttemptsCount? : int
-    dryRun? : bool
-    manifests? : [str]
-    prune? : bool
-    resources? : [ApplicationoperationsyncResourcesitem]
-    revision? : str
-    revisions? : [str]
-    source? : ApplicationoperationsyncSource
-    sources? : [ApplicationoperationsyncSourcesitem]
-    syncOptions? : [str]
-    syncStrategy? : ApplicationoperationsyncSyncstrategy
-
-schema ApplicationoperationsyncResourcesitem:
-    """
-    SyncOperationResource contains resources to sync.
-
-    Attributes
-    ----------
-    group : str, optional
-        No description available.
-    kind : str, required
-        No description available.
-    name : str, required
-        No description available.
-    namespace : str, optional
-        No description available.
-    """
-    group? : str
-    kind : str
-    name : str
-    namespace? : str
-
-schema ApplicationoperationsyncSource:
-    """
-    Source overrides the source definition set in the application.
-    This is typically set in a Rollback operation and is nil during a Sync operation
-
-    Attributes
-    ----------
-    chart : str, optional
-        Chart is a Helm chart name, and must be specified for applications sourced from a Helm repo.
-    directory : ApplicationoperationsyncsourceDirectory, optional
-        Directory holds path/directory specific options
-    helm : ApplicationoperationsyncsourceHelm, optional
-        Helm holds helm specific options
-    kustomize : ApplicationoperationsyncsourceKustomize, optional
-        Kustomize holds kustomize specific options
-    name : str, optional
-        Name is used to refer to a source and is displayed in the UI. It is used in multi-source Applications.
-    path : str, optional
-        Path is a directory path within the Git repository, and is only valid for applications sourced from Git.
-    plugin : ApplicationoperationsyncsourcePlugin, optional
-        Plugin holds config management plugin specific options
-    ref : str, optional
-        Ref is reference to another source within sources field. This field will not be used if used with a `source` tag.
-    repoURL : str, required
-        RepoURL is the URL to the repository (Git or Helm) that contains the application manifests
-    targetRevision : str, optional
-        TargetRevision defines the revision of the source to sync the application to.
-        In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD.
-        In case of Helm, this is a semver tag for the Chart's version.
-    """
-    chart? : str
-    directory? : ApplicationoperationsyncsourceDirectory
-    helm? : ApplicationoperationsyncsourceHelm
-    kustomize? : ApplicationoperationsyncsourceKustomize
-    name? : str
-    path? : str
-    plugin? : ApplicationoperationsyncsourcePlugin
-    ref? : str
-    repoURL : str
-    targetRevision? : str
-
-schema ApplicationoperationsyncsourceDirectory:
-    """
-    Directory holds path/directory specific options
-
-    Attributes
-    ----------
-    exclude : str, optional
-        Exclude contains a glob pattern to match paths against that should be explicitly excluded from being used during manifest generation
-    include : str, optional
-        Include contains a glob pattern to match paths against that should be explicitly included during manifest generation
-    jsonnet : ApplicationoperationsyncsourcedirectoryJsonnet, optional
-        Jsonnet holds options specific to Jsonnet
-    recurse : bool, optional
-        Recurse specifies whether to scan a directory recursively for manifests
-    """
-    exclude? : str
-    include? : str
-    jsonnet? : ApplicationoperationsyncsourcedirectoryJsonnet
-    recurse? : bool
-
-schema ApplicationoperationsyncsourcedirectoryJsonnet:
-    """
-    Jsonnet holds options specific to Jsonnet
-
-    Attributes
-    ----------
-    extVars : [ApplicationoperationsyncsourcedirectoryjsonnetExtvarsitem], optional
-        ExtVars is a list of Jsonnet External Variables
-    libs : [str], optional
-        Additional library search dirs
-    tlas : [ApplicationoperationsyncsourcedirectoryjsonnetTlasitem], optional
-        TLAS is a list of Jsonnet Top-level Arguments
-    """
-    extVars? : [ApplicationoperationsyncsourcedirectoryjsonnetExtvarsitem]
-    libs? : [str]
-    tlas? : [ApplicationoperationsyncsourcedirectoryjsonnetTlasitem]
-
-schema ApplicationoperationsyncsourcedirectoryjsonnetExtvarsitem:
-    """
-    JsonnetVar represents a variable to be passed to jsonnet during manifest generation
-
-    Attributes
-    ----------
-    code : bool, optional
-        No description available.
-    name : str, required
-        No description available.
-    value : str, required
-        No description available.
-    """
-    code? : bool
-    name : str
-    value : str
-
-schema ApplicationoperationsyncsourcedirectoryjsonnetTlasitem:
-    """
-    JsonnetVar represents a variable to be passed to jsonnet during manifest generation
-
-    Attributes
-    ----------
-    code : bool, optional
-        No description available.
-    name : str, required
-        No description available.
-    value : str, required
-        No description available.
-    """
-    code? : bool
-    name : str
-    value : str
-
-schema ApplicationoperationsyncsourceHelm:
-    """
-    Helm holds helm specific options
-
-    Attributes
-    ----------
-    apiVersions : [str], optional
-        APIVersions specifies the Kubernetes resource API versions to pass to Helm when templating manifests. By default,
-        Argo CD uses the API versions of the target cluster. The format is [group/]version/kind.
-    fileParameters : [ApplicationoperationsyncsourcehelmFileparametersitem], optional
-        FileParameters are file parameters to the helm template
-    ignoreMissingValueFiles : bool, optional
-        IgnoreMissingValueFiles prevents helm template from failing when valueFiles do not exist locally by not appending them to helm template --values
-    kubeVersion : str, optional
-        KubeVersion specifies the Kubernetes API version to pass to Helm when templating manifests. By default, Argo CD
-        uses the Kubernetes version of the target cluster.
-    namespace : str, optional
-        Namespace is an optional namespace to template with. If left empty, defaults to the app's destination namespace.
-    parameters : [ApplicationoperationsyncsourcehelmParametersitem], optional
-        Parameters is a list of Helm parameters which are passed to the helm template command upon manifest generation
-    passCredentials : bool, optional
-        PassCredentials pass credentials to all domains (Helm's --pass-credentials)
-    releaseName : str, optional
-        ReleaseName is the Helm release name to use. If omitted it will use the application name
-    skipCrds : bool, optional
-        SkipCrds skips custom resource definition installation step (Helm's --skip-crds)
-    skipSchemaValidation : bool, optional
-        SkipSchemaValidation skips JSON schema validation (Helm's --skip-schema-validation)
-    skipTests : bool, optional
-        SkipTests skips test manifest installation step (Helm's --skip-tests).
-    valueFiles : [str], optional
-        ValuesFiles is a list of Helm value files to use when generating a template
-    values : str, optional
-        Values specifies Helm values to be passed to helm template, typically defined as a block. ValuesObject takes precedence over Values, so use one or the other.
-    valuesObject : any, optional
-        ValuesObject specifies Helm values to be passed to helm template, defined as a map. This takes precedence over Values.
-    version : str, optional
-        Version is the Helm version to use for templating ("3")
-    """
-    apiVersions? : [str]
-    fileParameters? : [ApplicationoperationsyncsourcehelmFileparametersitem]
-    ignoreMissingValueFiles? : bool
-    kubeVersion? : str
-    namespace? : str
-    parameters? : [ApplicationoperationsyncsourcehelmParametersitem]
-    passCredentials? : bool
-    releaseName? : str
-    skipCrds? : bool
-    skipSchemaValidation? : bool
-    skipTests? : bool
-    valueFiles? : [str]
-    values? : str
-    valuesObject? : any
-    version? : str
-
-schema ApplicationoperationsyncsourcehelmFileparametersitem:
-    """
-    HelmFileParameter is a file parameter that's passed to helm template during manifest generation
-
-    Attributes
-    ----------
-    name : str, optional
-        Name is the name of the Helm parameter
-    path : str, optional
-        Path is the path to the file containing the values for the Helm parameter
-    """
-    name? : str
-    path? : str
-
-schema ApplicationoperationsyncsourcehelmParametersitem:
-    """
-    HelmParameter is a parameter that's passed to helm template during manifest generation
-
-    Attributes
-    ----------
-    forceString : bool, optional
-        ForceString determines whether to tell Helm to interpret booleans and numbers as strings
-    name : str, optional
-        Name is the name of the Helm parameter
-    value : str, optional
-        Value is the value for the Helm parameter
-    """
-    forceString? : bool
-    name? : str
-    value? : str
-
-schema ApplicationoperationsyncsourceKustomize:
-    """
-    Kustomize holds kustomize specific options
-
-    Attributes
-    ----------
-    apiVersions : [str], optional
-        APIVersions specifies the Kubernetes resource API versions to pass to Helm when templating manifests. By default,
-        Argo CD uses the API versions of the target cluster. The format is [group/]version/kind.
-    commonAnnotations : {str:str}, optional
-        CommonAnnotations is a list of additional annotations to add to rendered manifests
-    commonAnnotationsEnvsubst : bool, optional
-        CommonAnnotationsEnvsubst specifies whether to apply env variables substitution for annotation values
-    commonLabels : {str:str}, optional
-        CommonLabels is a list of additional labels to add to rendered manifests
-    components : [str], optional
-        Components specifies a list of kustomize components to add to the kustomization before building
-    forceCommonAnnotations : bool, optional
-        ForceCommonAnnotations specifies whether to force applying common annotations to resources for Kustomize apps
-    forceCommonLabels : bool, optional
-        ForceCommonLabels specifies whether to force applying common labels to resources for Kustomize apps
-    ignoreMissingComponents : bool, optional
-        IgnoreMissingComponents prevents kustomize from failing when components do not exist locally by not appending them to kustomization file
-    images : [str], optional
-        Images is a list of Kustomize image override specifications
-    kubeVersion : str, optional
-        KubeVersion specifies the Kubernetes API version to pass to Helm when templating manifests. By default, Argo CD
-        uses the Kubernetes version of the target cluster.
-    labelIncludeTemplates : bool, optional
-        LabelIncludeTemplates specifies whether to apply common labels to resource templates or not
-    labelWithoutSelector : bool, optional
-        LabelWithoutSelector specifies whether to apply common labels to resource selectors or not
-    namePrefix : str, optional
-        NamePrefix is a prefix appended to resources for Kustomize apps
-    nameSuffix : str, optional
-        NameSuffix is a suffix appended to resources for Kustomize apps
-    namespace : str, optional
-        Namespace sets the namespace that Kustomize adds to all resources
-    patches : [ApplicationoperationsyncsourcekustomizePatchesitem], optional
-        Patches is a list of Kustomize patches
-    replicas : [ApplicationoperationsyncsourcekustomizeReplicasitem], optional
-        Replicas is a list of Kustomize Replicas override specifications
-    version : str, optional
-        Version controls which version of Kustomize to use for rendering manifests
-    """
-    apiVersions? : [str]
-    commonAnnotations? : {str:str}
-    commonAnnotationsEnvsubst? : bool
-    commonLabels? : {str:str}
-    components? : [str]
-    forceCommonAnnotations? : bool
-    forceCommonLabels? : bool
-    ignoreMissingComponents? : bool
-    images? : [str]
-    kubeVersion? : str
-    labelIncludeTemplates? : bool
-    labelWithoutSelector? : bool
-    namePrefix? : str
-    nameSuffix? : str
-    namespace? : str
-    patches? : [ApplicationoperationsyncsourcekustomizePatchesitem]
-    replicas? : [ApplicationoperationsyncsourcekustomizeReplicasitem]
-    version? : str
-
-schema ApplicationoperationsyncsourcekustomizePatchesitem:
-    """
-    ApplicationoperationsyncsourcekustomizePatchesitem schema.
-
-    Attributes
-    ----------
-    options : {str:bool}, optional
-        No description available.
-    patch : str, optional
-        No description available.
-    path : str, optional
-        No description available.
-    target : ApplicationoperationsyncsourcekustomizepatchesitemTarget, optional
-        No description available.
-    """
-    options? : {str:bool}
-    patch? : str
-    path? : str
-    target? : ApplicationoperationsyncsourcekustomizepatchesitemTarget
-
-schema ApplicationoperationsyncsourcekustomizepatchesitemTarget:
-    """
-    ApplicationoperationsyncsourcekustomizepatchesitemTarget schema.
-
-    Attributes
-    ----------
-    annotationSelector : str, optional
-        No description available.
-    group : str, optional
-        No description available.
-    kind : str, optional
-        No description available.
-    labelSelector : str, optional
-        No description available.
-    name : str, optional
-        No description available.
-    namespace : str, optional
-        No description available.
-    version : str, optional
-        No description available.
-    """
-    annotationSelector? : str
-    group? : str
-    kind? : str
-    labelSelector? : str
-    name? : str
-    namespace? : str
-    version? : str
-
-schema ApplicationoperationsyncsourcekustomizeReplicasitem:
-    """
-    ApplicationoperationsyncsourcekustomizeReplicasitem schema.
-
-    Attributes
-    ----------
-    count : any, required
-        Number of replicas
-    name : str, required
-        Name of Deployment or StatefulSet
-    """
-    count : any
-    name : str
-
-schema ApplicationoperationsyncsourcePlugin:
-    """
-    Plugin holds config management plugin specific options
-
-    Attributes
-    ----------
-    env : [ApplicationoperationsyncsourcepluginEnvitem], optional
-        Env is a list of environment variable entries
-    name : str, optional
-        No description available.
-    parameters : [ApplicationoperationsyncsourcepluginParametersitem], optional
-        No description available.
-    """
-    env? : [ApplicationoperationsyncsourcepluginEnvitem]
-    name? : str
-    parameters? : [ApplicationoperationsyncsourcepluginParametersitem]
-
-schema ApplicationoperationsyncsourcepluginEnvitem:
-    """
-    EnvEntry represents an entry in the application's environment
-
-    Attributes
-    ----------
-    name : str, required
-        Name is the name of the variable, usually expressed in uppercase
-    value : str, required
-        Value is the value of the variable
-    """
-    name : str
-    value : str
-
-schema ApplicationoperationsyncsourcepluginParametersitem:
-    """
-    ApplicationoperationsyncsourcepluginParametersitem schema.
-
-    Attributes
-    ----------
-    array : [str], optional
-        Array is the value of an array type parameter.
-    map : {str:str}, optional
-        Map is the value of a map type parameter.
-    name : str, optional
-        Name is the name identifying a parameter.
-    string : str, optional
-        String_ is the value of a string type parameter.
-    """
-    array? : [str]
-    map? : {str:str}
-    name? : str
-    string? : str
-
-schema ApplicationoperationsyncSourcesitem:
-    """
-    ApplicationSource contains all required information about the source of an application
-
-    Attributes
-    ----------
-    chart : str, optional
-        Chart is a Helm chart name, and must be specified for applications sourced from a Helm repo.
-    directory : ApplicationoperationsyncsourcesitemDirectory, optional
-        Directory holds path/directory specific options
-    helm : ApplicationoperationsyncsourcesitemHelm, optional
-        Helm holds helm specific options
-    kustomize : ApplicationoperationsyncsourcesitemKustomize, optional
-        Kustomize holds kustomize specific options
-    name : str, optional
-        Name is used to refer to a source and is displayed in the UI. It is used in multi-source Applications.
-    path : str, optional
-        Path is a directory path within the Git repository, and is only valid for applications sourced from Git.
-    plugin : ApplicationoperationsyncsourcesitemPlugin, optional
-        Plugin holds config management plugin specific options
-    ref : str, optional
-        Ref is reference to another source within sources field. This field will not be used if used with a `source` tag.
-    repoURL : str, required
-        RepoURL is the URL to the repository (Git or Helm) that contains the application manifests
-    targetRevision : str, optional
-        TargetRevision defines the revision of the source to sync the application to.
-        In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD.
-        In case of Helm, this is a semver tag for the Chart's version.
-    """
-    chart? : str
-    directory? : ApplicationoperationsyncsourcesitemDirectory
-    helm? : ApplicationoperationsyncsourcesitemHelm
-    kustomize? : ApplicationoperationsyncsourcesitemKustomize
-    name? : str
-    path? : str
-    plugin? : ApplicationoperationsyncsourcesitemPlugin
-    ref? : str
-    repoURL : str
-    targetRevision? : str
-
-schema ApplicationoperationsyncsourcesitemDirectory:
-    """
-    Directory holds path/directory specific options
-
-    Attributes
-    ----------
-    exclude : str, optional
-        Exclude contains a glob pattern to match paths against that should be explicitly excluded from being used during manifest generation
-    include : str, optional
-        Include contains a glob pattern to match paths against that should be explicitly included during manifest generation
-    jsonnet : ApplicationoperationsyncsourcesitemdirectoryJsonnet, optional
-        Jsonnet holds options specific to Jsonnet
-    recurse : bool, optional
-        Recurse specifies whether to scan a directory recursively for manifests
-    """
-    exclude? : str
-    include? : str
-    jsonnet? : ApplicationoperationsyncsourcesitemdirectoryJsonnet
-    recurse? : bool
-
-schema ApplicationoperationsyncsourcesitemdirectoryJsonnet:
-    """
-    Jsonnet holds options specific to Jsonnet
-
-    Attributes
-    ----------
-    extVars : [ApplicationoperationsyncsourcesitemdirectoryjsonnetExtvarsitem], optional
-        ExtVars is a list of Jsonnet External Variables
-    libs : [str], optional
-        Additional library search dirs
-    tlas : [ApplicationoperationsyncsourcesitemdirectoryjsonnetTlasitem], optional
-        TLAS is a list of Jsonnet Top-level Arguments
-    """
-    extVars? : [ApplicationoperationsyncsourcesitemdirectoryjsonnetExtvarsitem]
-    libs? : [str]
-    tlas? : [ApplicationoperationsyncsourcesitemdirectoryjsonnetTlasitem]
-
-schema ApplicationoperationsyncsourcesitemdirectoryjsonnetExtvarsitem:
-    """
-    JsonnetVar represents a variable to be passed to jsonnet during manifest generation
-
-    Attributes
-    ----------
-    code : bool, optional
-        No description available.
-    name : str, required
-        No description available.
-    value : str, required
-        No description available.
-    """
-    code? : bool
-    name : str
-    value : str
-
-schema ApplicationoperationsyncsourcesitemdirectoryjsonnetTlasitem:
-    """
-    JsonnetVar represents a variable to be passed to jsonnet during manifest generation
-
-    Attributes
-    ----------
-    code : bool, optional
-        No description available.
-    name : str, required
-        No description available.
-    value : str, required
-        No description available.
-    """
-    code? : bool
-    name : str
-    value : str
-
-schema ApplicationoperationsyncsourcesitemHelm:
-    """
-    Helm holds helm specific options
-
-    Attributes
-    ----------
-    apiVersions : [str], optional
-        APIVersions specifies the Kubernetes resource API versions to pass to Helm when templating manifests. By default,
-        Argo CD uses the API versions of the target cluster. The format is [group/]version/kind.
-    fileParameters : [ApplicationoperationsyncsourcesitemhelmFileparametersitem], optional
-        FileParameters are file parameters to the helm template
-    ignoreMissingValueFiles : bool, optional
-        IgnoreMissingValueFiles prevents helm template from failing when valueFiles do not exist locally by not appending them to helm template --values
-    kubeVersion : str, optional
-        KubeVersion specifies the Kubernetes API version to pass to Helm when templating manifests. By default, Argo CD
-        uses the Kubernetes version of the target cluster.
-    namespace : str, optional
-        Namespace is an optional namespace to template with. If left empty, defaults to the app's destination namespace.
-    parameters : [ApplicationoperationsyncsourcesitemhelmParametersitem], optional
-        Parameters is a list of Helm parameters which are passed to the helm template command upon manifest generation
-    passCredentials : bool, optional
-        PassCredentials pass credentials to all domains (Helm's --pass-credentials)
-    releaseName : str, optional
-        ReleaseName is the Helm release name to use. If omitted it will use the application name
-    skipCrds : bool, optional
-        SkipCrds skips custom resource definition installation step (Helm's --skip-crds)
-    skipSchemaValidation : bool, optional
-        SkipSchemaValidation skips JSON schema validation (Helm's --skip-schema-validation)
-    skipTests : bool, optional
-        SkipTests skips test manifest installation step (Helm's --skip-tests).
-    valueFiles : [str], optional
-        ValuesFiles is a list of Helm value files to use when generating a template
-    values : str, optional
-        Values specifies Helm values to be passed to helm template, typically defined as a block. ValuesObject takes precedence over Values, so use one or the other.
-    valuesObject : any, optional
-        ValuesObject specifies Helm values to be passed to helm template, defined as a map. This takes precedence over Values.
-    version : str, optional
-        Version is the Helm version to use for templating ("3")
-    """
-    apiVersions? : [str]
-    fileParameters? : [ApplicationoperationsyncsourcesitemhelmFileparametersitem]
-    ignoreMissingValueFiles? : bool
-    kubeVersion? : str
-    namespace? : str
-    parameters? : [ApplicationoperationsyncsourcesitemhelmParametersitem]
-    passCredentials? : bool
-    releaseName? : str
-    skipCrds? : bool
-    skipSchemaValidation? : bool
-    skipTests? : bool
-    valueFiles? : [str]
-    values? : str
-    valuesObject? : any
-    version? : str
-
-schema ApplicationoperationsyncsourcesitemhelmFileparametersitem:
-    """
-    HelmFileParameter is a file parameter that's passed to helm template during manifest generation
-
-    Attributes
-    ----------
-    name : str, optional
-        Name is the name of the Helm parameter
-    path : str, optional
-        Path is the path to the file containing the values for the Helm parameter
-    """
-    name? : str
-    path? : str
-
-schema ApplicationoperationsyncsourcesitemhelmParametersitem:
-    """
-    HelmParameter is a parameter that's passed to helm template during manifest generation
-
-    Attributes
-    ----------
-    forceString : bool, optional
-        ForceString determines whether to tell Helm to interpret booleans and numbers as strings
-    name : str, optional
-        Name is the name of the Helm parameter
-    value : str, optional
-        Value is the value for the Helm parameter
-    """
-    forceString? : bool
-    name? : str
-    value? : str
-
-schema ApplicationoperationsyncsourcesitemKustomize:
-    """
-    Kustomize holds kustomize specific options
-
-    Attributes
-    ----------
-    apiVersions : [str], optional
-        APIVersions specifies the Kubernetes resource API versions to pass to Helm when templating manifests. By default,
-        Argo CD uses the API versions of the target cluster. The format is [group/]version/kind.
-    commonAnnotations : {str:str}, optional
-        CommonAnnotations is a list of additional annotations to add to rendered manifests
-    commonAnnotationsEnvsubst : bool, optional
-        CommonAnnotationsEnvsubst specifies whether to apply env variables substitution for annotation values
-    commonLabels : {str:str}, optional
-        CommonLabels is a list of additional labels to add to rendered manifests
-    components : [str], optional
-        Components specifies a list of kustomize components to add to the kustomization before building
-    forceCommonAnnotations : bool, optional
-        ForceCommonAnnotations specifies whether to force applying common annotations to resources for Kustomize apps
-    forceCommonLabels : bool, optional
-        ForceCommonLabels specifies whether to force applying common labels to resources for Kustomize apps
-    ignoreMissingComponents : bool, optional
-        IgnoreMissingComponents prevents kustomize from failing when components do not exist locally by not appending them to kustomization file
-    images : [str], optional
-        Images is a list of Kustomize image override specifications
-    kubeVersion : str, optional
-        KubeVersion specifies the Kubernetes API version to pass to Helm when templating manifests. By default, Argo CD
-        uses the Kubernetes version of the target cluster.
-    labelIncludeTemplates : bool, optional
-        LabelIncludeTemplates specifies whether to apply common labels to resource templates or not
-    labelWithoutSelector : bool, optional
-        LabelWithoutSelector specifies whether to apply common labels to resource selectors or not
-    namePrefix : str, optional
-        NamePrefix is a prefix appended to resources for Kustomize apps
-    nameSuffix : str, optional
-        NameSuffix is a suffix appended to resources for Kustomize apps
-    namespace : str, optional
-        Namespace sets the namespace that Kustomize adds to all resources
-    patches : [ApplicationoperationsyncsourcesitemkustomizePatchesitem], optional
-        Patches is a list of Kustomize patches
-    replicas : [ApplicationoperationsyncsourcesitemkustomizeReplicasitem], optional
-        Replicas is a list of Kustomize Replicas override specifications
-    version : str, optional
-        Version controls which version of Kustomize to use for rendering manifests
-    """
-    apiVersions? : [str]
-    commonAnnotations? : {str:str}
-    commonAnnotationsEnvsubst? : bool
-    commonLabels? : {str:str}
-    components? : [str]
-    forceCommonAnnotations? : bool
-    forceCommonLabels? : bool
-    ignoreMissingComponents? : bool
-    images? : [str]
-    kubeVersion? : str
-    labelIncludeTemplates? : bool
-    labelWithoutSelector? : bool
-    namePrefix? : str
-    nameSuffix? : str
-    namespace? : str
-    patches? : [ApplicationoperationsyncsourcesitemkustomizePatchesitem]
-    replicas? : [ApplicationoperationsyncsourcesitemkustomizeReplicasitem]
-    version? : str
-
-schema ApplicationoperationsyncsourcesitemkustomizePatchesitem:
-    """
-    ApplicationoperationsyncsourcesitemkustomizePatchesitem schema.
-
-    Attributes
-    ----------
-    options : {str:bool}, optional
-        No description available.
-    patch : str, optional
-        No description available.
-    path : str, optional
-        No description available.
-    target : ApplicationoperationsyncsourcesitemkustomizepatchesitemTarget, optional
-        No description available.
-    """
-    options? : {str:bool}
-    patch? : str
-    path? : str
-    target? : ApplicationoperationsyncsourcesitemkustomizepatchesitemTarget
-
-schema ApplicationoperationsyncsourcesitemkustomizepatchesitemTarget:
-    """
-    ApplicationoperationsyncsourcesitemkustomizepatchesitemTarget schema.
-
-    Attributes
-    ----------
-    annotationSelector : str, optional
-        No description available.
-    group : str, optional
-        No description available.
-    kind : str, optional
-        No description available.
-    labelSelector : str, optional
-        No description available.
-    name : str, optional
-        No description available.
-    namespace : str, optional
-        No description available.
-    version : str, optional
-        No description available.
-    """
-    annotationSelector? : str
-    group? : str
-    kind? : str
-    labelSelector? : str
-    name? : str
-    namespace? : str
-    version? : str
-
-schema ApplicationoperationsyncsourcesitemkustomizeReplicasitem:
-    """
-    ApplicationoperationsyncsourcesitemkustomizeReplicasitem schema.
-
-    Attributes
-    ----------
-    count : any, required
-        Number of replicas
-    name : str, required
-        Name of Deployment or StatefulSet
-    """
-    count : any
-    name : str
-
-schema ApplicationoperationsyncsourcesitemPlugin:
-    """
-    Plugin holds config management plugin specific options
-
-    Attributes
-    ----------
-    env : [ApplicationoperationsyncsourcesitempluginEnvitem], optional
-        Env is a list of environment variable entries
-    name : str, optional
-        No description available.
-    parameters : [ApplicationoperationsyncsourcesitempluginParametersitem], optional
-        No description available.
-    """
-    env? : [ApplicationoperationsyncsourcesitempluginEnvitem]
-    name? : str
-    parameters? : [ApplicationoperationsyncsourcesitempluginParametersitem]
-
-schema ApplicationoperationsyncsourcesitempluginEnvitem:
-    """
-    EnvEntry represents an entry in the application's environment
-
-    Attributes
-    ----------
-    name : str, required
-        Name is the name of the variable, usually expressed in uppercase
-    value : str, required
-        Value is the value of the variable
-    """
-    name : str
-    value : str
-
-schema ApplicationoperationsyncsourcesitempluginParametersitem:
-    """
-    ApplicationoperationsyncsourcesitempluginParametersitem schema.
-
-    Attributes
-    ----------
-    array : [str], optional
-        Array is the value of an array type parameter.
-    map : {str:str}, optional
-        Map is the value of a map type parameter.
-    name : str, optional
-        Name is the name identifying a parameter.
-    string : str, optional
-        String_ is the value of a string type parameter.
-    """
-    array? : [str]
-    map? : {str:str}
-    name? : str
-    string? : str
-
-schema ApplicationoperationsyncSyncstrategy:
-    """
-    SyncStrategy describes how to perform the sync
-
-    Attributes
-    ----------
-    apply : ApplicationoperationsyncsyncstrategyApply, optional
-        Apply will perform a `kubectl apply` to perform the sync.
-    hook : ApplicationoperationsyncsyncstrategyHook, optional
-        Hook will submit any referenced resources to perform the sync. This is the default strategy
-    """
-    apply? : ApplicationoperationsyncsyncstrategyApply
-    hook? : ApplicationoperationsyncsyncstrategyHook
-
-schema ApplicationoperationsyncsyncstrategyApply:
-    """
-    Apply will perform a `kubectl apply` to perform the sync.
-
-    Attributes
-    ----------
-    force : bool, optional
-        Force indicates whether or not to supply the --force flag to `kubectl apply`.
-        The --force flag deletes and re-create the resource, when PATCH encounters conflict and has
-        retried for 5 times.
-    """
-    force? : bool
-
-schema ApplicationoperationsyncsyncstrategyHook:
-    """
-    Hook will submit any referenced resources to perform the sync. This is the default strategy
-
-    Attributes
-    ----------
-    force : bool, optional
-        Force indicates whether or not to supply the --force flag to `kubectl apply`.
-        The --force flag deletes and re-create the resource, when PATCH encounters conflict and has
-        retried for 5 times.
-    """
-    force? : bool
-
 schema ApplicationSpec:
     """
-    ApplicationSpec represents desired application state. Contains link to repository with application definition and additional parameters link definition revision.
+    A ApplicationSpec defines the desired state of an ArgoCD Application.
 
     Attributes
     ----------
-    destination : ApplicationspecDestination, required
+    deletionPolicy : "Orphan" | "Delete", optional
+        DeletionPolicy specifies what will happen to the underlying external
+        when this managed resource is deleted - either "Delete" or "Orphan" the
+        external resource.
+        This field is planned to be deprecated in favor of the ManagementPolicies
+        field in a future release. Currently, both could be set independently and
+        non-default values would be honored if the feature flag is enabled.
+        See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+    forProvider : ApplicationspecForprovider, required
+        ApplicationParameters define the desired state of an ArgoCD Git Application
+    managementPolicies : ["Observe" | "Create" | "Update" | "Delete" | "LateInitialize" | "*"], optional
+        THIS IS A BETA FIELD. It is on by default but can be opted out
+        through a Crossplane feature flag.
+        ManagementPolicies specify the array of actions Crossplane is allowed to
+        take on the managed and external resources.
+        This field is planned to replace the DeletionPolicy field in a future
+        release. Currently, both could be set independently and non-default
+        values would be honored if the feature flag is enabled. If both are
+        custom, the DeletionPolicy field will be ignored.
+        See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+        and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
+    providerConfigRef : ApplicationspecProviderconfigref, optional
+        ProviderConfigReference specifies how the provider that will be used to
+        create, observe, update, and delete this managed resource should be
+        configured.
+    publishConnectionDetailsTo : ApplicationspecPublishconnectiondetailsto, optional
+        PublishConnectionDetailsTo specifies the connection secret config which
+        contains a name, metadata and a reference to secret store config to
+        which any connection details for this managed resource should be written.
+        Connection details frequently include the endpoint, username,
+        and password required to connect to the managed resource.
+    writeConnectionSecretToRef : ApplicationspecWriteconnectionsecrettoref, optional
+        WriteConnectionSecretToReference specifies the namespace and name of a
+        Secret to which any connection details for this managed resource should
+        be written. Connection details frequently include the endpoint, username,
+        and password required to connect to the managed resource.
+        This field is planned to be replaced in a future release in favor of
+        PublishConnectionDetailsTo. Currently, both could be set independently
+        and connection details would be published to both without affecting
+        each other.
+    """
+    deletionPolicy? : "Orphan" | "Delete"
+    forProvider : ApplicationspecForprovider
+    managementPolicies? : ["Observe" | "Create" | "Update" | "Delete" | "LateInitialize" | "*"]
+    providerConfigRef? : ApplicationspecProviderconfigref
+    publishConnectionDetailsTo? : ApplicationspecPublishconnectiondetailsto
+    writeConnectionSecretToRef? : ApplicationspecWriteconnectionsecrettoref
+
+schema ApplicationspecForprovider:
+    """
+    ApplicationParameters define the desired state of an ArgoCD Git Application
+
+    Attributes
+    ----------
+    annotations : {str:str}, optional
+        Annotations that will be applied to the ArgoCD Application
+    appNamespace : str, optional
+        AppNamespace is the namespace of the application in the ArgoCD server
+    deleteCascade : bool, optional
+        DeleteCascade indicates whether the delete should be cascaded to the app's underlying resources
+    deletePropagationPolicy : str, optional
+        DeletePropagationPolicy defines the policy for propagating deletions to the app's resources
+    destination : ApplicationspecforproviderDestination, required
         Destination is a reference to the target Kubernetes server and namespace
-    ignoreDifferences : [ApplicationspecIgnoredifferencesitem], optional
+    finalizers : [str], optional
+        Finalizers added to the ArgoCD Application
+    ignoreDifferences : [ApplicationspecforproviderIgnoredifferencesitem], optional
         IgnoreDifferences is a list of resources and their fields which should be ignored during comparison
-    info : [ApplicationspecInfoitem], optional
+    info : [ApplicationspecforproviderInfoitem], optional
         Info contains a list of information (URLs, email addresses, and plain text) that relates to the application
     project : str, required
         Project is a reference to the project this application belongs to.
@@ -996,44 +122,205 @@ schema ApplicationSpec:
         Setting to zero will store no history. This will reduce storage used.
         Increasing will increase the space used to store the history, so we do not recommend increasing it.
         Default is 10.
-    source : ApplicationspecSource, optional
-        Source is a reference to the location of the application's manifests or chart
-    sourceHydrator : ApplicationspecSourcehydrator, optional
+    source : ApplicationspecforproviderSource, optional
+        ApplicationSource contains all required information about the source of an application
+    sourceHydrator : ApplicationspecforproviderSourcehydrator, optional
         SourceHydrator provides a way to push hydrated manifests back to git before syncing them to the cluster.
-    sources : [ApplicationspecSourcesitem], optional
+    sources : [ApplicationspecforproviderSourcesitem], optional
         Sources is a reference to the location of the application's manifests or chart
-    syncPolicy : ApplicationspecSyncpolicy, optional
+    syncPolicy : ApplicationspecforproviderSyncpolicy, optional
         SyncPolicy controls when and how a sync will be performed
     """
-    destination : ApplicationspecDestination
-    ignoreDifferences? : [ApplicationspecIgnoredifferencesitem]
-    info? : [ApplicationspecInfoitem]
+    annotations? : {str:str}
+    appNamespace? : str
+    deleteCascade? : bool
+    deletePropagationPolicy? : str
+    destination : ApplicationspecforproviderDestination
+    finalizers? : [str]
+    ignoreDifferences? : [ApplicationspecforproviderIgnoredifferencesitem]
+    info? : [ApplicationspecforproviderInfoitem]
     project : str
     revisionHistoryLimit? : int
-    source? : ApplicationspecSource
-    sourceHydrator? : ApplicationspecSourcehydrator
-    sources? : [ApplicationspecSourcesitem]
-    syncPolicy? : ApplicationspecSyncpolicy
+    source? : ApplicationspecforproviderSource
+    sourceHydrator? : ApplicationspecforproviderSourcehydrator
+    sources? : [ApplicationspecforproviderSourcesitem]
+    syncPolicy? : ApplicationspecforproviderSyncpolicy
 
-schema ApplicationspecDestination:
+schema ApplicationspecforproviderDestination:
     """
     Destination is a reference to the target Kubernetes server and namespace
 
     Attributes
     ----------
     name : str, optional
-        Name is an alternate way of specifying the target cluster by its symbolic name. This must be set if Server is not set.
+        Name is an alternate way of specifying the target cluster by its symbolic name
+    nameRef : ApplicationspecforproviderdestinationNameref, optional
+        NameRef is a reference to a Cluster used to set Name
+    nameSelector : ApplicationspecforproviderdestinationNameselector, optional
+        NameSelector is a reference to a Cluster used to set Name
     namespace : str, optional
         Namespace specifies the target namespace for the application's resources.
         The namespace will only be set for namespace-scoped resources that have not set a value for .metadata.namespace
     server : str, optional
-        Server specifies the URL of the target cluster's Kubernetes control plane API. This must be set if Name is not set.
+        Server specifies the URL of the target cluster and must be set to the Kubernetes control plane API
+    serverRef : ApplicationspecforproviderdestinationServerref, optional
+        ServerRef is a reference to Cluster used to set Server
+    serverSelector : ApplicationspecforproviderdestinationServerselector, optional
+        ServerSelector selects references to Cluster used to set Server
     """
     name? : str
+    nameRef? : ApplicationspecforproviderdestinationNameref
+    nameSelector? : ApplicationspecforproviderdestinationNameselector
     namespace? : str
     server? : str
+    serverRef? : ApplicationspecforproviderdestinationServerref
+    serverSelector? : ApplicationspecforproviderdestinationServerselector
 
-schema ApplicationspecIgnoredifferencesitem:
+schema ApplicationspecforproviderdestinationNameref:
+    """
+    NameRef is a reference to a Cluster used to set Name
+
+    Attributes
+    ----------
+    name : str, required
+        Name of the referenced object.
+    policy : ApplicationspecforproviderdestinationnamerefPolicy, optional
+        Policies for referencing.
+    """
+    name : str
+    policy? : ApplicationspecforproviderdestinationnamerefPolicy
+
+schema ApplicationspecforproviderdestinationnamerefPolicy:
+    """
+    Policies for referencing.
+
+    Attributes
+    ----------
+    resolution : "Required" | "Optional", optional
+        Resolution specifies whether resolution of this reference is required.
+        The default is 'Required', which means the reconcile will fail if the
+        reference cannot be resolved. 'Optional' means this reference will be
+        a no-op if it cannot be resolved.
+    resolve : "Always" | "IfNotPresent", optional
+        Resolve specifies when this reference should be resolved. The default
+        is 'IfNotPresent', which will attempt to resolve the reference only when
+        the corresponding field is not present. Use 'Always' to resolve the
+        reference on every reconcile.
+    """
+    resolution? : "Required" | "Optional"
+    resolve? : "Always" | "IfNotPresent"
+
+schema ApplicationspecforproviderdestinationNameselector:
+    """
+    NameSelector is a reference to a Cluster used to set Name
+
+    Attributes
+    ----------
+    matchControllerRef : bool, optional
+        MatchControllerRef ensures an object with the same controller reference
+        as the selecting object is selected.
+    matchLabels : {str:str}, optional
+        MatchLabels ensures an object with matching labels is selected.
+    policy : ApplicationspecforproviderdestinationnameselectorPolicy, optional
+        Policies for selection.
+    """
+    matchControllerRef? : bool
+    matchLabels? : {str:str}
+    policy? : ApplicationspecforproviderdestinationnameselectorPolicy
+
+schema ApplicationspecforproviderdestinationnameselectorPolicy:
+    """
+    Policies for selection.
+
+    Attributes
+    ----------
+    resolution : "Required" | "Optional", optional
+        Resolution specifies whether resolution of this reference is required.
+        The default is 'Required', which means the reconcile will fail if the
+        reference cannot be resolved. 'Optional' means this reference will be
+        a no-op if it cannot be resolved.
+    resolve : "Always" | "IfNotPresent", optional
+        Resolve specifies when this reference should be resolved. The default
+        is 'IfNotPresent', which will attempt to resolve the reference only when
+        the corresponding field is not present. Use 'Always' to resolve the
+        reference on every reconcile.
+    """
+    resolution? : "Required" | "Optional"
+    resolve? : "Always" | "IfNotPresent"
+
+schema ApplicationspecforproviderdestinationServerref:
+    """
+    ServerRef is a reference to Cluster used to set Server
+
+    Attributes
+    ----------
+    name : str, required
+        Name of the referenced object.
+    policy : ApplicationspecforproviderdestinationserverrefPolicy, optional
+        Policies for referencing.
+    """
+    name : str
+    policy? : ApplicationspecforproviderdestinationserverrefPolicy
+
+schema ApplicationspecforproviderdestinationserverrefPolicy:
+    """
+    Policies for referencing.
+
+    Attributes
+    ----------
+    resolution : "Required" | "Optional", optional
+        Resolution specifies whether resolution of this reference is required.
+        The default is 'Required', which means the reconcile will fail if the
+        reference cannot be resolved. 'Optional' means this reference will be
+        a no-op if it cannot be resolved.
+    resolve : "Always" | "IfNotPresent", optional
+        Resolve specifies when this reference should be resolved. The default
+        is 'IfNotPresent', which will attempt to resolve the reference only when
+        the corresponding field is not present. Use 'Always' to resolve the
+        reference on every reconcile.
+    """
+    resolution? : "Required" | "Optional"
+    resolve? : "Always" | "IfNotPresent"
+
+schema ApplicationspecforproviderdestinationServerselector:
+    """
+    ServerSelector selects references to Cluster used to set Server
+
+    Attributes
+    ----------
+    matchControllerRef : bool, optional
+        MatchControllerRef ensures an object with the same controller reference
+        as the selecting object is selected.
+    matchLabels : {str:str}, optional
+        MatchLabels ensures an object with matching labels is selected.
+    policy : ApplicationspecforproviderdestinationserverselectorPolicy, optional
+        Policies for selection.
+    """
+    matchControllerRef? : bool
+    matchLabels? : {str:str}
+    policy? : ApplicationspecforproviderdestinationserverselectorPolicy
+
+schema ApplicationspecforproviderdestinationserverselectorPolicy:
+    """
+    Policies for selection.
+
+    Attributes
+    ----------
+    resolution : "Required" | "Optional", optional
+        Resolution specifies whether resolution of this reference is required.
+        The default is 'Required', which means the reconcile will fail if the
+        reference cannot be resolved. 'Optional' means this reference will be
+        a no-op if it cannot be resolved.
+    resolve : "Always" | "IfNotPresent", optional
+        Resolve specifies when this reference should be resolved. The default
+        is 'IfNotPresent', which will attempt to resolve the reference only when
+        the corresponding field is not present. Use 'Always' to resolve the
+        reference on every reconcile.
+    """
+    resolution? : "Required" | "Optional"
+    resolve? : "Always" | "IfNotPresent"
+
+schema ApplicationspecforproviderIgnoredifferencesitem:
     """
     ResourceIgnoreDifferences contains resource filter and list of json paths which should be ignored during comparison with live state.
 
@@ -1063,9 +350,9 @@ schema ApplicationspecIgnoredifferencesitem:
     name? : str
     namespace? : str
 
-schema ApplicationspecInfoitem:
+schema ApplicationspecforproviderInfoitem:
     """
-    ApplicationspecInfoitem schema.
+    Info is a list of informational items for this operation
 
     Attributes
     ----------
@@ -1077,25 +364,25 @@ schema ApplicationspecInfoitem:
     name : str
     value : str
 
-schema ApplicationspecSource:
+schema ApplicationspecforproviderSource:
     """
-    Source is a reference to the location of the application's manifests or chart
+    ApplicationSource contains all required information about the source of an application
 
     Attributes
     ----------
     chart : str, optional
         Chart is a Helm chart name, and must be specified for applications sourced from a Helm repo.
-    directory : ApplicationspecsourceDirectory, optional
+    directory : ApplicationspecforprovidersourceDirectory, optional
         Directory holds path/directory specific options
-    helm : ApplicationspecsourceHelm, optional
+    helm : ApplicationspecforprovidersourceHelm, optional
         Helm holds helm specific options
-    kustomize : ApplicationspecsourceKustomize, optional
+    kustomize : ApplicationspecforprovidersourceKustomize, optional
         Kustomize holds kustomize specific options
     name : str, optional
-        Name is used to refer to a source and is displayed in the UI. It is used in multi-source Applications.
+        Name is the name of the application source
     path : str, optional
         Path is a directory path within the Git repository, and is only valid for applications sourced from Git.
-    plugin : ApplicationspecsourcePlugin, optional
+    plugin : ApplicationspecforprovidersourcePlugin, optional
         Plugin holds config management plugin specific options
     ref : str, optional
         Ref is reference to another source within sources field. This field will not be used if used with a `source` tag.
@@ -1107,17 +394,17 @@ schema ApplicationspecSource:
         In case of Helm, this is a semver tag for the Chart's version.
     """
     chart? : str
-    directory? : ApplicationspecsourceDirectory
-    helm? : ApplicationspecsourceHelm
-    kustomize? : ApplicationspecsourceKustomize
+    directory? : ApplicationspecforprovidersourceDirectory
+    helm? : ApplicationspecforprovidersourceHelm
+    kustomize? : ApplicationspecforprovidersourceKustomize
     name? : str
     path? : str
-    plugin? : ApplicationspecsourcePlugin
+    plugin? : ApplicationspecforprovidersourcePlugin
     ref? : str
     repoURL : str
     targetRevision? : str
 
-schema ApplicationspecsourceDirectory:
+schema ApplicationspecforprovidersourceDirectory:
     """
     Directory holds path/directory specific options
 
@@ -1127,34 +414,34 @@ schema ApplicationspecsourceDirectory:
         Exclude contains a glob pattern to match paths against that should be explicitly excluded from being used during manifest generation
     include : str, optional
         Include contains a glob pattern to match paths against that should be explicitly included during manifest generation
-    jsonnet : ApplicationspecsourcedirectoryJsonnet, optional
+    jsonnet : ApplicationspecforprovidersourcedirectoryJsonnet, optional
         Jsonnet holds options specific to Jsonnet
     recurse : bool, optional
         Recurse specifies whether to scan a directory recursively for manifests
     """
     exclude? : str
     include? : str
-    jsonnet? : ApplicationspecsourcedirectoryJsonnet
+    jsonnet? : ApplicationspecforprovidersourcedirectoryJsonnet
     recurse? : bool
 
-schema ApplicationspecsourcedirectoryJsonnet:
+schema ApplicationspecforprovidersourcedirectoryJsonnet:
     """
     Jsonnet holds options specific to Jsonnet
 
     Attributes
     ----------
-    extVars : [ApplicationspecsourcedirectoryjsonnetExtvarsitem], optional
+    extVars : [ApplicationspecforprovidersourcedirectoryjsonnetExtvarsitem], optional
         ExtVars is a list of Jsonnet External Variables
     libs : [str], optional
         Additional library search dirs
-    tlas : [ApplicationspecsourcedirectoryjsonnetTlasitem], optional
+    tlas : [ApplicationspecforprovidersourcedirectoryjsonnetTlasitem], optional
         TLAS is a list of Jsonnet Top-level Arguments
     """
-    extVars? : [ApplicationspecsourcedirectoryjsonnetExtvarsitem]
+    extVars? : [ApplicationspecforprovidersourcedirectoryjsonnetExtvarsitem]
     libs? : [str]
-    tlas? : [ApplicationspecsourcedirectoryjsonnetTlasitem]
+    tlas? : [ApplicationspecforprovidersourcedirectoryjsonnetTlasitem]
 
-schema ApplicationspecsourcedirectoryjsonnetExtvarsitem:
+schema ApplicationspecforprovidersourcedirectoryjsonnetExtvarsitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -1171,7 +458,7 @@ schema ApplicationspecsourcedirectoryjsonnetExtvarsitem:
     name : str
     value : str
 
-schema ApplicationspecsourcedirectoryjsonnetTlasitem:
+schema ApplicationspecforprovidersourcedirectoryjsonnetTlasitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -1188,7 +475,7 @@ schema ApplicationspecsourcedirectoryjsonnetTlasitem:
     name : str
     value : str
 
-schema ApplicationspecsourceHelm:
+schema ApplicationspecforprovidersourceHelm:
     """
     Helm holds helm specific options
 
@@ -1197,7 +484,7 @@ schema ApplicationspecsourceHelm:
     apiVersions : [str], optional
         APIVersions specifies the Kubernetes resource API versions to pass to Helm when templating manifests. By default,
         Argo CD uses the API versions of the target cluster. The format is [group/]version/kind.
-    fileParameters : [ApplicationspecsourcehelmFileparametersitem], optional
+    fileParameters : [ApplicationspecforprovidersourcehelmFileparametersitem], optional
         FileParameters are file parameters to the helm template
     ignoreMissingValueFiles : bool, optional
         IgnoreMissingValueFiles prevents helm template from failing when valueFiles do not exist locally by not appending them to helm template --values
@@ -1206,7 +493,7 @@ schema ApplicationspecsourceHelm:
         uses the Kubernetes version of the target cluster.
     namespace : str, optional
         Namespace is an optional namespace to template with. If left empty, defaults to the app's destination namespace.
-    parameters : [ApplicationspecsourcehelmParametersitem], optional
+    parameters : [ApplicationspecforprovidersourcehelmParametersitem], optional
         Parameters is a list of Helm parameters which are passed to the helm template command upon manifest generation
     passCredentials : bool, optional
         PassCredentials pass credentials to all domains (Helm's --pass-credentials)
@@ -1228,11 +515,11 @@ schema ApplicationspecsourceHelm:
         Version is the Helm version to use for templating ("3")
     """
     apiVersions? : [str]
-    fileParameters? : [ApplicationspecsourcehelmFileparametersitem]
+    fileParameters? : [ApplicationspecforprovidersourcehelmFileparametersitem]
     ignoreMissingValueFiles? : bool
     kubeVersion? : str
     namespace? : str
-    parameters? : [ApplicationspecsourcehelmParametersitem]
+    parameters? : [ApplicationspecforprovidersourcehelmParametersitem]
     passCredentials? : bool
     releaseName? : str
     skipCrds? : bool
@@ -1243,7 +530,7 @@ schema ApplicationspecsourceHelm:
     valuesObject? : any
     version? : str
 
-schema ApplicationspecsourcehelmFileparametersitem:
+schema ApplicationspecforprovidersourcehelmFileparametersitem:
     """
     HelmFileParameter is a file parameter that's passed to helm template during manifest generation
 
@@ -1257,7 +544,7 @@ schema ApplicationspecsourcehelmFileparametersitem:
     name? : str
     path? : str
 
-schema ApplicationspecsourcehelmParametersitem:
+schema ApplicationspecforprovidersourcehelmParametersitem:
     """
     HelmParameter is a parameter that's passed to helm template during manifest generation
 
@@ -1274,7 +561,7 @@ schema ApplicationspecsourcehelmParametersitem:
     name? : str
     value? : str
 
-schema ApplicationspecsourceKustomize:
+schema ApplicationspecforprovidersourceKustomize:
     """
     Kustomize holds kustomize specific options
 
@@ -1312,9 +599,9 @@ schema ApplicationspecsourceKustomize:
         NameSuffix is a suffix appended to resources for Kustomize apps
     namespace : str, optional
         Namespace sets the namespace that Kustomize adds to all resources
-    patches : [ApplicationspecsourcekustomizePatchesitem], optional
+    patches : [ApplicationspecforprovidersourcekustomizePatchesitem], optional
         Patches is a list of Kustomize patches
-    replicas : [ApplicationspecsourcekustomizeReplicasitem], optional
+    replicas : [ApplicationspecforprovidersourcekustomizeReplicasitem], optional
         Replicas is a list of Kustomize Replicas override specifications
     version : str, optional
         Version controls which version of Kustomize to use for rendering manifests
@@ -1334,13 +621,13 @@ schema ApplicationspecsourceKustomize:
     namePrefix? : str
     nameSuffix? : str
     namespace? : str
-    patches? : [ApplicationspecsourcekustomizePatchesitem]
-    replicas? : [ApplicationspecsourcekustomizeReplicasitem]
+    patches? : [ApplicationspecforprovidersourcekustomizePatchesitem]
+    replicas? : [ApplicationspecforprovidersourcekustomizeReplicasitem]
     version? : str
 
-schema ApplicationspecsourcekustomizePatchesitem:
+schema ApplicationspecforprovidersourcekustomizePatchesitem:
     """
-    ApplicationspecsourcekustomizePatchesitem schema.
+    KustomizePatch is a kustomize patch
 
     Attributes
     ----------
@@ -1350,17 +637,17 @@ schema ApplicationspecsourcekustomizePatchesitem:
         No description available.
     path : str, optional
         No description available.
-    target : ApplicationspecsourcekustomizepatchesitemTarget, optional
-        No description available.
+    target : ApplicationspecforprovidersourcekustomizepatchesitemTarget, optional
+        KustomizeSelector is a selector of a Kustomize Patch
     """
     options? : {str:bool}
     patch? : str
     path? : str
-    target? : ApplicationspecsourcekustomizepatchesitemTarget
+    target? : ApplicationspecforprovidersourcekustomizepatchesitemTarget
 
-schema ApplicationspecsourcekustomizepatchesitemTarget:
+schema ApplicationspecforprovidersourcekustomizepatchesitemTarget:
     """
-    ApplicationspecsourcekustomizepatchesitemTarget schema.
+    KustomizeSelector is a selector of a Kustomize Patch
 
     Attributes
     ----------
@@ -1387,9 +674,9 @@ schema ApplicationspecsourcekustomizepatchesitemTarget:
     namespace? : str
     version? : str
 
-schema ApplicationspecsourcekustomizeReplicasitem:
+schema ApplicationspecforprovidersourcekustomizeReplicasitem:
     """
-    ApplicationspecsourcekustomizeReplicasitem schema.
+    KustomizeReplica override specifications
 
     Attributes
     ----------
@@ -1401,24 +688,24 @@ schema ApplicationspecsourcekustomizeReplicasitem:
     count : any
     name : str
 
-schema ApplicationspecsourcePlugin:
+schema ApplicationspecforprovidersourcePlugin:
     """
     Plugin holds config management plugin specific options
 
     Attributes
     ----------
-    env : [ApplicationspecsourcepluginEnvitem], optional
-        Env is a list of environment variable entries
+    env : [ApplicationspecforprovidersourcepluginEnvitem], optional
+        Env holds options specific to config management plugins
     name : str, optional
         No description available.
-    parameters : [ApplicationspecsourcepluginParametersitem], optional
-        No description available.
+    parameters : [ApplicationspecforprovidersourcepluginParametersitem], optional
+        ApplicationSourcePluginParameters is a list of specific config management parameters
     """
-    env? : [ApplicationspecsourcepluginEnvitem]
+    env? : [ApplicationspecforprovidersourcepluginEnvitem]
     name? : str
-    parameters? : [ApplicationspecsourcepluginParametersitem]
+    parameters? : [ApplicationspecforprovidersourcepluginParametersitem]
 
-schema ApplicationspecsourcepluginEnvitem:
+schema ApplicationspecforprovidersourcepluginEnvitem:
     """
     EnvEntry represents an entry in the application's environment
 
@@ -1432,9 +719,9 @@ schema ApplicationspecsourcepluginEnvitem:
     name : str
     value : str
 
-schema ApplicationspecsourcepluginParametersitem:
+schema ApplicationspecforprovidersourcepluginParametersitem:
     """
-    ApplicationspecsourcepluginParametersitem schema.
+    ApplicationSourcePluginParameter holds options specific to config management parameters
 
     Attributes
     ----------
@@ -1452,25 +739,25 @@ schema ApplicationspecsourcepluginParametersitem:
     name? : str
     string? : str
 
-schema ApplicationspecSourcehydrator:
+schema ApplicationspecforproviderSourcehydrator:
     """
     SourceHydrator provides a way to push hydrated manifests back to git before syncing them to the cluster.
 
     Attributes
     ----------
-    drySource : ApplicationspecsourcehydratorDrysource, required
+    drySource : ApplicationspecforprovidersourcehydratorDrysource, required
         DrySource specifies where the dry "don't repeat yourself" manifest source lives.
-    hydrateTo : ApplicationspecsourcehydratorHydrateto, optional
+    hydrateTo : ApplicationspecforprovidersourcehydratorHydrateto, optional
         HydrateTo specifies an optional "staging" location to push hydrated manifests to. An external system would then
         have to move manifests to the SyncSource, e.g. by pull request.
-    syncSource : ApplicationspecsourcehydratorSyncsource, required
+    syncSource : ApplicationspecforprovidersourcehydratorSyncsource, required
         SyncSource specifies where to sync hydrated manifests from.
     """
-    drySource : ApplicationspecsourcehydratorDrysource
-    hydrateTo? : ApplicationspecsourcehydratorHydrateto
-    syncSource : ApplicationspecsourcehydratorSyncsource
+    drySource : ApplicationspecforprovidersourcehydratorDrysource
+    hydrateTo? : ApplicationspecforprovidersourcehydratorHydrateto
+    syncSource : ApplicationspecforprovidersourcehydratorSyncsource
 
-schema ApplicationspecsourcehydratorDrysource:
+schema ApplicationspecforprovidersourcehydratorDrysource:
     """
     DrySource specifies where the dry "don't repeat yourself" manifest source lives.
 
@@ -1487,7 +774,7 @@ schema ApplicationspecsourcehydratorDrysource:
     repoURL : str
     targetRevision : str
 
-schema ApplicationspecsourcehydratorHydrateto:
+schema ApplicationspecforprovidersourcehydratorHydrateto:
     """
     HydrateTo specifies an optional "staging" location to push hydrated manifests to. An external system would then
     have to move manifests to the SyncSource, e.g. by pull request.
@@ -1499,7 +786,7 @@ schema ApplicationspecsourcehydratorHydrateto:
     """
     targetBranch : str
 
-schema ApplicationspecsourcehydratorSyncsource:
+schema ApplicationspecforprovidersourcehydratorSyncsource:
     """
     SyncSource specifies where to sync hydrated manifests from.
 
@@ -1514,7 +801,7 @@ schema ApplicationspecsourcehydratorSyncsource:
     path : str
     targetBranch : str
 
-schema ApplicationspecSourcesitem:
+schema ApplicationspecforproviderSourcesitem:
     """
     ApplicationSource contains all required information about the source of an application
 
@@ -1522,17 +809,17 @@ schema ApplicationspecSourcesitem:
     ----------
     chart : str, optional
         Chart is a Helm chart name, and must be specified for applications sourced from a Helm repo.
-    directory : ApplicationspecsourcesitemDirectory, optional
+    directory : ApplicationspecforprovidersourcesitemDirectory, optional
         Directory holds path/directory specific options
-    helm : ApplicationspecsourcesitemHelm, optional
+    helm : ApplicationspecforprovidersourcesitemHelm, optional
         Helm holds helm specific options
-    kustomize : ApplicationspecsourcesitemKustomize, optional
+    kustomize : ApplicationspecforprovidersourcesitemKustomize, optional
         Kustomize holds kustomize specific options
     name : str, optional
-        Name is used to refer to a source and is displayed in the UI. It is used in multi-source Applications.
+        Name is the name of the application source
     path : str, optional
         Path is a directory path within the Git repository, and is only valid for applications sourced from Git.
-    plugin : ApplicationspecsourcesitemPlugin, optional
+    plugin : ApplicationspecforprovidersourcesitemPlugin, optional
         Plugin holds config management plugin specific options
     ref : str, optional
         Ref is reference to another source within sources field. This field will not be used if used with a `source` tag.
@@ -1544,17 +831,17 @@ schema ApplicationspecSourcesitem:
         In case of Helm, this is a semver tag for the Chart's version.
     """
     chart? : str
-    directory? : ApplicationspecsourcesitemDirectory
-    helm? : ApplicationspecsourcesitemHelm
-    kustomize? : ApplicationspecsourcesitemKustomize
+    directory? : ApplicationspecforprovidersourcesitemDirectory
+    helm? : ApplicationspecforprovidersourcesitemHelm
+    kustomize? : ApplicationspecforprovidersourcesitemKustomize
     name? : str
     path? : str
-    plugin? : ApplicationspecsourcesitemPlugin
+    plugin? : ApplicationspecforprovidersourcesitemPlugin
     ref? : str
     repoURL : str
     targetRevision? : str
 
-schema ApplicationspecsourcesitemDirectory:
+schema ApplicationspecforprovidersourcesitemDirectory:
     """
     Directory holds path/directory specific options
 
@@ -1564,34 +851,34 @@ schema ApplicationspecsourcesitemDirectory:
         Exclude contains a glob pattern to match paths against that should be explicitly excluded from being used during manifest generation
     include : str, optional
         Include contains a glob pattern to match paths against that should be explicitly included during manifest generation
-    jsonnet : ApplicationspecsourcesitemdirectoryJsonnet, optional
+    jsonnet : ApplicationspecforprovidersourcesitemdirectoryJsonnet, optional
         Jsonnet holds options specific to Jsonnet
     recurse : bool, optional
         Recurse specifies whether to scan a directory recursively for manifests
     """
     exclude? : str
     include? : str
-    jsonnet? : ApplicationspecsourcesitemdirectoryJsonnet
+    jsonnet? : ApplicationspecforprovidersourcesitemdirectoryJsonnet
     recurse? : bool
 
-schema ApplicationspecsourcesitemdirectoryJsonnet:
+schema ApplicationspecforprovidersourcesitemdirectoryJsonnet:
     """
     Jsonnet holds options specific to Jsonnet
 
     Attributes
     ----------
-    extVars : [ApplicationspecsourcesitemdirectoryjsonnetExtvarsitem], optional
+    extVars : [ApplicationspecforprovidersourcesitemdirectoryjsonnetExtvarsitem], optional
         ExtVars is a list of Jsonnet External Variables
     libs : [str], optional
         Additional library search dirs
-    tlas : [ApplicationspecsourcesitemdirectoryjsonnetTlasitem], optional
+    tlas : [ApplicationspecforprovidersourcesitemdirectoryjsonnetTlasitem], optional
         TLAS is a list of Jsonnet Top-level Arguments
     """
-    extVars? : [ApplicationspecsourcesitemdirectoryjsonnetExtvarsitem]
+    extVars? : [ApplicationspecforprovidersourcesitemdirectoryjsonnetExtvarsitem]
     libs? : [str]
-    tlas? : [ApplicationspecsourcesitemdirectoryjsonnetTlasitem]
+    tlas? : [ApplicationspecforprovidersourcesitemdirectoryjsonnetTlasitem]
 
-schema ApplicationspecsourcesitemdirectoryjsonnetExtvarsitem:
+schema ApplicationspecforprovidersourcesitemdirectoryjsonnetExtvarsitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -1608,7 +895,7 @@ schema ApplicationspecsourcesitemdirectoryjsonnetExtvarsitem:
     name : str
     value : str
 
-schema ApplicationspecsourcesitemdirectoryjsonnetTlasitem:
+schema ApplicationspecforprovidersourcesitemdirectoryjsonnetTlasitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -1625,7 +912,7 @@ schema ApplicationspecsourcesitemdirectoryjsonnetTlasitem:
     name : str
     value : str
 
-schema ApplicationspecsourcesitemHelm:
+schema ApplicationspecforprovidersourcesitemHelm:
     """
     Helm holds helm specific options
 
@@ -1634,7 +921,7 @@ schema ApplicationspecsourcesitemHelm:
     apiVersions : [str], optional
         APIVersions specifies the Kubernetes resource API versions to pass to Helm when templating manifests. By default,
         Argo CD uses the API versions of the target cluster. The format is [group/]version/kind.
-    fileParameters : [ApplicationspecsourcesitemhelmFileparametersitem], optional
+    fileParameters : [ApplicationspecforprovidersourcesitemhelmFileparametersitem], optional
         FileParameters are file parameters to the helm template
     ignoreMissingValueFiles : bool, optional
         IgnoreMissingValueFiles prevents helm template from failing when valueFiles do not exist locally by not appending them to helm template --values
@@ -1643,7 +930,7 @@ schema ApplicationspecsourcesitemHelm:
         uses the Kubernetes version of the target cluster.
     namespace : str, optional
         Namespace is an optional namespace to template with. If left empty, defaults to the app's destination namespace.
-    parameters : [ApplicationspecsourcesitemhelmParametersitem], optional
+    parameters : [ApplicationspecforprovidersourcesitemhelmParametersitem], optional
         Parameters is a list of Helm parameters which are passed to the helm template command upon manifest generation
     passCredentials : bool, optional
         PassCredentials pass credentials to all domains (Helm's --pass-credentials)
@@ -1665,11 +952,11 @@ schema ApplicationspecsourcesitemHelm:
         Version is the Helm version to use for templating ("3")
     """
     apiVersions? : [str]
-    fileParameters? : [ApplicationspecsourcesitemhelmFileparametersitem]
+    fileParameters? : [ApplicationspecforprovidersourcesitemhelmFileparametersitem]
     ignoreMissingValueFiles? : bool
     kubeVersion? : str
     namespace? : str
-    parameters? : [ApplicationspecsourcesitemhelmParametersitem]
+    parameters? : [ApplicationspecforprovidersourcesitemhelmParametersitem]
     passCredentials? : bool
     releaseName? : str
     skipCrds? : bool
@@ -1680,7 +967,7 @@ schema ApplicationspecsourcesitemHelm:
     valuesObject? : any
     version? : str
 
-schema ApplicationspecsourcesitemhelmFileparametersitem:
+schema ApplicationspecforprovidersourcesitemhelmFileparametersitem:
     """
     HelmFileParameter is a file parameter that's passed to helm template during manifest generation
 
@@ -1694,7 +981,7 @@ schema ApplicationspecsourcesitemhelmFileparametersitem:
     name? : str
     path? : str
 
-schema ApplicationspecsourcesitemhelmParametersitem:
+schema ApplicationspecforprovidersourcesitemhelmParametersitem:
     """
     HelmParameter is a parameter that's passed to helm template during manifest generation
 
@@ -1711,7 +998,7 @@ schema ApplicationspecsourcesitemhelmParametersitem:
     name? : str
     value? : str
 
-schema ApplicationspecsourcesitemKustomize:
+schema ApplicationspecforprovidersourcesitemKustomize:
     """
     Kustomize holds kustomize specific options
 
@@ -1749,9 +1036,9 @@ schema ApplicationspecsourcesitemKustomize:
         NameSuffix is a suffix appended to resources for Kustomize apps
     namespace : str, optional
         Namespace sets the namespace that Kustomize adds to all resources
-    patches : [ApplicationspecsourcesitemkustomizePatchesitem], optional
+    patches : [ApplicationspecforprovidersourcesitemkustomizePatchesitem], optional
         Patches is a list of Kustomize patches
-    replicas : [ApplicationspecsourcesitemkustomizeReplicasitem], optional
+    replicas : [ApplicationspecforprovidersourcesitemkustomizeReplicasitem], optional
         Replicas is a list of Kustomize Replicas override specifications
     version : str, optional
         Version controls which version of Kustomize to use for rendering manifests
@@ -1771,13 +1058,13 @@ schema ApplicationspecsourcesitemKustomize:
     namePrefix? : str
     nameSuffix? : str
     namespace? : str
-    patches? : [ApplicationspecsourcesitemkustomizePatchesitem]
-    replicas? : [ApplicationspecsourcesitemkustomizeReplicasitem]
+    patches? : [ApplicationspecforprovidersourcesitemkustomizePatchesitem]
+    replicas? : [ApplicationspecforprovidersourcesitemkustomizeReplicasitem]
     version? : str
 
-schema ApplicationspecsourcesitemkustomizePatchesitem:
+schema ApplicationspecforprovidersourcesitemkustomizePatchesitem:
     """
-    ApplicationspecsourcesitemkustomizePatchesitem schema.
+    KustomizePatch is a kustomize patch
 
     Attributes
     ----------
@@ -1787,17 +1074,17 @@ schema ApplicationspecsourcesitemkustomizePatchesitem:
         No description available.
     path : str, optional
         No description available.
-    target : ApplicationspecsourcesitemkustomizepatchesitemTarget, optional
-        No description available.
+    target : ApplicationspecforprovidersourcesitemkustomizepatchesitemTarget, optional
+        KustomizeSelector is a selector of a Kustomize Patch
     """
     options? : {str:bool}
     patch? : str
     path? : str
-    target? : ApplicationspecsourcesitemkustomizepatchesitemTarget
+    target? : ApplicationspecforprovidersourcesitemkustomizepatchesitemTarget
 
-schema ApplicationspecsourcesitemkustomizepatchesitemTarget:
+schema ApplicationspecforprovidersourcesitemkustomizepatchesitemTarget:
     """
-    ApplicationspecsourcesitemkustomizepatchesitemTarget schema.
+    KustomizeSelector is a selector of a Kustomize Patch
 
     Attributes
     ----------
@@ -1824,9 +1111,9 @@ schema ApplicationspecsourcesitemkustomizepatchesitemTarget:
     namespace? : str
     version? : str
 
-schema ApplicationspecsourcesitemkustomizeReplicasitem:
+schema ApplicationspecforprovidersourcesitemkustomizeReplicasitem:
     """
-    ApplicationspecsourcesitemkustomizeReplicasitem schema.
+    KustomizeReplica override specifications
 
     Attributes
     ----------
@@ -1838,24 +1125,24 @@ schema ApplicationspecsourcesitemkustomizeReplicasitem:
     count : any
     name : str
 
-schema ApplicationspecsourcesitemPlugin:
+schema ApplicationspecforprovidersourcesitemPlugin:
     """
     Plugin holds config management plugin specific options
 
     Attributes
     ----------
-    env : [ApplicationspecsourcesitempluginEnvitem], optional
-        Env is a list of environment variable entries
+    env : [ApplicationspecforprovidersourcesitempluginEnvitem], optional
+        Env holds options specific to config management plugins
     name : str, optional
         No description available.
-    parameters : [ApplicationspecsourcesitempluginParametersitem], optional
-        No description available.
+    parameters : [ApplicationspecforprovidersourcesitempluginParametersitem], optional
+        ApplicationSourcePluginParameters is a list of specific config management parameters
     """
-    env? : [ApplicationspecsourcesitempluginEnvitem]
+    env? : [ApplicationspecforprovidersourcesitempluginEnvitem]
     name? : str
-    parameters? : [ApplicationspecsourcesitempluginParametersitem]
+    parameters? : [ApplicationspecforprovidersourcesitempluginParametersitem]
 
-schema ApplicationspecsourcesitempluginEnvitem:
+schema ApplicationspecforprovidersourcesitempluginEnvitem:
     """
     EnvEntry represents an entry in the application's environment
 
@@ -1869,9 +1156,9 @@ schema ApplicationspecsourcesitempluginEnvitem:
     name : str
     value : str
 
-schema ApplicationspecsourcesitempluginParametersitem:
+schema ApplicationspecforprovidersourcesitempluginParametersitem:
     """
-    ApplicationspecsourcesitempluginParametersitem schema.
+    ApplicationSourcePluginParameter holds options specific to config management parameters
 
     Attributes
     ----------
@@ -1889,27 +1176,27 @@ schema ApplicationspecsourcesitempluginParametersitem:
     name? : str
     string? : str
 
-schema ApplicationspecSyncpolicy:
+schema ApplicationspecforproviderSyncpolicy:
     """
     SyncPolicy controls when and how a sync will be performed
 
     Attributes
     ----------
-    automated : ApplicationspecsyncpolicyAutomated, optional
+    automated : ApplicationspecforprovidersyncpolicyAutomated, optional
         Automated will keep an application synced to the target revision
-    managedNamespaceMetadata : ApplicationspecsyncpolicyManagednamespacemetadata, optional
+    managedNamespaceMetadata : ApplicationspecforprovidersyncpolicyManagednamespacemetadata, optional
         ManagedNamespaceMetadata controls metadata in the given namespace (if CreateNamespace=true)
-    retry : ApplicationspecsyncpolicyRetry, optional
+    retry : ApplicationspecforprovidersyncpolicyRetry, optional
         Retry controls failed sync retry behavior
     syncOptions : [str], optional
         Options allow you to specify whole app sync-options
     """
-    automated? : ApplicationspecsyncpolicyAutomated
-    managedNamespaceMetadata? : ApplicationspecsyncpolicyManagednamespacemetadata
-    retry? : ApplicationspecsyncpolicyRetry
+    automated? : ApplicationspecforprovidersyncpolicyAutomated
+    managedNamespaceMetadata? : ApplicationspecforprovidersyncpolicyManagednamespacemetadata
+    retry? : ApplicationspecforprovidersyncpolicyRetry
     syncOptions? : [str]
 
-schema ApplicationspecsyncpolicyAutomated:
+schema ApplicationspecforprovidersyncpolicyAutomated:
     """
     Automated will keep an application synced to the target revision
 
@@ -1917,19 +1204,16 @@ schema ApplicationspecsyncpolicyAutomated:
     ----------
     allowEmpty : bool, optional
         AllowEmpty allows apps have zero live resources (default: false)
-    enabled : bool, optional
-        Enable allows apps to explicitly control automated sync
     prune : bool, optional
         Prune specifies whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync (default: false)
     selfHeal : bool, optional
-        SelfHeal specifies whether to revert resources back to their desired state upon modification in the cluster (default: false)
+        SelfHeal specifes whether to revert resources back to their desired state upon modification in the cluster (default: false)
     """
     allowEmpty? : bool
-    enabled? : bool
     prune? : bool
     selfHeal? : bool
 
-schema ApplicationspecsyncpolicyManagednamespacemetadata:
+schema ApplicationspecforprovidersyncpolicyManagednamespacemetadata:
     """
     ManagedNamespaceMetadata controls metadata in the given namespace (if CreateNamespace=true)
 
@@ -1943,21 +1227,21 @@ schema ApplicationspecsyncpolicyManagednamespacemetadata:
     annotations? : {str:str}
     labels? : {str:str}
 
-schema ApplicationspecsyncpolicyRetry:
+schema ApplicationspecforprovidersyncpolicyRetry:
     """
     Retry controls failed sync retry behavior
 
     Attributes
     ----------
-    backoff : ApplicationspecsyncpolicyretryBackoff, optional
+    backoff : ApplicationspecforprovidersyncpolicyretryBackoff, optional
         Backoff controls how to backoff on subsequent retries of failed syncs
     limit : int, optional
         Limit is the maximum number of attempts for retrying a failed sync. If set to 0, no retries will be performed.
     """
-    backoff? : ApplicationspecsyncpolicyretryBackoff
+    backoff? : ApplicationspecforprovidersyncpolicyretryBackoff
     limit? : int
 
-schema ApplicationspecsyncpolicyretryBackoff:
+schema ApplicationspecforprovidersyncpolicyretryBackoff:
     """
     Backoff controls how to backoff on subsequent retries of failed syncs
 
@@ -1974,58 +1258,207 @@ schema ApplicationspecsyncpolicyretryBackoff:
     factor? : int
     maxDuration? : str
 
-schema ApplicationStatus:
+schema ApplicationspecProviderconfigref:
     """
-    ApplicationStatus contains status information for the application
+    ProviderConfigReference specifies how the provider that will be used to
+    create, observe, update, and delete this managed resource should be
+    configured.
 
     Attributes
     ----------
+    name : str, required
+        Name of the referenced object.
+    policy : ApplicationspecproviderconfigrefPolicy, optional
+        Policies for referencing.
+    """
+    name : str
+    policy? : ApplicationspecproviderconfigrefPolicy
+
+schema ApplicationspecproviderconfigrefPolicy:
+    """
+    Policies for referencing.
+
+    Attributes
+    ----------
+    resolution : "Required" | "Optional", optional
+        Resolution specifies whether resolution of this reference is required.
+        The default is 'Required', which means the reconcile will fail if the
+        reference cannot be resolved. 'Optional' means this reference will be
+        a no-op if it cannot be resolved.
+    resolve : "Always" | "IfNotPresent", optional
+        Resolve specifies when this reference should be resolved. The default
+        is 'IfNotPresent', which will attempt to resolve the reference only when
+        the corresponding field is not present. Use 'Always' to resolve the
+        reference on every reconcile.
+    """
+    resolution? : "Required" | "Optional"
+    resolve? : "Always" | "IfNotPresent"
+
+schema ApplicationspecPublishconnectiondetailsto:
+    """
+    PublishConnectionDetailsTo specifies the connection secret config which
+    contains a name, metadata and a reference to secret store config to
+    which any connection details for this managed resource should be written.
+    Connection details frequently include the endpoint, username,
+    and password required to connect to the managed resource.
+
+    Attributes
+    ----------
+    configRef : ApplicationspecpublishconnectiondetailstoConfigref, optional
+        SecretStoreConfigRef specifies which secret store config should be used
+        for this ConnectionSecret.
+    metadata : ApplicationspecpublishconnectiondetailstoMetadata, optional
+        Metadata is the metadata for connection secret.
+    name : str, required
+        Name is the name of the connection secret.
+    """
+    configRef? : ApplicationspecpublishconnectiondetailstoConfigref
+    metadata? : ApplicationspecpublishconnectiondetailstoMetadata
+    name : str
+
+schema ApplicationspecpublishconnectiondetailstoConfigref:
+    """
+    SecretStoreConfigRef specifies which secret store config should be used
+    for this ConnectionSecret.
+
+    Attributes
+    ----------
+    name : str, required
+        Name of the referenced object.
+    policy : ApplicationspecpublishconnectiondetailstoconfigrefPolicy, optional
+        Policies for referencing.
+    """
+    name : str
+    policy? : ApplicationspecpublishconnectiondetailstoconfigrefPolicy
+
+schema ApplicationspecpublishconnectiondetailstoconfigrefPolicy:
+    """
+    Policies for referencing.
+
+    Attributes
+    ----------
+    resolution : "Required" | "Optional", optional
+        Resolution specifies whether resolution of this reference is required.
+        The default is 'Required', which means the reconcile will fail if the
+        reference cannot be resolved. 'Optional' means this reference will be
+        a no-op if it cannot be resolved.
+    resolve : "Always" | "IfNotPresent", optional
+        Resolve specifies when this reference should be resolved. The default
+        is 'IfNotPresent', which will attempt to resolve the reference only when
+        the corresponding field is not present. Use 'Always' to resolve the
+        reference on every reconcile.
+    """
+    resolution? : "Required" | "Optional"
+    resolve? : "Always" | "IfNotPresent"
+
+schema ApplicationspecpublishconnectiondetailstoMetadata:
+    """
+    Metadata is the metadata for connection secret.
+
+    Attributes
+    ----------
+    annotations : {str:str}, optional
+        Annotations are the annotations to be added to connection secret.
+        - For Kubernetes secrets, this will be used as "metadata.annotations".
+        - It is up to Secret Store implementation for others store types.
+    labels : {str:str}, optional
+        Labels are the labels/tags to be added to connection secret.
+        - For Kubernetes secrets, this will be used as "metadata.labels".
+        - It is up to Secret Store implementation for others store types.
+    type : str, optional
+        Type is the SecretType for the connection secret.
+        - Only valid for Kubernetes Secret Stores.
+    """
+    annotations? : {str:str}
+    labels? : {str:str}
+    type? : str
+
+schema ApplicationspecWriteconnectionsecrettoref:
+    """
+    WriteConnectionSecretToReference specifies the namespace and name of a
+    Secret to which any connection details for this managed resource should
+    be written. Connection details frequently include the endpoint, username,
+    and password required to connect to the managed resource.
+    This field is planned to be replaced in a future release in favor of
+    PublishConnectionDetailsTo. Currently, both could be set independently
+    and connection details would be published to both without affecting
+    each other.
+
+    Attributes
+    ----------
+    name : str, required
+        Name of the secret.
+    namespace : str, required
+        Namespace of the secret.
+    """
+    name : str
+    namespace : str
+
+schema ApplicationStatus:
+    """
+    A ApplicationStatus represents the observed state of an ArgoCD Application.
+
+    Attributes
+    ----------
+    atProvider : ApplicationstatusAtprovider, optional
+        ArgoApplicationStatus contains status information for the application
     conditions : [ApplicationstatusConditionsitem], optional
+        Conditions of the resource.
+    observedGeneration : int, optional
+        ObservedGeneration is the latest metadata.generation
+        which resulted in either a ready state, or stalled due to error
+        it can not recover from without human intervention.
+    """
+    atProvider? : ApplicationstatusAtprovider
+    conditions? : [ApplicationstatusConditionsitem]
+    observedGeneration? : int
+
+schema ApplicationstatusAtprovider:
+    """
+    ArgoApplicationStatus contains status information for the application
+
+    Attributes
+    ----------
+    conditions : [ApplicationstatusatproviderConditionsitem], optional
         Conditions is a list of currently observed application conditions
-    controllerNamespace : str, optional
-        ControllerNamespace indicates the namespace in which the application controller is located
-    health : ApplicationstatusHealth, optional
+    health : ApplicationstatusatproviderHealth, optional
         Health contains information about the application's current health status
-    history : [ApplicationstatusHistoryitem], optional
+    history : [ApplicationstatusatproviderHistoryitem], optional
         History contains information about the application's sync history
     observedAt : str, optional
         ObservedAt indicates when the application state was updated without querying latest git state
         Deprecated: controller no longer updates ObservedAt field
-    operationState : ApplicationstatusOperationstate, optional
+    operationState : ApplicationstatusatproviderOperationstate, optional
         OperationState contains information about any ongoing operations, such as a sync
     reconciledAt : str, optional
         ReconciledAt indicates when the application state was reconciled using the latest git version
     resourceHealthSource : str, optional
         ResourceHealthSource indicates where the resource health status is stored: inline if not set or appTree
-    resources : [ApplicationstatusResourcesitem], optional
+    resources : [ApplicationstatusatproviderResourcesitem], optional
         Resources is a list of Kubernetes resources managed by this application
-    sourceHydrator : ApplicationstatusSourcehydrator, optional
-        SourceHydrator stores information about the current state of source hydration
     sourceType : str, optional
         SourceType specifies the type of this application
     sourceTypes : [str], optional
         SourceTypes specifies the type of the sources included in the application
-    summary : ApplicationstatusSummary, optional
+    summary : ApplicationstatusatproviderSummary, optional
         Summary contains a list of URLs and container images used by this application
-    sync : ApplicationstatusSync, optional
+    sync : ApplicationstatusatproviderSync, optional
         Sync contains information about the application's current sync status
     """
-    conditions? : [ApplicationstatusConditionsitem]
-    controllerNamespace? : str
-    health? : ApplicationstatusHealth
-    history? : [ApplicationstatusHistoryitem]
+    conditions? : [ApplicationstatusatproviderConditionsitem]
+    health? : ApplicationstatusatproviderHealth
+    history? : [ApplicationstatusatproviderHistoryitem]
     observedAt? : str
-    operationState? : ApplicationstatusOperationstate
+    operationState? : ApplicationstatusatproviderOperationstate
     reconciledAt? : str
     resourceHealthSource? : str
-    resources? : [ApplicationstatusResourcesitem]
-    sourceHydrator? : ApplicationstatusSourcehydrator
+    resources? : [ApplicationstatusatproviderResourcesitem]
     sourceType? : str
     sourceTypes? : [str]
-    summary? : ApplicationstatusSummary
-    sync? : ApplicationstatusSync
+    summary? : ApplicationstatusatproviderSummary
+    sync? : ApplicationstatusatproviderSync
 
-schema ApplicationstatusConditionsitem:
+schema ApplicationstatusatproviderConditionsitem:
     """
     ApplicationCondition contains details about an application condition, which is usually an error or warning
 
@@ -2042,7 +1475,7 @@ schema ApplicationstatusConditionsitem:
     message : str
     type : str
 
-schema ApplicationstatusHealth:
+schema ApplicationstatusatproviderHealth:
     """
     Health contains information about the application's current health status
 
@@ -2052,16 +1485,14 @@ schema ApplicationstatusHealth:
         LastTransitionTime is the time the HealthStatus was set or updated
     message : str, optional
         Message is a human-readable informational message describing the health status
-
-        Deprecated: this field is not used and will be removed in a future release.
     status : str, optional
-        Status holds the status code of the application
+        Status holds the status code of the application or resource
     """
     lastTransitionTime? : str
     message? : str
     status? : str
 
-schema ApplicationstatusHistoryitem:
+schema ApplicationstatusatproviderHistoryitem:
     """
     RevisionHistory contains history information about a previous sync
 
@@ -2069,45 +1500,28 @@ schema ApplicationstatusHistoryitem:
     ----------
     deployStartedAt : str, optional
         DeployStartedAt holds the time the sync operation started
-    deployedAt : str, required
+    deployedAt : str, optional
         DeployedAt holds the time the sync operation completed
     id : int, required
         ID is an auto incrementing identifier of the RevisionHistory
-    initiatedBy : ApplicationstatushistoryitemInitiatedby, optional
-        InitiatedBy contains information about who initiated the operations
     revision : str, optional
         Revision holds the revision the sync was performed against
     revisions : [str], optional
         Revisions holds the revision of each source in sources field the sync was performed against
-    source : ApplicationstatushistoryitemSource, optional
+    source : ApplicationstatusatproviderhistoryitemSource, optional
         Source is a reference to the application source used for the sync operation
-    sources : [ApplicationstatushistoryitemSourcesitem], optional
+    sources : [ApplicationstatusatproviderhistoryitemSourcesitem], optional
         Sources is a reference to the application sources used for the sync operation
     """
     deployStartedAt? : str
-    deployedAt : str
+    deployedAt? : str
     id : int
-    initiatedBy? : ApplicationstatushistoryitemInitiatedby
     revision? : str
     revisions? : [str]
-    source? : ApplicationstatushistoryitemSource
-    sources? : [ApplicationstatushistoryitemSourcesitem]
+    source? : ApplicationstatusatproviderhistoryitemSource
+    sources? : [ApplicationstatusatproviderhistoryitemSourcesitem]
 
-schema ApplicationstatushistoryitemInitiatedby:
-    """
-    InitiatedBy contains information about who initiated the operations
-
-    Attributes
-    ----------
-    automated : bool, optional
-        Automated is set to true if operation was initiated automatically by the application controller.
-    username : str, optional
-        Username contains the name of a user who started operation
-    """
-    automated? : bool
-    username? : str
-
-schema ApplicationstatushistoryitemSource:
+schema ApplicationstatusatproviderhistoryitemSource:
     """
     Source is a reference to the application source used for the sync operation
 
@@ -2115,17 +1529,17 @@ schema ApplicationstatushistoryitemSource:
     ----------
     chart : str, optional
         Chart is a Helm chart name, and must be specified for applications sourced from a Helm repo.
-    directory : ApplicationstatushistoryitemsourceDirectory, optional
+    directory : ApplicationstatusatproviderhistoryitemsourceDirectory, optional
         Directory holds path/directory specific options
-    helm : ApplicationstatushistoryitemsourceHelm, optional
+    helm : ApplicationstatusatproviderhistoryitemsourceHelm, optional
         Helm holds helm specific options
-    kustomize : ApplicationstatushistoryitemsourceKustomize, optional
+    kustomize : ApplicationstatusatproviderhistoryitemsourceKustomize, optional
         Kustomize holds kustomize specific options
     name : str, optional
-        Name is used to refer to a source and is displayed in the UI. It is used in multi-source Applications.
+        Name is the name of the application source
     path : str, optional
         Path is a directory path within the Git repository, and is only valid for applications sourced from Git.
-    plugin : ApplicationstatushistoryitemsourcePlugin, optional
+    plugin : ApplicationstatusatproviderhistoryitemsourcePlugin, optional
         Plugin holds config management plugin specific options
     ref : str, optional
         Ref is reference to another source within sources field. This field will not be used if used with a `source` tag.
@@ -2137,17 +1551,17 @@ schema ApplicationstatushistoryitemSource:
         In case of Helm, this is a semver tag for the Chart's version.
     """
     chart? : str
-    directory? : ApplicationstatushistoryitemsourceDirectory
-    helm? : ApplicationstatushistoryitemsourceHelm
-    kustomize? : ApplicationstatushistoryitemsourceKustomize
+    directory? : ApplicationstatusatproviderhistoryitemsourceDirectory
+    helm? : ApplicationstatusatproviderhistoryitemsourceHelm
+    kustomize? : ApplicationstatusatproviderhistoryitemsourceKustomize
     name? : str
     path? : str
-    plugin? : ApplicationstatushistoryitemsourcePlugin
+    plugin? : ApplicationstatusatproviderhistoryitemsourcePlugin
     ref? : str
     repoURL : str
     targetRevision? : str
 
-schema ApplicationstatushistoryitemsourceDirectory:
+schema ApplicationstatusatproviderhistoryitemsourceDirectory:
     """
     Directory holds path/directory specific options
 
@@ -2157,34 +1571,34 @@ schema ApplicationstatushistoryitemsourceDirectory:
         Exclude contains a glob pattern to match paths against that should be explicitly excluded from being used during manifest generation
     include : str, optional
         Include contains a glob pattern to match paths against that should be explicitly included during manifest generation
-    jsonnet : ApplicationstatushistoryitemsourcedirectoryJsonnet, optional
+    jsonnet : ApplicationstatusatproviderhistoryitemsourcedirectoryJsonnet, optional
         Jsonnet holds options specific to Jsonnet
     recurse : bool, optional
         Recurse specifies whether to scan a directory recursively for manifests
     """
     exclude? : str
     include? : str
-    jsonnet? : ApplicationstatushistoryitemsourcedirectoryJsonnet
+    jsonnet? : ApplicationstatusatproviderhistoryitemsourcedirectoryJsonnet
     recurse? : bool
 
-schema ApplicationstatushistoryitemsourcedirectoryJsonnet:
+schema ApplicationstatusatproviderhistoryitemsourcedirectoryJsonnet:
     """
     Jsonnet holds options specific to Jsonnet
 
     Attributes
     ----------
-    extVars : [ApplicationstatushistoryitemsourcedirectoryjsonnetExtvarsitem], optional
+    extVars : [ApplicationstatusatproviderhistoryitemsourcedirectoryjsonnetExtvarsitem], optional
         ExtVars is a list of Jsonnet External Variables
     libs : [str], optional
         Additional library search dirs
-    tlas : [ApplicationstatushistoryitemsourcedirectoryjsonnetTlasitem], optional
+    tlas : [ApplicationstatusatproviderhistoryitemsourcedirectoryjsonnetTlasitem], optional
         TLAS is a list of Jsonnet Top-level Arguments
     """
-    extVars? : [ApplicationstatushistoryitemsourcedirectoryjsonnetExtvarsitem]
+    extVars? : [ApplicationstatusatproviderhistoryitemsourcedirectoryjsonnetExtvarsitem]
     libs? : [str]
-    tlas? : [ApplicationstatushistoryitemsourcedirectoryjsonnetTlasitem]
+    tlas? : [ApplicationstatusatproviderhistoryitemsourcedirectoryjsonnetTlasitem]
 
-schema ApplicationstatushistoryitemsourcedirectoryjsonnetExtvarsitem:
+schema ApplicationstatusatproviderhistoryitemsourcedirectoryjsonnetExtvarsitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -2201,7 +1615,7 @@ schema ApplicationstatushistoryitemsourcedirectoryjsonnetExtvarsitem:
     name : str
     value : str
 
-schema ApplicationstatushistoryitemsourcedirectoryjsonnetTlasitem:
+schema ApplicationstatusatproviderhistoryitemsourcedirectoryjsonnetTlasitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -2218,7 +1632,7 @@ schema ApplicationstatushistoryitemsourcedirectoryjsonnetTlasitem:
     name : str
     value : str
 
-schema ApplicationstatushistoryitemsourceHelm:
+schema ApplicationstatusatproviderhistoryitemsourceHelm:
     """
     Helm holds helm specific options
 
@@ -2227,7 +1641,7 @@ schema ApplicationstatushistoryitemsourceHelm:
     apiVersions : [str], optional
         APIVersions specifies the Kubernetes resource API versions to pass to Helm when templating manifests. By default,
         Argo CD uses the API versions of the target cluster. The format is [group/]version/kind.
-    fileParameters : [ApplicationstatushistoryitemsourcehelmFileparametersitem], optional
+    fileParameters : [ApplicationstatusatproviderhistoryitemsourcehelmFileparametersitem], optional
         FileParameters are file parameters to the helm template
     ignoreMissingValueFiles : bool, optional
         IgnoreMissingValueFiles prevents helm template from failing when valueFiles do not exist locally by not appending them to helm template --values
@@ -2236,7 +1650,7 @@ schema ApplicationstatushistoryitemsourceHelm:
         uses the Kubernetes version of the target cluster.
     namespace : str, optional
         Namespace is an optional namespace to template with. If left empty, defaults to the app's destination namespace.
-    parameters : [ApplicationstatushistoryitemsourcehelmParametersitem], optional
+    parameters : [ApplicationstatusatproviderhistoryitemsourcehelmParametersitem], optional
         Parameters is a list of Helm parameters which are passed to the helm template command upon manifest generation
     passCredentials : bool, optional
         PassCredentials pass credentials to all domains (Helm's --pass-credentials)
@@ -2258,11 +1672,11 @@ schema ApplicationstatushistoryitemsourceHelm:
         Version is the Helm version to use for templating ("3")
     """
     apiVersions? : [str]
-    fileParameters? : [ApplicationstatushistoryitemsourcehelmFileparametersitem]
+    fileParameters? : [ApplicationstatusatproviderhistoryitemsourcehelmFileparametersitem]
     ignoreMissingValueFiles? : bool
     kubeVersion? : str
     namespace? : str
-    parameters? : [ApplicationstatushistoryitemsourcehelmParametersitem]
+    parameters? : [ApplicationstatusatproviderhistoryitemsourcehelmParametersitem]
     passCredentials? : bool
     releaseName? : str
     skipCrds? : bool
@@ -2273,7 +1687,7 @@ schema ApplicationstatushistoryitemsourceHelm:
     valuesObject? : any
     version? : str
 
-schema ApplicationstatushistoryitemsourcehelmFileparametersitem:
+schema ApplicationstatusatproviderhistoryitemsourcehelmFileparametersitem:
     """
     HelmFileParameter is a file parameter that's passed to helm template during manifest generation
 
@@ -2287,7 +1701,7 @@ schema ApplicationstatushistoryitemsourcehelmFileparametersitem:
     name? : str
     path? : str
 
-schema ApplicationstatushistoryitemsourcehelmParametersitem:
+schema ApplicationstatusatproviderhistoryitemsourcehelmParametersitem:
     """
     HelmParameter is a parameter that's passed to helm template during manifest generation
 
@@ -2304,7 +1718,7 @@ schema ApplicationstatushistoryitemsourcehelmParametersitem:
     name? : str
     value? : str
 
-schema ApplicationstatushistoryitemsourceKustomize:
+schema ApplicationstatusatproviderhistoryitemsourceKustomize:
     """
     Kustomize holds kustomize specific options
 
@@ -2342,9 +1756,9 @@ schema ApplicationstatushistoryitemsourceKustomize:
         NameSuffix is a suffix appended to resources for Kustomize apps
     namespace : str, optional
         Namespace sets the namespace that Kustomize adds to all resources
-    patches : [ApplicationstatushistoryitemsourcekustomizePatchesitem], optional
+    patches : [ApplicationstatusatproviderhistoryitemsourcekustomizePatchesitem], optional
         Patches is a list of Kustomize patches
-    replicas : [ApplicationstatushistoryitemsourcekustomizeReplicasitem], optional
+    replicas : [ApplicationstatusatproviderhistoryitemsourcekustomizeReplicasitem], optional
         Replicas is a list of Kustomize Replicas override specifications
     version : str, optional
         Version controls which version of Kustomize to use for rendering manifests
@@ -2364,13 +1778,13 @@ schema ApplicationstatushistoryitemsourceKustomize:
     namePrefix? : str
     nameSuffix? : str
     namespace? : str
-    patches? : [ApplicationstatushistoryitemsourcekustomizePatchesitem]
-    replicas? : [ApplicationstatushistoryitemsourcekustomizeReplicasitem]
+    patches? : [ApplicationstatusatproviderhistoryitemsourcekustomizePatchesitem]
+    replicas? : [ApplicationstatusatproviderhistoryitemsourcekustomizeReplicasitem]
     version? : str
 
-schema ApplicationstatushistoryitemsourcekustomizePatchesitem:
+schema ApplicationstatusatproviderhistoryitemsourcekustomizePatchesitem:
     """
-    ApplicationstatushistoryitemsourcekustomizePatchesitem schema.
+    KustomizePatch is a kustomize patch
 
     Attributes
     ----------
@@ -2380,17 +1794,17 @@ schema ApplicationstatushistoryitemsourcekustomizePatchesitem:
         No description available.
     path : str, optional
         No description available.
-    target : ApplicationstatushistoryitemsourcekustomizepatchesitemTarget, optional
-        No description available.
+    target : ApplicationstatusatproviderhistoryitemsourcekustomizepatchesitemTarget, optional
+        KustomizeSelector is a selector of a Kustomize Patch
     """
     options? : {str:bool}
     patch? : str
     path? : str
-    target? : ApplicationstatushistoryitemsourcekustomizepatchesitemTarget
+    target? : ApplicationstatusatproviderhistoryitemsourcekustomizepatchesitemTarget
 
-schema ApplicationstatushistoryitemsourcekustomizepatchesitemTarget:
+schema ApplicationstatusatproviderhistoryitemsourcekustomizepatchesitemTarget:
     """
-    ApplicationstatushistoryitemsourcekustomizepatchesitemTarget schema.
+    KustomizeSelector is a selector of a Kustomize Patch
 
     Attributes
     ----------
@@ -2417,9 +1831,9 @@ schema ApplicationstatushistoryitemsourcekustomizepatchesitemTarget:
     namespace? : str
     version? : str
 
-schema ApplicationstatushistoryitemsourcekustomizeReplicasitem:
+schema ApplicationstatusatproviderhistoryitemsourcekustomizeReplicasitem:
     """
-    ApplicationstatushistoryitemsourcekustomizeReplicasitem schema.
+    KustomizeReplica override specifications
 
     Attributes
     ----------
@@ -2431,24 +1845,24 @@ schema ApplicationstatushistoryitemsourcekustomizeReplicasitem:
     count : any
     name : str
 
-schema ApplicationstatushistoryitemsourcePlugin:
+schema ApplicationstatusatproviderhistoryitemsourcePlugin:
     """
     Plugin holds config management plugin specific options
 
     Attributes
     ----------
-    env : [ApplicationstatushistoryitemsourcepluginEnvitem], optional
-        Env is a list of environment variable entries
+    env : [ApplicationstatusatproviderhistoryitemsourcepluginEnvitem], optional
+        Env holds options specific to config management plugins
     name : str, optional
         No description available.
-    parameters : [ApplicationstatushistoryitemsourcepluginParametersitem], optional
-        No description available.
+    parameters : [ApplicationstatusatproviderhistoryitemsourcepluginParametersitem], optional
+        ApplicationSourcePluginParameters is a list of specific config management parameters
     """
-    env? : [ApplicationstatushistoryitemsourcepluginEnvitem]
+    env? : [ApplicationstatusatproviderhistoryitemsourcepluginEnvitem]
     name? : str
-    parameters? : [ApplicationstatushistoryitemsourcepluginParametersitem]
+    parameters? : [ApplicationstatusatproviderhistoryitemsourcepluginParametersitem]
 
-schema ApplicationstatushistoryitemsourcepluginEnvitem:
+schema ApplicationstatusatproviderhistoryitemsourcepluginEnvitem:
     """
     EnvEntry represents an entry in the application's environment
 
@@ -2462,9 +1876,9 @@ schema ApplicationstatushistoryitemsourcepluginEnvitem:
     name : str
     value : str
 
-schema ApplicationstatushistoryitemsourcepluginParametersitem:
+schema ApplicationstatusatproviderhistoryitemsourcepluginParametersitem:
     """
-    ApplicationstatushistoryitemsourcepluginParametersitem schema.
+    ApplicationSourcePluginParameter holds options specific to config management parameters
 
     Attributes
     ----------
@@ -2482,7 +1896,7 @@ schema ApplicationstatushistoryitemsourcepluginParametersitem:
     name? : str
     string? : str
 
-schema ApplicationstatushistoryitemSourcesitem:
+schema ApplicationstatusatproviderhistoryitemSourcesitem:
     """
     ApplicationSource contains all required information about the source of an application
 
@@ -2490,17 +1904,17 @@ schema ApplicationstatushistoryitemSourcesitem:
     ----------
     chart : str, optional
         Chart is a Helm chart name, and must be specified for applications sourced from a Helm repo.
-    directory : ApplicationstatushistoryitemsourcesitemDirectory, optional
+    directory : ApplicationstatusatproviderhistoryitemsourcesitemDirectory, optional
         Directory holds path/directory specific options
-    helm : ApplicationstatushistoryitemsourcesitemHelm, optional
+    helm : ApplicationstatusatproviderhistoryitemsourcesitemHelm, optional
         Helm holds helm specific options
-    kustomize : ApplicationstatushistoryitemsourcesitemKustomize, optional
+    kustomize : ApplicationstatusatproviderhistoryitemsourcesitemKustomize, optional
         Kustomize holds kustomize specific options
     name : str, optional
-        Name is used to refer to a source and is displayed in the UI. It is used in multi-source Applications.
+        Name is the name of the application source
     path : str, optional
         Path is a directory path within the Git repository, and is only valid for applications sourced from Git.
-    plugin : ApplicationstatushistoryitemsourcesitemPlugin, optional
+    plugin : ApplicationstatusatproviderhistoryitemsourcesitemPlugin, optional
         Plugin holds config management plugin specific options
     ref : str, optional
         Ref is reference to another source within sources field. This field will not be used if used with a `source` tag.
@@ -2512,17 +1926,17 @@ schema ApplicationstatushistoryitemSourcesitem:
         In case of Helm, this is a semver tag for the Chart's version.
     """
     chart? : str
-    directory? : ApplicationstatushistoryitemsourcesitemDirectory
-    helm? : ApplicationstatushistoryitemsourcesitemHelm
-    kustomize? : ApplicationstatushistoryitemsourcesitemKustomize
+    directory? : ApplicationstatusatproviderhistoryitemsourcesitemDirectory
+    helm? : ApplicationstatusatproviderhistoryitemsourcesitemHelm
+    kustomize? : ApplicationstatusatproviderhistoryitemsourcesitemKustomize
     name? : str
     path? : str
-    plugin? : ApplicationstatushistoryitemsourcesitemPlugin
+    plugin? : ApplicationstatusatproviderhistoryitemsourcesitemPlugin
     ref? : str
     repoURL : str
     targetRevision? : str
 
-schema ApplicationstatushistoryitemsourcesitemDirectory:
+schema ApplicationstatusatproviderhistoryitemsourcesitemDirectory:
     """
     Directory holds path/directory specific options
 
@@ -2532,34 +1946,34 @@ schema ApplicationstatushistoryitemsourcesitemDirectory:
         Exclude contains a glob pattern to match paths against that should be explicitly excluded from being used during manifest generation
     include : str, optional
         Include contains a glob pattern to match paths against that should be explicitly included during manifest generation
-    jsonnet : ApplicationstatushistoryitemsourcesitemdirectoryJsonnet, optional
+    jsonnet : ApplicationstatusatproviderhistoryitemsourcesitemdirectoryJsonnet, optional
         Jsonnet holds options specific to Jsonnet
     recurse : bool, optional
         Recurse specifies whether to scan a directory recursively for manifests
     """
     exclude? : str
     include? : str
-    jsonnet? : ApplicationstatushistoryitemsourcesitemdirectoryJsonnet
+    jsonnet? : ApplicationstatusatproviderhistoryitemsourcesitemdirectoryJsonnet
     recurse? : bool
 
-schema ApplicationstatushistoryitemsourcesitemdirectoryJsonnet:
+schema ApplicationstatusatproviderhistoryitemsourcesitemdirectoryJsonnet:
     """
     Jsonnet holds options specific to Jsonnet
 
     Attributes
     ----------
-    extVars : [ApplicationstatushistoryitemsourcesitemdirectoryjsonnetExtvarsitem], optional
+    extVars : [ApplicationstatusatproviderhistoryitemsourcesitemdirectoryjsonnetExtvarsitem], optional
         ExtVars is a list of Jsonnet External Variables
     libs : [str], optional
         Additional library search dirs
-    tlas : [ApplicationstatushistoryitemsourcesitemdirectoryjsonnetTlasitem], optional
+    tlas : [ApplicationstatusatproviderhistoryitemsourcesitemdirectoryjsonnetTlasitem], optional
         TLAS is a list of Jsonnet Top-level Arguments
     """
-    extVars? : [ApplicationstatushistoryitemsourcesitemdirectoryjsonnetExtvarsitem]
+    extVars? : [ApplicationstatusatproviderhistoryitemsourcesitemdirectoryjsonnetExtvarsitem]
     libs? : [str]
-    tlas? : [ApplicationstatushistoryitemsourcesitemdirectoryjsonnetTlasitem]
+    tlas? : [ApplicationstatusatproviderhistoryitemsourcesitemdirectoryjsonnetTlasitem]
 
-schema ApplicationstatushistoryitemsourcesitemdirectoryjsonnetExtvarsitem:
+schema ApplicationstatusatproviderhistoryitemsourcesitemdirectoryjsonnetExtvarsitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -2576,7 +1990,7 @@ schema ApplicationstatushistoryitemsourcesitemdirectoryjsonnetExtvarsitem:
     name : str
     value : str
 
-schema ApplicationstatushistoryitemsourcesitemdirectoryjsonnetTlasitem:
+schema ApplicationstatusatproviderhistoryitemsourcesitemdirectoryjsonnetTlasitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -2593,7 +2007,7 @@ schema ApplicationstatushistoryitemsourcesitemdirectoryjsonnetTlasitem:
     name : str
     value : str
 
-schema ApplicationstatushistoryitemsourcesitemHelm:
+schema ApplicationstatusatproviderhistoryitemsourcesitemHelm:
     """
     Helm holds helm specific options
 
@@ -2602,7 +2016,7 @@ schema ApplicationstatushistoryitemsourcesitemHelm:
     apiVersions : [str], optional
         APIVersions specifies the Kubernetes resource API versions to pass to Helm when templating manifests. By default,
         Argo CD uses the API versions of the target cluster. The format is [group/]version/kind.
-    fileParameters : [ApplicationstatushistoryitemsourcesitemhelmFileparametersitem], optional
+    fileParameters : [ApplicationstatusatproviderhistoryitemsourcesitemhelmFileparametersitem], optional
         FileParameters are file parameters to the helm template
     ignoreMissingValueFiles : bool, optional
         IgnoreMissingValueFiles prevents helm template from failing when valueFiles do not exist locally by not appending them to helm template --values
@@ -2611,7 +2025,7 @@ schema ApplicationstatushistoryitemsourcesitemHelm:
         uses the Kubernetes version of the target cluster.
     namespace : str, optional
         Namespace is an optional namespace to template with. If left empty, defaults to the app's destination namespace.
-    parameters : [ApplicationstatushistoryitemsourcesitemhelmParametersitem], optional
+    parameters : [ApplicationstatusatproviderhistoryitemsourcesitemhelmParametersitem], optional
         Parameters is a list of Helm parameters which are passed to the helm template command upon manifest generation
     passCredentials : bool, optional
         PassCredentials pass credentials to all domains (Helm's --pass-credentials)
@@ -2633,11 +2047,11 @@ schema ApplicationstatushistoryitemsourcesitemHelm:
         Version is the Helm version to use for templating ("3")
     """
     apiVersions? : [str]
-    fileParameters? : [ApplicationstatushistoryitemsourcesitemhelmFileparametersitem]
+    fileParameters? : [ApplicationstatusatproviderhistoryitemsourcesitemhelmFileparametersitem]
     ignoreMissingValueFiles? : bool
     kubeVersion? : str
     namespace? : str
-    parameters? : [ApplicationstatushistoryitemsourcesitemhelmParametersitem]
+    parameters? : [ApplicationstatusatproviderhistoryitemsourcesitemhelmParametersitem]
     passCredentials? : bool
     releaseName? : str
     skipCrds? : bool
@@ -2648,7 +2062,7 @@ schema ApplicationstatushistoryitemsourcesitemHelm:
     valuesObject? : any
     version? : str
 
-schema ApplicationstatushistoryitemsourcesitemhelmFileparametersitem:
+schema ApplicationstatusatproviderhistoryitemsourcesitemhelmFileparametersitem:
     """
     HelmFileParameter is a file parameter that's passed to helm template during manifest generation
 
@@ -2662,7 +2076,7 @@ schema ApplicationstatushistoryitemsourcesitemhelmFileparametersitem:
     name? : str
     path? : str
 
-schema ApplicationstatushistoryitemsourcesitemhelmParametersitem:
+schema ApplicationstatusatproviderhistoryitemsourcesitemhelmParametersitem:
     """
     HelmParameter is a parameter that's passed to helm template during manifest generation
 
@@ -2679,7 +2093,7 @@ schema ApplicationstatushistoryitemsourcesitemhelmParametersitem:
     name? : str
     value? : str
 
-schema ApplicationstatushistoryitemsourcesitemKustomize:
+schema ApplicationstatusatproviderhistoryitemsourcesitemKustomize:
     """
     Kustomize holds kustomize specific options
 
@@ -2717,9 +2131,9 @@ schema ApplicationstatushistoryitemsourcesitemKustomize:
         NameSuffix is a suffix appended to resources for Kustomize apps
     namespace : str, optional
         Namespace sets the namespace that Kustomize adds to all resources
-    patches : [ApplicationstatushistoryitemsourcesitemkustomizePatchesitem], optional
+    patches : [ApplicationstatusatproviderhistoryitemsourcesitemkustomizePatchesitem], optional
         Patches is a list of Kustomize patches
-    replicas : [ApplicationstatushistoryitemsourcesitemkustomizeReplicasitem], optional
+    replicas : [ApplicationstatusatproviderhistoryitemsourcesitemkustomizeReplicasitem], optional
         Replicas is a list of Kustomize Replicas override specifications
     version : str, optional
         Version controls which version of Kustomize to use for rendering manifests
@@ -2739,13 +2153,13 @@ schema ApplicationstatushistoryitemsourcesitemKustomize:
     namePrefix? : str
     nameSuffix? : str
     namespace? : str
-    patches? : [ApplicationstatushistoryitemsourcesitemkustomizePatchesitem]
-    replicas? : [ApplicationstatushistoryitemsourcesitemkustomizeReplicasitem]
+    patches? : [ApplicationstatusatproviderhistoryitemsourcesitemkustomizePatchesitem]
+    replicas? : [ApplicationstatusatproviderhistoryitemsourcesitemkustomizeReplicasitem]
     version? : str
 
-schema ApplicationstatushistoryitemsourcesitemkustomizePatchesitem:
+schema ApplicationstatusatproviderhistoryitemsourcesitemkustomizePatchesitem:
     """
-    ApplicationstatushistoryitemsourcesitemkustomizePatchesitem schema.
+    KustomizePatch is a kustomize patch
 
     Attributes
     ----------
@@ -2755,17 +2169,17 @@ schema ApplicationstatushistoryitemsourcesitemkustomizePatchesitem:
         No description available.
     path : str, optional
         No description available.
-    target : ApplicationstatushistoryitemsourcesitemkustomizepatchesitemTarget, optional
-        No description available.
+    target : ApplicationstatusatproviderhistoryitemsourcesitemkustomizepatchesitemTarget, optional
+        KustomizeSelector is a selector of a Kustomize Patch
     """
     options? : {str:bool}
     patch? : str
     path? : str
-    target? : ApplicationstatushistoryitemsourcesitemkustomizepatchesitemTarget
+    target? : ApplicationstatusatproviderhistoryitemsourcesitemkustomizepatchesitemTarget
 
-schema ApplicationstatushistoryitemsourcesitemkustomizepatchesitemTarget:
+schema ApplicationstatusatproviderhistoryitemsourcesitemkustomizepatchesitemTarget:
     """
-    ApplicationstatushistoryitemsourcesitemkustomizepatchesitemTarget schema.
+    KustomizeSelector is a selector of a Kustomize Patch
 
     Attributes
     ----------
@@ -2792,9 +2206,9 @@ schema ApplicationstatushistoryitemsourcesitemkustomizepatchesitemTarget:
     namespace? : str
     version? : str
 
-schema ApplicationstatushistoryitemsourcesitemkustomizeReplicasitem:
+schema ApplicationstatusatproviderhistoryitemsourcesitemkustomizeReplicasitem:
     """
-    ApplicationstatushistoryitemsourcesitemkustomizeReplicasitem schema.
+    KustomizeReplica override specifications
 
     Attributes
     ----------
@@ -2806,24 +2220,24 @@ schema ApplicationstatushistoryitemsourcesitemkustomizeReplicasitem:
     count : any
     name : str
 
-schema ApplicationstatushistoryitemsourcesitemPlugin:
+schema ApplicationstatusatproviderhistoryitemsourcesitemPlugin:
     """
     Plugin holds config management plugin specific options
 
     Attributes
     ----------
-    env : [ApplicationstatushistoryitemsourcesitempluginEnvitem], optional
-        Env is a list of environment variable entries
+    env : [ApplicationstatusatproviderhistoryitemsourcesitempluginEnvitem], optional
+        Env holds options specific to config management plugins
     name : str, optional
         No description available.
-    parameters : [ApplicationstatushistoryitemsourcesitempluginParametersitem], optional
-        No description available.
+    parameters : [ApplicationstatusatproviderhistoryitemsourcesitempluginParametersitem], optional
+        ApplicationSourcePluginParameters is a list of specific config management parameters
     """
-    env? : [ApplicationstatushistoryitemsourcesitempluginEnvitem]
+    env? : [ApplicationstatusatproviderhistoryitemsourcesitempluginEnvitem]
     name? : str
-    parameters? : [ApplicationstatushistoryitemsourcesitempluginParametersitem]
+    parameters? : [ApplicationstatusatproviderhistoryitemsourcesitempluginParametersitem]
 
-schema ApplicationstatushistoryitemsourcesitempluginEnvitem:
+schema ApplicationstatusatproviderhistoryitemsourcesitempluginEnvitem:
     """
     EnvEntry represents an entry in the application's environment
 
@@ -2837,9 +2251,9 @@ schema ApplicationstatushistoryitemsourcesitempluginEnvitem:
     name : str
     value : str
 
-schema ApplicationstatushistoryitemsourcesitempluginParametersitem:
+schema ApplicationstatusatproviderhistoryitemsourcesitempluginParametersitem:
     """
-    ApplicationstatushistoryitemsourcesitempluginParametersitem schema.
+    ApplicationSourcePluginParameter holds options specific to config management parameters
 
     Attributes
     ----------
@@ -2857,7 +2271,7 @@ schema ApplicationstatushistoryitemsourcesitempluginParametersitem:
     name? : str
     string? : str
 
-schema ApplicationstatusOperationstate:
+schema ApplicationstatusatproviderOperationstate:
     """
     OperationState contains information about any ongoing operations, such as a sync
 
@@ -2867,48 +2281,48 @@ schema ApplicationstatusOperationstate:
         FinishedAt contains time of operation completion
     message : str, optional
         Message holds any pertinent messages when attempting to perform operation (typically errors).
-    operation : ApplicationstatusoperationstateOperation, required
+    operation : ApplicationstatusatprovideroperationstateOperation, optional
         Operation is the original requested operation
-    phase : str, required
+    phase : str, optional
         Phase is the current phase of the operation
     retryCount : int, optional
         RetryCount contains time of operation retries
-    startedAt : str, required
+    startedAt : str, optional
         StartedAt contains time of operation start
-    syncResult : ApplicationstatusoperationstateSyncresult, optional
+    syncResult : ApplicationstatusatprovideroperationstateSyncresult, optional
         SyncResult is the result of a Sync operation
     """
     finishedAt? : str
     message? : str
-    operation : ApplicationstatusoperationstateOperation
-    phase : str
+    operation? : ApplicationstatusatprovideroperationstateOperation
+    phase? : str
     retryCount? : int
-    startedAt : str
-    syncResult? : ApplicationstatusoperationstateSyncresult
+    startedAt? : str
+    syncResult? : ApplicationstatusatprovideroperationstateSyncresult
 
-schema ApplicationstatusoperationstateOperation:
+schema ApplicationstatusatprovideroperationstateOperation:
     """
     Operation is the original requested operation
 
     Attributes
     ----------
-    info : [ApplicationstatusoperationstateoperationInfoitem], optional
+    info : [ApplicationstatusatprovideroperationstateoperationInfoitem], optional
         Info is a list of informational items for this operation
-    initiatedBy : ApplicationstatusoperationstateoperationInitiatedby, optional
+    initiatedBy : ApplicationstatusatprovideroperationstateoperationInitiatedby, optional
         InitiatedBy contains information about who initiated the operations
-    retry : ApplicationstatusoperationstateoperationRetry, optional
+    retry : ApplicationstatusatprovideroperationstateoperationRetry, optional
         Retry controls the strategy to apply if a sync fails
-    sync : ApplicationstatusoperationstateoperationSync, optional
+    sync : ApplicationstatusatprovideroperationstateoperationSync, optional
         Sync contains parameters for the operation
     """
-    info? : [ApplicationstatusoperationstateoperationInfoitem]
-    initiatedBy? : ApplicationstatusoperationstateoperationInitiatedby
-    retry? : ApplicationstatusoperationstateoperationRetry
-    sync? : ApplicationstatusoperationstateoperationSync
+    info? : [ApplicationstatusatprovideroperationstateoperationInfoitem]
+    initiatedBy? : ApplicationstatusatprovideroperationstateoperationInitiatedby
+    retry? : ApplicationstatusatprovideroperationstateoperationRetry
+    sync? : ApplicationstatusatprovideroperationstateoperationSync
 
-schema ApplicationstatusoperationstateoperationInfoitem:
+schema ApplicationstatusatprovideroperationstateoperationInfoitem:
     """
-    ApplicationstatusoperationstateoperationInfoitem schema.
+    Info is a list of informational items for this operation
 
     Attributes
     ----------
@@ -2920,7 +2334,7 @@ schema ApplicationstatusoperationstateoperationInfoitem:
     name : str
     value : str
 
-schema ApplicationstatusoperationstateoperationInitiatedby:
+schema ApplicationstatusatprovideroperationstateoperationInitiatedby:
     """
     InitiatedBy contains information about who initiated the operations
 
@@ -2934,21 +2348,21 @@ schema ApplicationstatusoperationstateoperationInitiatedby:
     automated? : bool
     username? : str
 
-schema ApplicationstatusoperationstateoperationRetry:
+schema ApplicationstatusatprovideroperationstateoperationRetry:
     """
     Retry controls the strategy to apply if a sync fails
 
     Attributes
     ----------
-    backoff : ApplicationstatusoperationstateoperationretryBackoff, optional
+    backoff : ApplicationstatusatprovideroperationstateoperationretryBackoff, optional
         Backoff controls how to backoff on subsequent retries of failed syncs
     limit : int, optional
         Limit is the maximum number of attempts for retrying a failed sync. If set to 0, no retries will be performed.
     """
-    backoff? : ApplicationstatusoperationstateoperationretryBackoff
+    backoff? : ApplicationstatusatprovideroperationstateoperationretryBackoff
     limit? : int
 
-schema ApplicationstatusoperationstateoperationretryBackoff:
+schema ApplicationstatusatprovideroperationstateoperationretryBackoff:
     """
     Backoff controls how to backoff on subsequent retries of failed syncs
 
@@ -2965,21 +2379,19 @@ schema ApplicationstatusoperationstateoperationretryBackoff:
     factor? : int
     maxDuration? : str
 
-schema ApplicationstatusoperationstateoperationSync:
+schema ApplicationstatusatprovideroperationstateoperationSync:
     """
     Sync contains parameters for the operation
 
     Attributes
     ----------
-    autoHealAttemptsCount : int, optional
-        SelfHealAttemptsCount contains the number of auto-heal attempts
     dryRun : bool, optional
         DryRun specifies to perform a `kubectl apply --dry-run` without actually performing the sync
     manifests : [str], optional
         Manifests is an optional field that overrides sync source with a local directory for development
     prune : bool, optional
         Prune specifies to delete resources from the cluster that are no longer tracked in git
-    resources : [ApplicationstatusoperationstateoperationsyncResourcesitem], optional
+    resources : [ApplicationstatusatprovideroperationstateoperationsyncResourcesitem], optional
         Resources describes which resources shall be part of the sync
     revision : str, optional
         Revision is the revision (Git) or chart version (Helm) which to sync the application to
@@ -2987,30 +2399,29 @@ schema ApplicationstatusoperationstateoperationSync:
     revisions : [str], optional
         Revisions is the list of revision (Git) or chart version (Helm) which to sync each source in sources field for the application to
         If omitted, will use the revision specified in app spec.
-    source : ApplicationstatusoperationstateoperationsyncSource, optional
+    source : ApplicationstatusatprovideroperationstateoperationsyncSource, optional
         Source overrides the source definition set in the application.
         This is typically set in a Rollback operation and is nil during a Sync operation
-    sources : [ApplicationstatusoperationstateoperationsyncSourcesitem], optional
+    sources : [ApplicationstatusatprovideroperationstateoperationsyncSourcesitem], optional
         Sources overrides the source definition set in the application.
         This is typically set in a Rollback operation and is nil during a Sync operation
     syncOptions : [str], optional
         SyncOptions provide per-sync sync-options, e.g. Validate=false
-    syncStrategy : ApplicationstatusoperationstateoperationsyncSyncstrategy, optional
+    syncStrategy : ApplicationstatusatprovideroperationstateoperationsyncSyncstrategy, optional
         SyncStrategy describes how to perform the sync
     """
-    autoHealAttemptsCount? : int
     dryRun? : bool
     manifests? : [str]
     prune? : bool
-    resources? : [ApplicationstatusoperationstateoperationsyncResourcesitem]
+    resources? : [ApplicationstatusatprovideroperationstateoperationsyncResourcesitem]
     revision? : str
     revisions? : [str]
-    source? : ApplicationstatusoperationstateoperationsyncSource
-    sources? : [ApplicationstatusoperationstateoperationsyncSourcesitem]
+    source? : ApplicationstatusatprovideroperationstateoperationsyncSource
+    sources? : [ApplicationstatusatprovideroperationstateoperationsyncSourcesitem]
     syncOptions? : [str]
-    syncStrategy? : ApplicationstatusoperationstateoperationsyncSyncstrategy
+    syncStrategy? : ApplicationstatusatprovideroperationstateoperationsyncSyncstrategy
 
-schema ApplicationstatusoperationstateoperationsyncResourcesitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncResourcesitem:
     """
     SyncOperationResource contains resources to sync.
 
@@ -3030,7 +2441,7 @@ schema ApplicationstatusoperationstateoperationsyncResourcesitem:
     name : str
     namespace? : str
 
-schema ApplicationstatusoperationstateoperationsyncSource:
+schema ApplicationstatusatprovideroperationstateoperationsyncSource:
     """
     Source overrides the source definition set in the application.
     This is typically set in a Rollback operation and is nil during a Sync operation
@@ -3039,17 +2450,17 @@ schema ApplicationstatusoperationstateoperationsyncSource:
     ----------
     chart : str, optional
         Chart is a Helm chart name, and must be specified for applications sourced from a Helm repo.
-    directory : ApplicationstatusoperationstateoperationsyncsourceDirectory, optional
+    directory : ApplicationstatusatprovideroperationstateoperationsyncsourceDirectory, optional
         Directory holds path/directory specific options
-    helm : ApplicationstatusoperationstateoperationsyncsourceHelm, optional
+    helm : ApplicationstatusatprovideroperationstateoperationsyncsourceHelm, optional
         Helm holds helm specific options
-    kustomize : ApplicationstatusoperationstateoperationsyncsourceKustomize, optional
+    kustomize : ApplicationstatusatprovideroperationstateoperationsyncsourceKustomize, optional
         Kustomize holds kustomize specific options
     name : str, optional
-        Name is used to refer to a source and is displayed in the UI. It is used in multi-source Applications.
+        Name is the name of the application source
     path : str, optional
         Path is a directory path within the Git repository, and is only valid for applications sourced from Git.
-    plugin : ApplicationstatusoperationstateoperationsyncsourcePlugin, optional
+    plugin : ApplicationstatusatprovideroperationstateoperationsyncsourcePlugin, optional
         Plugin holds config management plugin specific options
     ref : str, optional
         Ref is reference to another source within sources field. This field will not be used if used with a `source` tag.
@@ -3061,17 +2472,17 @@ schema ApplicationstatusoperationstateoperationsyncSource:
         In case of Helm, this is a semver tag for the Chart's version.
     """
     chart? : str
-    directory? : ApplicationstatusoperationstateoperationsyncsourceDirectory
-    helm? : ApplicationstatusoperationstateoperationsyncsourceHelm
-    kustomize? : ApplicationstatusoperationstateoperationsyncsourceKustomize
+    directory? : ApplicationstatusatprovideroperationstateoperationsyncsourceDirectory
+    helm? : ApplicationstatusatprovideroperationstateoperationsyncsourceHelm
+    kustomize? : ApplicationstatusatprovideroperationstateoperationsyncsourceKustomize
     name? : str
     path? : str
-    plugin? : ApplicationstatusoperationstateoperationsyncsourcePlugin
+    plugin? : ApplicationstatusatprovideroperationstateoperationsyncsourcePlugin
     ref? : str
     repoURL : str
     targetRevision? : str
 
-schema ApplicationstatusoperationstateoperationsyncsourceDirectory:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourceDirectory:
     """
     Directory holds path/directory specific options
 
@@ -3081,34 +2492,34 @@ schema ApplicationstatusoperationstateoperationsyncsourceDirectory:
         Exclude contains a glob pattern to match paths against that should be explicitly excluded from being used during manifest generation
     include : str, optional
         Include contains a glob pattern to match paths against that should be explicitly included during manifest generation
-    jsonnet : ApplicationstatusoperationstateoperationsyncsourcedirectoryJsonnet, optional
+    jsonnet : ApplicationstatusatprovideroperationstateoperationsyncsourcedirectoryJsonnet, optional
         Jsonnet holds options specific to Jsonnet
     recurse : bool, optional
         Recurse specifies whether to scan a directory recursively for manifests
     """
     exclude? : str
     include? : str
-    jsonnet? : ApplicationstatusoperationstateoperationsyncsourcedirectoryJsonnet
+    jsonnet? : ApplicationstatusatprovideroperationstateoperationsyncsourcedirectoryJsonnet
     recurse? : bool
 
-schema ApplicationstatusoperationstateoperationsyncsourcedirectoryJsonnet:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcedirectoryJsonnet:
     """
     Jsonnet holds options specific to Jsonnet
 
     Attributes
     ----------
-    extVars : [ApplicationstatusoperationstateoperationsyncsourcedirectoryjsonnetExtvarsitem], optional
+    extVars : [ApplicationstatusatprovideroperationstateoperationsyncsourcedirectoryjsonnetExtvarsitem], optional
         ExtVars is a list of Jsonnet External Variables
     libs : [str], optional
         Additional library search dirs
-    tlas : [ApplicationstatusoperationstateoperationsyncsourcedirectoryjsonnetTlasitem], optional
+    tlas : [ApplicationstatusatprovideroperationstateoperationsyncsourcedirectoryjsonnetTlasitem], optional
         TLAS is a list of Jsonnet Top-level Arguments
     """
-    extVars? : [ApplicationstatusoperationstateoperationsyncsourcedirectoryjsonnetExtvarsitem]
+    extVars? : [ApplicationstatusatprovideroperationstateoperationsyncsourcedirectoryjsonnetExtvarsitem]
     libs? : [str]
-    tlas? : [ApplicationstatusoperationstateoperationsyncsourcedirectoryjsonnetTlasitem]
+    tlas? : [ApplicationstatusatprovideroperationstateoperationsyncsourcedirectoryjsonnetTlasitem]
 
-schema ApplicationstatusoperationstateoperationsyncsourcedirectoryjsonnetExtvarsitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcedirectoryjsonnetExtvarsitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -3125,7 +2536,7 @@ schema ApplicationstatusoperationstateoperationsyncsourcedirectoryjsonnetExtvars
     name : str
     value : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcedirectoryjsonnetTlasitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcedirectoryjsonnetTlasitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -3142,7 +2553,7 @@ schema ApplicationstatusoperationstateoperationsyncsourcedirectoryjsonnetTlasite
     name : str
     value : str
 
-schema ApplicationstatusoperationstateoperationsyncsourceHelm:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourceHelm:
     """
     Helm holds helm specific options
 
@@ -3151,7 +2562,7 @@ schema ApplicationstatusoperationstateoperationsyncsourceHelm:
     apiVersions : [str], optional
         APIVersions specifies the Kubernetes resource API versions to pass to Helm when templating manifests. By default,
         Argo CD uses the API versions of the target cluster. The format is [group/]version/kind.
-    fileParameters : [ApplicationstatusoperationstateoperationsyncsourcehelmFileparametersitem], optional
+    fileParameters : [ApplicationstatusatprovideroperationstateoperationsyncsourcehelmFileparametersitem], optional
         FileParameters are file parameters to the helm template
     ignoreMissingValueFiles : bool, optional
         IgnoreMissingValueFiles prevents helm template from failing when valueFiles do not exist locally by not appending them to helm template --values
@@ -3160,7 +2571,7 @@ schema ApplicationstatusoperationstateoperationsyncsourceHelm:
         uses the Kubernetes version of the target cluster.
     namespace : str, optional
         Namespace is an optional namespace to template with. If left empty, defaults to the app's destination namespace.
-    parameters : [ApplicationstatusoperationstateoperationsyncsourcehelmParametersitem], optional
+    parameters : [ApplicationstatusatprovideroperationstateoperationsyncsourcehelmParametersitem], optional
         Parameters is a list of Helm parameters which are passed to the helm template command upon manifest generation
     passCredentials : bool, optional
         PassCredentials pass credentials to all domains (Helm's --pass-credentials)
@@ -3182,11 +2593,11 @@ schema ApplicationstatusoperationstateoperationsyncsourceHelm:
         Version is the Helm version to use for templating ("3")
     """
     apiVersions? : [str]
-    fileParameters? : [ApplicationstatusoperationstateoperationsyncsourcehelmFileparametersitem]
+    fileParameters? : [ApplicationstatusatprovideroperationstateoperationsyncsourcehelmFileparametersitem]
     ignoreMissingValueFiles? : bool
     kubeVersion? : str
     namespace? : str
-    parameters? : [ApplicationstatusoperationstateoperationsyncsourcehelmParametersitem]
+    parameters? : [ApplicationstatusatprovideroperationstateoperationsyncsourcehelmParametersitem]
     passCredentials? : bool
     releaseName? : str
     skipCrds? : bool
@@ -3197,7 +2608,7 @@ schema ApplicationstatusoperationstateoperationsyncsourceHelm:
     valuesObject? : any
     version? : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcehelmFileparametersitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcehelmFileparametersitem:
     """
     HelmFileParameter is a file parameter that's passed to helm template during manifest generation
 
@@ -3211,7 +2622,7 @@ schema ApplicationstatusoperationstateoperationsyncsourcehelmFileparametersitem:
     name? : str
     path? : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcehelmParametersitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcehelmParametersitem:
     """
     HelmParameter is a parameter that's passed to helm template during manifest generation
 
@@ -3228,7 +2639,7 @@ schema ApplicationstatusoperationstateoperationsyncsourcehelmParametersitem:
     name? : str
     value? : str
 
-schema ApplicationstatusoperationstateoperationsyncsourceKustomize:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourceKustomize:
     """
     Kustomize holds kustomize specific options
 
@@ -3266,9 +2677,9 @@ schema ApplicationstatusoperationstateoperationsyncsourceKustomize:
         NameSuffix is a suffix appended to resources for Kustomize apps
     namespace : str, optional
         Namespace sets the namespace that Kustomize adds to all resources
-    patches : [ApplicationstatusoperationstateoperationsyncsourcekustomizePatchesitem], optional
+    patches : [ApplicationstatusatprovideroperationstateoperationsyncsourcekustomizePatchesitem], optional
         Patches is a list of Kustomize patches
-    replicas : [ApplicationstatusoperationstateoperationsyncsourcekustomizeReplicasitem], optional
+    replicas : [ApplicationstatusatprovideroperationstateoperationsyncsourcekustomizeReplicasitem], optional
         Replicas is a list of Kustomize Replicas override specifications
     version : str, optional
         Version controls which version of Kustomize to use for rendering manifests
@@ -3288,13 +2699,13 @@ schema ApplicationstatusoperationstateoperationsyncsourceKustomize:
     namePrefix? : str
     nameSuffix? : str
     namespace? : str
-    patches? : [ApplicationstatusoperationstateoperationsyncsourcekustomizePatchesitem]
-    replicas? : [ApplicationstatusoperationstateoperationsyncsourcekustomizeReplicasitem]
+    patches? : [ApplicationstatusatprovideroperationstateoperationsyncsourcekustomizePatchesitem]
+    replicas? : [ApplicationstatusatprovideroperationstateoperationsyncsourcekustomizeReplicasitem]
     version? : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcekustomizePatchesitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcekustomizePatchesitem:
     """
-    ApplicationstatusoperationstateoperationsyncsourcekustomizePatchesitem schema.
+    KustomizePatch is a kustomize patch
 
     Attributes
     ----------
@@ -3304,17 +2715,17 @@ schema ApplicationstatusoperationstateoperationsyncsourcekustomizePatchesitem:
         No description available.
     path : str, optional
         No description available.
-    target : ApplicationstatusoperationstateoperationsyncsourcekustomizepatchesitemTarget, optional
-        No description available.
+    target : ApplicationstatusatprovideroperationstateoperationsyncsourcekustomizepatchesitemTarget, optional
+        KustomizeSelector is a selector of a Kustomize Patch
     """
     options? : {str:bool}
     patch? : str
     path? : str
-    target? : ApplicationstatusoperationstateoperationsyncsourcekustomizepatchesitemTarget
+    target? : ApplicationstatusatprovideroperationstateoperationsyncsourcekustomizepatchesitemTarget
 
-schema ApplicationstatusoperationstateoperationsyncsourcekustomizepatchesitemTarget:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcekustomizepatchesitemTarget:
     """
-    ApplicationstatusoperationstateoperationsyncsourcekustomizepatchesitemTarget schema.
+    KustomizeSelector is a selector of a Kustomize Patch
 
     Attributes
     ----------
@@ -3341,9 +2752,9 @@ schema ApplicationstatusoperationstateoperationsyncsourcekustomizepatchesitemTar
     namespace? : str
     version? : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcekustomizeReplicasitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcekustomizeReplicasitem:
     """
-    ApplicationstatusoperationstateoperationsyncsourcekustomizeReplicasitem schema.
+    KustomizeReplica override specifications
 
     Attributes
     ----------
@@ -3355,24 +2766,24 @@ schema ApplicationstatusoperationstateoperationsyncsourcekustomizeReplicasitem:
     count : any
     name : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcePlugin:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcePlugin:
     """
     Plugin holds config management plugin specific options
 
     Attributes
     ----------
-    env : [ApplicationstatusoperationstateoperationsyncsourcepluginEnvitem], optional
-        Env is a list of environment variable entries
+    env : [ApplicationstatusatprovideroperationstateoperationsyncsourcepluginEnvitem], optional
+        Env holds options specific to config management plugins
     name : str, optional
         No description available.
-    parameters : [ApplicationstatusoperationstateoperationsyncsourcepluginParametersitem], optional
-        No description available.
+    parameters : [ApplicationstatusatprovideroperationstateoperationsyncsourcepluginParametersitem], optional
+        ApplicationSourcePluginParameters is a list of specific config management parameters
     """
-    env? : [ApplicationstatusoperationstateoperationsyncsourcepluginEnvitem]
+    env? : [ApplicationstatusatprovideroperationstateoperationsyncsourcepluginEnvitem]
     name? : str
-    parameters? : [ApplicationstatusoperationstateoperationsyncsourcepluginParametersitem]
+    parameters? : [ApplicationstatusatprovideroperationstateoperationsyncsourcepluginParametersitem]
 
-schema ApplicationstatusoperationstateoperationsyncsourcepluginEnvitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcepluginEnvitem:
     """
     EnvEntry represents an entry in the application's environment
 
@@ -3386,9 +2797,9 @@ schema ApplicationstatusoperationstateoperationsyncsourcepluginEnvitem:
     name : str
     value : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcepluginParametersitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcepluginParametersitem:
     """
-    ApplicationstatusoperationstateoperationsyncsourcepluginParametersitem schema.
+    ApplicationSourcePluginParameter holds options specific to config management parameters
 
     Attributes
     ----------
@@ -3406,7 +2817,7 @@ schema ApplicationstatusoperationstateoperationsyncsourcepluginParametersitem:
     name? : str
     string? : str
 
-schema ApplicationstatusoperationstateoperationsyncSourcesitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncSourcesitem:
     """
     ApplicationSource contains all required information about the source of an application
 
@@ -3414,17 +2825,17 @@ schema ApplicationstatusoperationstateoperationsyncSourcesitem:
     ----------
     chart : str, optional
         Chart is a Helm chart name, and must be specified for applications sourced from a Helm repo.
-    directory : ApplicationstatusoperationstateoperationsyncsourcesitemDirectory, optional
+    directory : ApplicationstatusatprovideroperationstateoperationsyncsourcesitemDirectory, optional
         Directory holds path/directory specific options
-    helm : ApplicationstatusoperationstateoperationsyncsourcesitemHelm, optional
+    helm : ApplicationstatusatprovideroperationstateoperationsyncsourcesitemHelm, optional
         Helm holds helm specific options
-    kustomize : ApplicationstatusoperationstateoperationsyncsourcesitemKustomize, optional
+    kustomize : ApplicationstatusatprovideroperationstateoperationsyncsourcesitemKustomize, optional
         Kustomize holds kustomize specific options
     name : str, optional
-        Name is used to refer to a source and is displayed in the UI. It is used in multi-source Applications.
+        Name is the name of the application source
     path : str, optional
         Path is a directory path within the Git repository, and is only valid for applications sourced from Git.
-    plugin : ApplicationstatusoperationstateoperationsyncsourcesitemPlugin, optional
+    plugin : ApplicationstatusatprovideroperationstateoperationsyncsourcesitemPlugin, optional
         Plugin holds config management plugin specific options
     ref : str, optional
         Ref is reference to another source within sources field. This field will not be used if used with a `source` tag.
@@ -3436,17 +2847,17 @@ schema ApplicationstatusoperationstateoperationsyncSourcesitem:
         In case of Helm, this is a semver tag for the Chart's version.
     """
     chart? : str
-    directory? : ApplicationstatusoperationstateoperationsyncsourcesitemDirectory
-    helm? : ApplicationstatusoperationstateoperationsyncsourcesitemHelm
-    kustomize? : ApplicationstatusoperationstateoperationsyncsourcesitemKustomize
+    directory? : ApplicationstatusatprovideroperationstateoperationsyncsourcesitemDirectory
+    helm? : ApplicationstatusatprovideroperationstateoperationsyncsourcesitemHelm
+    kustomize? : ApplicationstatusatprovideroperationstateoperationsyncsourcesitemKustomize
     name? : str
     path? : str
-    plugin? : ApplicationstatusoperationstateoperationsyncsourcesitemPlugin
+    plugin? : ApplicationstatusatprovideroperationstateoperationsyncsourcesitemPlugin
     ref? : str
     repoURL : str
     targetRevision? : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcesitemDirectory:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcesitemDirectory:
     """
     Directory holds path/directory specific options
 
@@ -3456,34 +2867,34 @@ schema ApplicationstatusoperationstateoperationsyncsourcesitemDirectory:
         Exclude contains a glob pattern to match paths against that should be explicitly excluded from being used during manifest generation
     include : str, optional
         Include contains a glob pattern to match paths against that should be explicitly included during manifest generation
-    jsonnet : ApplicationstatusoperationstateoperationsyncsourcesitemdirectoryJsonnet, optional
+    jsonnet : ApplicationstatusatprovideroperationstateoperationsyncsourcesitemdirectoryJsonnet, optional
         Jsonnet holds options specific to Jsonnet
     recurse : bool, optional
         Recurse specifies whether to scan a directory recursively for manifests
     """
     exclude? : str
     include? : str
-    jsonnet? : ApplicationstatusoperationstateoperationsyncsourcesitemdirectoryJsonnet
+    jsonnet? : ApplicationstatusatprovideroperationstateoperationsyncsourcesitemdirectoryJsonnet
     recurse? : bool
 
-schema ApplicationstatusoperationstateoperationsyncsourcesitemdirectoryJsonnet:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcesitemdirectoryJsonnet:
     """
     Jsonnet holds options specific to Jsonnet
 
     Attributes
     ----------
-    extVars : [ApplicationstatusoperationstateoperationsyncsourcesitemdirectoryjsonnetExtvarsitem], optional
+    extVars : [ApplicationstatusatprovideroperationstateoperationsyncsourcesitemdirectoryjsonnetExtvarsitem], optional
         ExtVars is a list of Jsonnet External Variables
     libs : [str], optional
         Additional library search dirs
-    tlas : [ApplicationstatusoperationstateoperationsyncsourcesitemdirectoryjsonnetTlasitem], optional
+    tlas : [ApplicationstatusatprovideroperationstateoperationsyncsourcesitemdirectoryjsonnetTlasitem], optional
         TLAS is a list of Jsonnet Top-level Arguments
     """
-    extVars? : [ApplicationstatusoperationstateoperationsyncsourcesitemdirectoryjsonnetExtvarsitem]
+    extVars? : [ApplicationstatusatprovideroperationstateoperationsyncsourcesitemdirectoryjsonnetExtvarsitem]
     libs? : [str]
-    tlas? : [ApplicationstatusoperationstateoperationsyncsourcesitemdirectoryjsonnetTlasitem]
+    tlas? : [ApplicationstatusatprovideroperationstateoperationsyncsourcesitemdirectoryjsonnetTlasitem]
 
-schema ApplicationstatusoperationstateoperationsyncsourcesitemdirectoryjsonnetExtvarsitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcesitemdirectoryjsonnetExtvarsitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -3500,7 +2911,7 @@ schema ApplicationstatusoperationstateoperationsyncsourcesitemdirectoryjsonnetEx
     name : str
     value : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcesitemdirectoryjsonnetTlasitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcesitemdirectoryjsonnetTlasitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -3517,7 +2928,7 @@ schema ApplicationstatusoperationstateoperationsyncsourcesitemdirectoryjsonnetTl
     name : str
     value : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcesitemHelm:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcesitemHelm:
     """
     Helm holds helm specific options
 
@@ -3526,7 +2937,7 @@ schema ApplicationstatusoperationstateoperationsyncsourcesitemHelm:
     apiVersions : [str], optional
         APIVersions specifies the Kubernetes resource API versions to pass to Helm when templating manifests. By default,
         Argo CD uses the API versions of the target cluster. The format is [group/]version/kind.
-    fileParameters : [ApplicationstatusoperationstateoperationsyncsourcesitemhelmFileparametersitem], optional
+    fileParameters : [ApplicationstatusatprovideroperationstateoperationsyncsourcesitemhelmFileparametersitem], optional
         FileParameters are file parameters to the helm template
     ignoreMissingValueFiles : bool, optional
         IgnoreMissingValueFiles prevents helm template from failing when valueFiles do not exist locally by not appending them to helm template --values
@@ -3535,7 +2946,7 @@ schema ApplicationstatusoperationstateoperationsyncsourcesitemHelm:
         uses the Kubernetes version of the target cluster.
     namespace : str, optional
         Namespace is an optional namespace to template with. If left empty, defaults to the app's destination namespace.
-    parameters : [ApplicationstatusoperationstateoperationsyncsourcesitemhelmParametersitem], optional
+    parameters : [ApplicationstatusatprovideroperationstateoperationsyncsourcesitemhelmParametersitem], optional
         Parameters is a list of Helm parameters which are passed to the helm template command upon manifest generation
     passCredentials : bool, optional
         PassCredentials pass credentials to all domains (Helm's --pass-credentials)
@@ -3557,11 +2968,11 @@ schema ApplicationstatusoperationstateoperationsyncsourcesitemHelm:
         Version is the Helm version to use for templating ("3")
     """
     apiVersions? : [str]
-    fileParameters? : [ApplicationstatusoperationstateoperationsyncsourcesitemhelmFileparametersitem]
+    fileParameters? : [ApplicationstatusatprovideroperationstateoperationsyncsourcesitemhelmFileparametersitem]
     ignoreMissingValueFiles? : bool
     kubeVersion? : str
     namespace? : str
-    parameters? : [ApplicationstatusoperationstateoperationsyncsourcesitemhelmParametersitem]
+    parameters? : [ApplicationstatusatprovideroperationstateoperationsyncsourcesitemhelmParametersitem]
     passCredentials? : bool
     releaseName? : str
     skipCrds? : bool
@@ -3572,7 +2983,7 @@ schema ApplicationstatusoperationstateoperationsyncsourcesitemHelm:
     valuesObject? : any
     version? : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcesitemhelmFileparametersitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcesitemhelmFileparametersitem:
     """
     HelmFileParameter is a file parameter that's passed to helm template during manifest generation
 
@@ -3586,7 +2997,7 @@ schema ApplicationstatusoperationstateoperationsyncsourcesitemhelmFileparameters
     name? : str
     path? : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcesitemhelmParametersitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcesitemhelmParametersitem:
     """
     HelmParameter is a parameter that's passed to helm template during manifest generation
 
@@ -3603,7 +3014,7 @@ schema ApplicationstatusoperationstateoperationsyncsourcesitemhelmParametersitem
     name? : str
     value? : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcesitemKustomize:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcesitemKustomize:
     """
     Kustomize holds kustomize specific options
 
@@ -3641,9 +3052,9 @@ schema ApplicationstatusoperationstateoperationsyncsourcesitemKustomize:
         NameSuffix is a suffix appended to resources for Kustomize apps
     namespace : str, optional
         Namespace sets the namespace that Kustomize adds to all resources
-    patches : [ApplicationstatusoperationstateoperationsyncsourcesitemkustomizePatchesitem], optional
+    patches : [ApplicationstatusatprovideroperationstateoperationsyncsourcesitemkustomizePatchesitem], optional
         Patches is a list of Kustomize patches
-    replicas : [ApplicationstatusoperationstateoperationsyncsourcesitemkustomizeReplicasitem], optional
+    replicas : [ApplicationstatusatprovideroperationstateoperationsyncsourcesitemkustomizeReplicasitem], optional
         Replicas is a list of Kustomize Replicas override specifications
     version : str, optional
         Version controls which version of Kustomize to use for rendering manifests
@@ -3663,13 +3074,13 @@ schema ApplicationstatusoperationstateoperationsyncsourcesitemKustomize:
     namePrefix? : str
     nameSuffix? : str
     namespace? : str
-    patches? : [ApplicationstatusoperationstateoperationsyncsourcesitemkustomizePatchesitem]
-    replicas? : [ApplicationstatusoperationstateoperationsyncsourcesitemkustomizeReplicasitem]
+    patches? : [ApplicationstatusatprovideroperationstateoperationsyncsourcesitemkustomizePatchesitem]
+    replicas? : [ApplicationstatusatprovideroperationstateoperationsyncsourcesitemkustomizeReplicasitem]
     version? : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcesitemkustomizePatchesitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcesitemkustomizePatchesitem:
     """
-    ApplicationstatusoperationstateoperationsyncsourcesitemkustomizePatchesitem schema.
+    KustomizePatch is a kustomize patch
 
     Attributes
     ----------
@@ -3679,17 +3090,17 @@ schema ApplicationstatusoperationstateoperationsyncsourcesitemkustomizePatchesit
         No description available.
     path : str, optional
         No description available.
-    target : ApplicationstatusoperationstateoperationsyncsourcesitemkustomizepatchesitemTarget, optional
-        No description available.
+    target : ApplicationstatusatprovideroperationstateoperationsyncsourcesitemkustomizepatchesitemTarget, optional
+        KustomizeSelector is a selector of a Kustomize Patch
     """
     options? : {str:bool}
     patch? : str
     path? : str
-    target? : ApplicationstatusoperationstateoperationsyncsourcesitemkustomizepatchesitemTarget
+    target? : ApplicationstatusatprovideroperationstateoperationsyncsourcesitemkustomizepatchesitemTarget
 
-schema ApplicationstatusoperationstateoperationsyncsourcesitemkustomizepatchesitemTarget:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcesitemkustomizepatchesitemTarget:
     """
-    ApplicationstatusoperationstateoperationsyncsourcesitemkustomizepatchesitemTarget schema.
+    KustomizeSelector is a selector of a Kustomize Patch
 
     Attributes
     ----------
@@ -3716,9 +3127,9 @@ schema Applicationstatusoperationstateoperationsyncsourcesitemkustomizepatchesit
     namespace? : str
     version? : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcesitemkustomizeReplicasitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcesitemkustomizeReplicasitem:
     """
-    ApplicationstatusoperationstateoperationsyncsourcesitemkustomizeReplicasitem schema.
+    KustomizeReplica override specifications
 
     Attributes
     ----------
@@ -3730,24 +3141,24 @@ schema ApplicationstatusoperationstateoperationsyncsourcesitemkustomizeReplicasi
     count : any
     name : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcesitemPlugin:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcesitemPlugin:
     """
     Plugin holds config management plugin specific options
 
     Attributes
     ----------
-    env : [ApplicationstatusoperationstateoperationsyncsourcesitempluginEnvitem], optional
-        Env is a list of environment variable entries
+    env : [ApplicationstatusatprovideroperationstateoperationsyncsourcesitempluginEnvitem], optional
+        Env holds options specific to config management plugins
     name : str, optional
         No description available.
-    parameters : [ApplicationstatusoperationstateoperationsyncsourcesitempluginParametersitem], optional
-        No description available.
+    parameters : [ApplicationstatusatprovideroperationstateoperationsyncsourcesitempluginParametersitem], optional
+        ApplicationSourcePluginParameters is a list of specific config management parameters
     """
-    env? : [ApplicationstatusoperationstateoperationsyncsourcesitempluginEnvitem]
+    env? : [ApplicationstatusatprovideroperationstateoperationsyncsourcesitempluginEnvitem]
     name? : str
-    parameters? : [ApplicationstatusoperationstateoperationsyncsourcesitempluginParametersitem]
+    parameters? : [ApplicationstatusatprovideroperationstateoperationsyncsourcesitempluginParametersitem]
 
-schema ApplicationstatusoperationstateoperationsyncsourcesitempluginEnvitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcesitempluginEnvitem:
     """
     EnvEntry represents an entry in the application's environment
 
@@ -3761,9 +3172,9 @@ schema ApplicationstatusoperationstateoperationsyncsourcesitempluginEnvitem:
     name : str
     value : str
 
-schema ApplicationstatusoperationstateoperationsyncsourcesitempluginParametersitem:
+schema ApplicationstatusatprovideroperationstateoperationsyncsourcesitempluginParametersitem:
     """
-    ApplicationstatusoperationstateoperationsyncsourcesitempluginParametersitem schema.
+    ApplicationSourcePluginParameter holds options specific to config management parameters
 
     Attributes
     ----------
@@ -3781,21 +3192,21 @@ schema ApplicationstatusoperationstateoperationsyncsourcesitempluginParametersit
     name? : str
     string? : str
 
-schema ApplicationstatusoperationstateoperationsyncSyncstrategy:
+schema ApplicationstatusatprovideroperationstateoperationsyncSyncstrategy:
     """
     SyncStrategy describes how to perform the sync
 
     Attributes
     ----------
-    apply : ApplicationstatusoperationstateoperationsyncsyncstrategyApply, optional
+    apply : ApplicationstatusatprovideroperationstateoperationsyncsyncstrategyApply, optional
         Apply will perform a `kubectl apply` to perform the sync.
-    hook : ApplicationstatusoperationstateoperationsyncsyncstrategyHook, optional
+    hook : ApplicationstatusatprovideroperationstateoperationsyncsyncstrategyHook, optional
         Hook will submit any referenced resources to perform the sync. This is the default strategy
     """
-    apply? : ApplicationstatusoperationstateoperationsyncsyncstrategyApply
-    hook? : ApplicationstatusoperationstateoperationsyncsyncstrategyHook
+    apply? : ApplicationstatusatprovideroperationstateoperationsyncsyncstrategyApply
+    hook? : ApplicationstatusatprovideroperationstateoperationsyncsyncstrategyHook
 
-schema ApplicationstatusoperationstateoperationsyncsyncstrategyApply:
+schema ApplicationstatusatprovideroperationstateoperationsyncsyncstrategyApply:
     """
     Apply will perform a `kubectl apply` to perform the sync.
 
@@ -3808,7 +3219,7 @@ schema ApplicationstatusoperationstateoperationsyncsyncstrategyApply:
     """
     force? : bool
 
-schema ApplicationstatusoperationstateoperationsyncsyncstrategyHook:
+schema ApplicationstatusatprovideroperationstateoperationsyncsyncstrategyHook:
     """
     Hook will submit any referenced resources to perform the sync. This is the default strategy
 
@@ -3821,47 +3232,30 @@ schema ApplicationstatusoperationstateoperationsyncsyncstrategyHook:
     """
     force? : bool
 
-schema ApplicationstatusoperationstateSyncresult:
+schema ApplicationstatusatprovideroperationstateSyncresult:
     """
     SyncResult is the result of a Sync operation
 
     Attributes
     ----------
-    managedNamespaceMetadata : ApplicationstatusoperationstatesyncresultManagednamespacemetadata, optional
-        ManagedNamespaceMetadata contains the current sync state of managed namespace metadata
-    resources : [ApplicationstatusoperationstatesyncresultResourcesitem], optional
+    resources : [ApplicationstatusatprovideroperationstatesyncresultResourcesitem], optional
         Resources contains a list of sync result items for each individual resource in a sync operation
     revision : str, required
         Revision holds the revision this sync operation was performed to
     revisions : [str], optional
         Revisions holds the revision this sync operation was performed for respective indexed source in sources field
-    source : ApplicationstatusoperationstatesyncresultSource, optional
+    source : ApplicationstatusatprovideroperationstatesyncresultSource, optional
         Source records the application source information of the sync, used for comparing auto-sync
-    sources : [ApplicationstatusoperationstatesyncresultSourcesitem], optional
+    sources : [ApplicationstatusatprovideroperationstatesyncresultSourcesitem], optional
         Source records the application source information of the sync, used for comparing auto-sync
     """
-    managedNamespaceMetadata? : ApplicationstatusoperationstatesyncresultManagednamespacemetadata
-    resources? : [ApplicationstatusoperationstatesyncresultResourcesitem]
+    resources? : [ApplicationstatusatprovideroperationstatesyncresultResourcesitem]
     revision : str
     revisions? : [str]
-    source? : ApplicationstatusoperationstatesyncresultSource
-    sources? : [ApplicationstatusoperationstatesyncresultSourcesitem]
+    source? : ApplicationstatusatprovideroperationstatesyncresultSource
+    sources? : [ApplicationstatusatprovideroperationstatesyncresultSourcesitem]
 
-schema ApplicationstatusoperationstatesyncresultManagednamespacemetadata:
-    """
-    ManagedNamespaceMetadata contains the current sync state of managed namespace metadata
-
-    Attributes
-    ----------
-    annotations : {str:str}, optional
-        No description available.
-    labels : {str:str}, optional
-        No description available.
-    """
-    annotations? : {str:str}
-    labels? : {str:str}
-
-schema ApplicationstatusoperationstatesyncresultResourcesitem:
+schema ApplicationstatusatprovideroperationstatesyncresultResourcesitem:
     """
     ResourceResult holds the operation result details of a specific resource
 
@@ -3874,8 +3268,6 @@ schema ApplicationstatusoperationstatesyncresultResourcesitem:
         This can also contain values for non-hook resources.
     hookType : str, optional
         HookType specifies the type of the hook. Empty for non-hook resources
-    images : [str], optional
-        Images contains the images related to the ResourceResult
     kind : str, required
         Kind specifies the API kind of the resource
     message : str, optional
@@ -3894,7 +3286,6 @@ schema ApplicationstatusoperationstatesyncresultResourcesitem:
     group : str
     hookPhase? : str
     hookType? : str
-    images? : [str]
     kind : str
     message? : str
     name : str
@@ -3903,7 +3294,7 @@ schema ApplicationstatusoperationstatesyncresultResourcesitem:
     syncPhase? : str
     version : str
 
-schema ApplicationstatusoperationstatesyncresultSource:
+schema ApplicationstatusatprovideroperationstatesyncresultSource:
     """
     Source records the application source information of the sync, used for comparing auto-sync
 
@@ -3911,17 +3302,17 @@ schema ApplicationstatusoperationstatesyncresultSource:
     ----------
     chart : str, optional
         Chart is a Helm chart name, and must be specified for applications sourced from a Helm repo.
-    directory : ApplicationstatusoperationstatesyncresultsourceDirectory, optional
+    directory : ApplicationstatusatprovideroperationstatesyncresultsourceDirectory, optional
         Directory holds path/directory specific options
-    helm : ApplicationstatusoperationstatesyncresultsourceHelm, optional
+    helm : ApplicationstatusatprovideroperationstatesyncresultsourceHelm, optional
         Helm holds helm specific options
-    kustomize : ApplicationstatusoperationstatesyncresultsourceKustomize, optional
+    kustomize : ApplicationstatusatprovideroperationstatesyncresultsourceKustomize, optional
         Kustomize holds kustomize specific options
     name : str, optional
-        Name is used to refer to a source and is displayed in the UI. It is used in multi-source Applications.
+        Name is the name of the application source
     path : str, optional
         Path is a directory path within the Git repository, and is only valid for applications sourced from Git.
-    plugin : ApplicationstatusoperationstatesyncresultsourcePlugin, optional
+    plugin : ApplicationstatusatprovideroperationstatesyncresultsourcePlugin, optional
         Plugin holds config management plugin specific options
     ref : str, optional
         Ref is reference to another source within sources field. This field will not be used if used with a `source` tag.
@@ -3933,17 +3324,17 @@ schema ApplicationstatusoperationstatesyncresultSource:
         In case of Helm, this is a semver tag for the Chart's version.
     """
     chart? : str
-    directory? : ApplicationstatusoperationstatesyncresultsourceDirectory
-    helm? : ApplicationstatusoperationstatesyncresultsourceHelm
-    kustomize? : ApplicationstatusoperationstatesyncresultsourceKustomize
+    directory? : ApplicationstatusatprovideroperationstatesyncresultsourceDirectory
+    helm? : ApplicationstatusatprovideroperationstatesyncresultsourceHelm
+    kustomize? : ApplicationstatusatprovideroperationstatesyncresultsourceKustomize
     name? : str
     path? : str
-    plugin? : ApplicationstatusoperationstatesyncresultsourcePlugin
+    plugin? : ApplicationstatusatprovideroperationstatesyncresultsourcePlugin
     ref? : str
     repoURL : str
     targetRevision? : str
 
-schema ApplicationstatusoperationstatesyncresultsourceDirectory:
+schema ApplicationstatusatprovideroperationstatesyncresultsourceDirectory:
     """
     Directory holds path/directory specific options
 
@@ -3953,34 +3344,34 @@ schema ApplicationstatusoperationstatesyncresultsourceDirectory:
         Exclude contains a glob pattern to match paths against that should be explicitly excluded from being used during manifest generation
     include : str, optional
         Include contains a glob pattern to match paths against that should be explicitly included during manifest generation
-    jsonnet : ApplicationstatusoperationstatesyncresultsourcedirectoryJsonnet, optional
+    jsonnet : ApplicationstatusatprovideroperationstatesyncresultsourcedirectoryJsonnet, optional
         Jsonnet holds options specific to Jsonnet
     recurse : bool, optional
         Recurse specifies whether to scan a directory recursively for manifests
     """
     exclude? : str
     include? : str
-    jsonnet? : ApplicationstatusoperationstatesyncresultsourcedirectoryJsonnet
+    jsonnet? : ApplicationstatusatprovideroperationstatesyncresultsourcedirectoryJsonnet
     recurse? : bool
 
-schema ApplicationstatusoperationstatesyncresultsourcedirectoryJsonnet:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcedirectoryJsonnet:
     """
     Jsonnet holds options specific to Jsonnet
 
     Attributes
     ----------
-    extVars : [ApplicationstatusoperationstatesyncresultsourcedirectoryjsonnetExtvarsitem], optional
+    extVars : [ApplicationstatusatprovideroperationstatesyncresultsourcedirectoryjsonnetExtvarsitem], optional
         ExtVars is a list of Jsonnet External Variables
     libs : [str], optional
         Additional library search dirs
-    tlas : [ApplicationstatusoperationstatesyncresultsourcedirectoryjsonnetTlasitem], optional
+    tlas : [ApplicationstatusatprovideroperationstatesyncresultsourcedirectoryjsonnetTlasitem], optional
         TLAS is a list of Jsonnet Top-level Arguments
     """
-    extVars? : [ApplicationstatusoperationstatesyncresultsourcedirectoryjsonnetExtvarsitem]
+    extVars? : [ApplicationstatusatprovideroperationstatesyncresultsourcedirectoryjsonnetExtvarsitem]
     libs? : [str]
-    tlas? : [ApplicationstatusoperationstatesyncresultsourcedirectoryjsonnetTlasitem]
+    tlas? : [ApplicationstatusatprovideroperationstatesyncresultsourcedirectoryjsonnetTlasitem]
 
-schema ApplicationstatusoperationstatesyncresultsourcedirectoryjsonnetExtvarsitem:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcedirectoryjsonnetExtvarsitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -3997,7 +3388,7 @@ schema ApplicationstatusoperationstatesyncresultsourcedirectoryjsonnetExtvarsite
     name : str
     value : str
 
-schema ApplicationstatusoperationstatesyncresultsourcedirectoryjsonnetTlasitem:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcedirectoryjsonnetTlasitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -4014,7 +3405,7 @@ schema ApplicationstatusoperationstatesyncresultsourcedirectoryjsonnetTlasitem:
     name : str
     value : str
 
-schema ApplicationstatusoperationstatesyncresultsourceHelm:
+schema ApplicationstatusatprovideroperationstatesyncresultsourceHelm:
     """
     Helm holds helm specific options
 
@@ -4023,7 +3414,7 @@ schema ApplicationstatusoperationstatesyncresultsourceHelm:
     apiVersions : [str], optional
         APIVersions specifies the Kubernetes resource API versions to pass to Helm when templating manifests. By default,
         Argo CD uses the API versions of the target cluster. The format is [group/]version/kind.
-    fileParameters : [ApplicationstatusoperationstatesyncresultsourcehelmFileparametersitem], optional
+    fileParameters : [ApplicationstatusatprovideroperationstatesyncresultsourcehelmFileparametersitem], optional
         FileParameters are file parameters to the helm template
     ignoreMissingValueFiles : bool, optional
         IgnoreMissingValueFiles prevents helm template from failing when valueFiles do not exist locally by not appending them to helm template --values
@@ -4032,7 +3423,7 @@ schema ApplicationstatusoperationstatesyncresultsourceHelm:
         uses the Kubernetes version of the target cluster.
     namespace : str, optional
         Namespace is an optional namespace to template with. If left empty, defaults to the app's destination namespace.
-    parameters : [ApplicationstatusoperationstatesyncresultsourcehelmParametersitem], optional
+    parameters : [ApplicationstatusatprovideroperationstatesyncresultsourcehelmParametersitem], optional
         Parameters is a list of Helm parameters which are passed to the helm template command upon manifest generation
     passCredentials : bool, optional
         PassCredentials pass credentials to all domains (Helm's --pass-credentials)
@@ -4054,11 +3445,11 @@ schema ApplicationstatusoperationstatesyncresultsourceHelm:
         Version is the Helm version to use for templating ("3")
     """
     apiVersions? : [str]
-    fileParameters? : [ApplicationstatusoperationstatesyncresultsourcehelmFileparametersitem]
+    fileParameters? : [ApplicationstatusatprovideroperationstatesyncresultsourcehelmFileparametersitem]
     ignoreMissingValueFiles? : bool
     kubeVersion? : str
     namespace? : str
-    parameters? : [ApplicationstatusoperationstatesyncresultsourcehelmParametersitem]
+    parameters? : [ApplicationstatusatprovideroperationstatesyncresultsourcehelmParametersitem]
     passCredentials? : bool
     releaseName? : str
     skipCrds? : bool
@@ -4069,7 +3460,7 @@ schema ApplicationstatusoperationstatesyncresultsourceHelm:
     valuesObject? : any
     version? : str
 
-schema ApplicationstatusoperationstatesyncresultsourcehelmFileparametersitem:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcehelmFileparametersitem:
     """
     HelmFileParameter is a file parameter that's passed to helm template during manifest generation
 
@@ -4083,7 +3474,7 @@ schema ApplicationstatusoperationstatesyncresultsourcehelmFileparametersitem:
     name? : str
     path? : str
 
-schema ApplicationstatusoperationstatesyncresultsourcehelmParametersitem:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcehelmParametersitem:
     """
     HelmParameter is a parameter that's passed to helm template during manifest generation
 
@@ -4100,7 +3491,7 @@ schema ApplicationstatusoperationstatesyncresultsourcehelmParametersitem:
     name? : str
     value? : str
 
-schema ApplicationstatusoperationstatesyncresultsourceKustomize:
+schema ApplicationstatusatprovideroperationstatesyncresultsourceKustomize:
     """
     Kustomize holds kustomize specific options
 
@@ -4138,9 +3529,9 @@ schema ApplicationstatusoperationstatesyncresultsourceKustomize:
         NameSuffix is a suffix appended to resources for Kustomize apps
     namespace : str, optional
         Namespace sets the namespace that Kustomize adds to all resources
-    patches : [ApplicationstatusoperationstatesyncresultsourcekustomizePatchesitem], optional
+    patches : [ApplicationstatusatprovideroperationstatesyncresultsourcekustomizePatchesitem], optional
         Patches is a list of Kustomize patches
-    replicas : [ApplicationstatusoperationstatesyncresultsourcekustomizeReplicasitem], optional
+    replicas : [ApplicationstatusatprovideroperationstatesyncresultsourcekustomizeReplicasitem], optional
         Replicas is a list of Kustomize Replicas override specifications
     version : str, optional
         Version controls which version of Kustomize to use for rendering manifests
@@ -4160,13 +3551,13 @@ schema ApplicationstatusoperationstatesyncresultsourceKustomize:
     namePrefix? : str
     nameSuffix? : str
     namespace? : str
-    patches? : [ApplicationstatusoperationstatesyncresultsourcekustomizePatchesitem]
-    replicas? : [ApplicationstatusoperationstatesyncresultsourcekustomizeReplicasitem]
+    patches? : [ApplicationstatusatprovideroperationstatesyncresultsourcekustomizePatchesitem]
+    replicas? : [ApplicationstatusatprovideroperationstatesyncresultsourcekustomizeReplicasitem]
     version? : str
 
-schema ApplicationstatusoperationstatesyncresultsourcekustomizePatchesitem:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcekustomizePatchesitem:
     """
-    ApplicationstatusoperationstatesyncresultsourcekustomizePatchesitem schema.
+    KustomizePatch is a kustomize patch
 
     Attributes
     ----------
@@ -4176,17 +3567,17 @@ schema ApplicationstatusoperationstatesyncresultsourcekustomizePatchesitem:
         No description available.
     path : str, optional
         No description available.
-    target : ApplicationstatusoperationstatesyncresultsourcekustomizepatchesitemTarget, optional
-        No description available.
+    target : ApplicationstatusatprovideroperationstatesyncresultsourcekustomizepatchesitemTarget, optional
+        KustomizeSelector is a selector of a Kustomize Patch
     """
     options? : {str:bool}
     patch? : str
     path? : str
-    target? : ApplicationstatusoperationstatesyncresultsourcekustomizepatchesitemTarget
+    target? : ApplicationstatusatprovideroperationstatesyncresultsourcekustomizepatchesitemTarget
 
-schema ApplicationstatusoperationstatesyncresultsourcekustomizepatchesitemTarget:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcekustomizepatchesitemTarget:
     """
-    ApplicationstatusoperationstatesyncresultsourcekustomizepatchesitemTarget schema.
+    KustomizeSelector is a selector of a Kustomize Patch
 
     Attributes
     ----------
@@ -4213,9 +3604,9 @@ schema ApplicationstatusoperationstatesyncresultsourcekustomizepatchesitemTarget
     namespace? : str
     version? : str
 
-schema ApplicationstatusoperationstatesyncresultsourcekustomizeReplicasitem:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcekustomizeReplicasitem:
     """
-    ApplicationstatusoperationstatesyncresultsourcekustomizeReplicasitem schema.
+    KustomizeReplica override specifications
 
     Attributes
     ----------
@@ -4227,24 +3618,24 @@ schema ApplicationstatusoperationstatesyncresultsourcekustomizeReplicasitem:
     count : any
     name : str
 
-schema ApplicationstatusoperationstatesyncresultsourcePlugin:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcePlugin:
     """
     Plugin holds config management plugin specific options
 
     Attributes
     ----------
-    env : [ApplicationstatusoperationstatesyncresultsourcepluginEnvitem], optional
-        Env is a list of environment variable entries
+    env : [ApplicationstatusatprovideroperationstatesyncresultsourcepluginEnvitem], optional
+        Env holds options specific to config management plugins
     name : str, optional
         No description available.
-    parameters : [ApplicationstatusoperationstatesyncresultsourcepluginParametersitem], optional
-        No description available.
+    parameters : [ApplicationstatusatprovideroperationstatesyncresultsourcepluginParametersitem], optional
+        ApplicationSourcePluginParameters is a list of specific config management parameters
     """
-    env? : [ApplicationstatusoperationstatesyncresultsourcepluginEnvitem]
+    env? : [ApplicationstatusatprovideroperationstatesyncresultsourcepluginEnvitem]
     name? : str
-    parameters? : [ApplicationstatusoperationstatesyncresultsourcepluginParametersitem]
+    parameters? : [ApplicationstatusatprovideroperationstatesyncresultsourcepluginParametersitem]
 
-schema ApplicationstatusoperationstatesyncresultsourcepluginEnvitem:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcepluginEnvitem:
     """
     EnvEntry represents an entry in the application's environment
 
@@ -4258,9 +3649,9 @@ schema ApplicationstatusoperationstatesyncresultsourcepluginEnvitem:
     name : str
     value : str
 
-schema ApplicationstatusoperationstatesyncresultsourcepluginParametersitem:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcepluginParametersitem:
     """
-    ApplicationstatusoperationstatesyncresultsourcepluginParametersitem schema.
+    ApplicationSourcePluginParameter holds options specific to config management parameters
 
     Attributes
     ----------
@@ -4278,7 +3669,7 @@ schema ApplicationstatusoperationstatesyncresultsourcepluginParametersitem:
     name? : str
     string? : str
 
-schema ApplicationstatusoperationstatesyncresultSourcesitem:
+schema ApplicationstatusatprovideroperationstatesyncresultSourcesitem:
     """
     ApplicationSource contains all required information about the source of an application
 
@@ -4286,17 +3677,17 @@ schema ApplicationstatusoperationstatesyncresultSourcesitem:
     ----------
     chart : str, optional
         Chart is a Helm chart name, and must be specified for applications sourced from a Helm repo.
-    directory : ApplicationstatusoperationstatesyncresultsourcesitemDirectory, optional
+    directory : ApplicationstatusatprovideroperationstatesyncresultsourcesitemDirectory, optional
         Directory holds path/directory specific options
-    helm : ApplicationstatusoperationstatesyncresultsourcesitemHelm, optional
+    helm : ApplicationstatusatprovideroperationstatesyncresultsourcesitemHelm, optional
         Helm holds helm specific options
-    kustomize : ApplicationstatusoperationstatesyncresultsourcesitemKustomize, optional
+    kustomize : ApplicationstatusatprovideroperationstatesyncresultsourcesitemKustomize, optional
         Kustomize holds kustomize specific options
     name : str, optional
-        Name is used to refer to a source and is displayed in the UI. It is used in multi-source Applications.
+        Name is the name of the application source
     path : str, optional
         Path is a directory path within the Git repository, and is only valid for applications sourced from Git.
-    plugin : ApplicationstatusoperationstatesyncresultsourcesitemPlugin, optional
+    plugin : ApplicationstatusatprovideroperationstatesyncresultsourcesitemPlugin, optional
         Plugin holds config management plugin specific options
     ref : str, optional
         Ref is reference to another source within sources field. This field will not be used if used with a `source` tag.
@@ -4308,17 +3699,17 @@ schema ApplicationstatusoperationstatesyncresultSourcesitem:
         In case of Helm, this is a semver tag for the Chart's version.
     """
     chart? : str
-    directory? : ApplicationstatusoperationstatesyncresultsourcesitemDirectory
-    helm? : ApplicationstatusoperationstatesyncresultsourcesitemHelm
-    kustomize? : ApplicationstatusoperationstatesyncresultsourcesitemKustomize
+    directory? : ApplicationstatusatprovideroperationstatesyncresultsourcesitemDirectory
+    helm? : ApplicationstatusatprovideroperationstatesyncresultsourcesitemHelm
+    kustomize? : ApplicationstatusatprovideroperationstatesyncresultsourcesitemKustomize
     name? : str
     path? : str
-    plugin? : ApplicationstatusoperationstatesyncresultsourcesitemPlugin
+    plugin? : ApplicationstatusatprovideroperationstatesyncresultsourcesitemPlugin
     ref? : str
     repoURL : str
     targetRevision? : str
 
-schema ApplicationstatusoperationstatesyncresultsourcesitemDirectory:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcesitemDirectory:
     """
     Directory holds path/directory specific options
 
@@ -4328,34 +3719,34 @@ schema ApplicationstatusoperationstatesyncresultsourcesitemDirectory:
         Exclude contains a glob pattern to match paths against that should be explicitly excluded from being used during manifest generation
     include : str, optional
         Include contains a glob pattern to match paths against that should be explicitly included during manifest generation
-    jsonnet : ApplicationstatusoperationstatesyncresultsourcesitemdirectoryJsonnet, optional
+    jsonnet : ApplicationstatusatprovideroperationstatesyncresultsourcesitemdirectoryJsonnet, optional
         Jsonnet holds options specific to Jsonnet
     recurse : bool, optional
         Recurse specifies whether to scan a directory recursively for manifests
     """
     exclude? : str
     include? : str
-    jsonnet? : ApplicationstatusoperationstatesyncresultsourcesitemdirectoryJsonnet
+    jsonnet? : ApplicationstatusatprovideroperationstatesyncresultsourcesitemdirectoryJsonnet
     recurse? : bool
 
-schema ApplicationstatusoperationstatesyncresultsourcesitemdirectoryJsonnet:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcesitemdirectoryJsonnet:
     """
     Jsonnet holds options specific to Jsonnet
 
     Attributes
     ----------
-    extVars : [ApplicationstatusoperationstatesyncresultsourcesitemdirectoryjsonnetExtvarsitem], optional
+    extVars : [ApplicationstatusatprovideroperationstatesyncresultsourcesitemdirectoryjsonnetExtvarsitem], optional
         ExtVars is a list of Jsonnet External Variables
     libs : [str], optional
         Additional library search dirs
-    tlas : [ApplicationstatusoperationstatesyncresultsourcesitemdirectoryjsonnetTlasitem], optional
+    tlas : [ApplicationstatusatprovideroperationstatesyncresultsourcesitemdirectoryjsonnetTlasitem], optional
         TLAS is a list of Jsonnet Top-level Arguments
     """
-    extVars? : [ApplicationstatusoperationstatesyncresultsourcesitemdirectoryjsonnetExtvarsitem]
+    extVars? : [ApplicationstatusatprovideroperationstatesyncresultsourcesitemdirectoryjsonnetExtvarsitem]
     libs? : [str]
-    tlas? : [ApplicationstatusoperationstatesyncresultsourcesitemdirectoryjsonnetTlasitem]
+    tlas? : [ApplicationstatusatprovideroperationstatesyncresultsourcesitemdirectoryjsonnetTlasitem]
 
-schema ApplicationstatusoperationstatesyncresultsourcesitemdirectoryjsonnetExtvarsitem:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcesitemdirectoryjsonnetExtvarsitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -4372,7 +3763,7 @@ schema ApplicationstatusoperationstatesyncresultsourcesitemdirectoryjsonnetExtva
     name : str
     value : str
 
-schema ApplicationstatusoperationstatesyncresultsourcesitemdirectoryjsonnetTlasitem:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcesitemdirectoryjsonnetTlasitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -4389,7 +3780,7 @@ schema ApplicationstatusoperationstatesyncresultsourcesitemdirectoryjsonnetTlasi
     name : str
     value : str
 
-schema ApplicationstatusoperationstatesyncresultsourcesitemHelm:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcesitemHelm:
     """
     Helm holds helm specific options
 
@@ -4398,7 +3789,7 @@ schema ApplicationstatusoperationstatesyncresultsourcesitemHelm:
     apiVersions : [str], optional
         APIVersions specifies the Kubernetes resource API versions to pass to Helm when templating manifests. By default,
         Argo CD uses the API versions of the target cluster. The format is [group/]version/kind.
-    fileParameters : [ApplicationstatusoperationstatesyncresultsourcesitemhelmFileparametersitem], optional
+    fileParameters : [ApplicationstatusatprovideroperationstatesyncresultsourcesitemhelmFileparametersitem], optional
         FileParameters are file parameters to the helm template
     ignoreMissingValueFiles : bool, optional
         IgnoreMissingValueFiles prevents helm template from failing when valueFiles do not exist locally by not appending them to helm template --values
@@ -4407,7 +3798,7 @@ schema ApplicationstatusoperationstatesyncresultsourcesitemHelm:
         uses the Kubernetes version of the target cluster.
     namespace : str, optional
         Namespace is an optional namespace to template with. If left empty, defaults to the app's destination namespace.
-    parameters : [ApplicationstatusoperationstatesyncresultsourcesitemhelmParametersitem], optional
+    parameters : [ApplicationstatusatprovideroperationstatesyncresultsourcesitemhelmParametersitem], optional
         Parameters is a list of Helm parameters which are passed to the helm template command upon manifest generation
     passCredentials : bool, optional
         PassCredentials pass credentials to all domains (Helm's --pass-credentials)
@@ -4429,11 +3820,11 @@ schema ApplicationstatusoperationstatesyncresultsourcesitemHelm:
         Version is the Helm version to use for templating ("3")
     """
     apiVersions? : [str]
-    fileParameters? : [ApplicationstatusoperationstatesyncresultsourcesitemhelmFileparametersitem]
+    fileParameters? : [ApplicationstatusatprovideroperationstatesyncresultsourcesitemhelmFileparametersitem]
     ignoreMissingValueFiles? : bool
     kubeVersion? : str
     namespace? : str
-    parameters? : [ApplicationstatusoperationstatesyncresultsourcesitemhelmParametersitem]
+    parameters? : [ApplicationstatusatprovideroperationstatesyncresultsourcesitemhelmParametersitem]
     passCredentials? : bool
     releaseName? : str
     skipCrds? : bool
@@ -4444,7 +3835,7 @@ schema ApplicationstatusoperationstatesyncresultsourcesitemHelm:
     valuesObject? : any
     version? : str
 
-schema ApplicationstatusoperationstatesyncresultsourcesitemhelmFileparametersitem:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcesitemhelmFileparametersitem:
     """
     HelmFileParameter is a file parameter that's passed to helm template during manifest generation
 
@@ -4458,7 +3849,7 @@ schema ApplicationstatusoperationstatesyncresultsourcesitemhelmFileparametersite
     name? : str
     path? : str
 
-schema ApplicationstatusoperationstatesyncresultsourcesitemhelmParametersitem:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcesitemhelmParametersitem:
     """
     HelmParameter is a parameter that's passed to helm template during manifest generation
 
@@ -4475,7 +3866,7 @@ schema ApplicationstatusoperationstatesyncresultsourcesitemhelmParametersitem:
     name? : str
     value? : str
 
-schema ApplicationstatusoperationstatesyncresultsourcesitemKustomize:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcesitemKustomize:
     """
     Kustomize holds kustomize specific options
 
@@ -4513,9 +3904,9 @@ schema ApplicationstatusoperationstatesyncresultsourcesitemKustomize:
         NameSuffix is a suffix appended to resources for Kustomize apps
     namespace : str, optional
         Namespace sets the namespace that Kustomize adds to all resources
-    patches : [ApplicationstatusoperationstatesyncresultsourcesitemkustomizePatchesitem], optional
+    patches : [ApplicationstatusatprovideroperationstatesyncresultsourcesitemkustomizePatchesitem], optional
         Patches is a list of Kustomize patches
-    replicas : [ApplicationstatusoperationstatesyncresultsourcesitemkustomizeReplicasitem], optional
+    replicas : [ApplicationstatusatprovideroperationstatesyncresultsourcesitemkustomizeReplicasitem], optional
         Replicas is a list of Kustomize Replicas override specifications
     version : str, optional
         Version controls which version of Kustomize to use for rendering manifests
@@ -4535,13 +3926,13 @@ schema ApplicationstatusoperationstatesyncresultsourcesitemKustomize:
     namePrefix? : str
     nameSuffix? : str
     namespace? : str
-    patches? : [ApplicationstatusoperationstatesyncresultsourcesitemkustomizePatchesitem]
-    replicas? : [ApplicationstatusoperationstatesyncresultsourcesitemkustomizeReplicasitem]
+    patches? : [ApplicationstatusatprovideroperationstatesyncresultsourcesitemkustomizePatchesitem]
+    replicas? : [ApplicationstatusatprovideroperationstatesyncresultsourcesitemkustomizeReplicasitem]
     version? : str
 
-schema ApplicationstatusoperationstatesyncresultsourcesitemkustomizePatchesitem:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcesitemkustomizePatchesitem:
     """
-    ApplicationstatusoperationstatesyncresultsourcesitemkustomizePatchesitem schema.
+    KustomizePatch is a kustomize patch
 
     Attributes
     ----------
@@ -4551,17 +3942,17 @@ schema ApplicationstatusoperationstatesyncresultsourcesitemkustomizePatchesitem:
         No description available.
     path : str, optional
         No description available.
-    target : ApplicationstatusoperationstatesyncresultsourcesitemkustomizepatchesitemTarget, optional
-        No description available.
+    target : ApplicationstatusatprovideroperationstatesyncresultsourcesitemkustomizepatchesitemTarget, optional
+        KustomizeSelector is a selector of a Kustomize Patch
     """
     options? : {str:bool}
     patch? : str
     path? : str
-    target? : ApplicationstatusoperationstatesyncresultsourcesitemkustomizepatchesitemTarget
+    target? : ApplicationstatusatprovideroperationstatesyncresultsourcesitemkustomizepatchesitemTarget
 
-schema ApplicationstatusoperationstatesyncresultsourcesitemkustomizepatchesitemTarget:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcesitemkustomizepatchesitemTarget:
     """
-    ApplicationstatusoperationstatesyncresultsourcesitemkustomizepatchesitemTarget schema.
+    KustomizeSelector is a selector of a Kustomize Patch
 
     Attributes
     ----------
@@ -4588,9 +3979,9 @@ schema ApplicationstatusoperationstatesyncresultsourcesitemkustomizepatchesitemT
     namespace? : str
     version? : str
 
-schema ApplicationstatusoperationstatesyncresultsourcesitemkustomizeReplicasitem:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcesitemkustomizeReplicasitem:
     """
-    ApplicationstatusoperationstatesyncresultsourcesitemkustomizeReplicasitem schema.
+    KustomizeReplica override specifications
 
     Attributes
     ----------
@@ -4602,24 +3993,24 @@ schema ApplicationstatusoperationstatesyncresultsourcesitemkustomizeReplicasitem
     count : any
     name : str
 
-schema ApplicationstatusoperationstatesyncresultsourcesitemPlugin:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcesitemPlugin:
     """
     Plugin holds config management plugin specific options
 
     Attributes
     ----------
-    env : [ApplicationstatusoperationstatesyncresultsourcesitempluginEnvitem], optional
-        Env is a list of environment variable entries
+    env : [ApplicationstatusatprovideroperationstatesyncresultsourcesitempluginEnvitem], optional
+        Env holds options specific to config management plugins
     name : str, optional
         No description available.
-    parameters : [ApplicationstatusoperationstatesyncresultsourcesitempluginParametersitem], optional
-        No description available.
+    parameters : [ApplicationstatusatprovideroperationstatesyncresultsourcesitempluginParametersitem], optional
+        ApplicationSourcePluginParameters is a list of specific config management parameters
     """
-    env? : [ApplicationstatusoperationstatesyncresultsourcesitempluginEnvitem]
+    env? : [ApplicationstatusatprovideroperationstatesyncresultsourcesitempluginEnvitem]
     name? : str
-    parameters? : [ApplicationstatusoperationstatesyncresultsourcesitempluginParametersitem]
+    parameters? : [ApplicationstatusatprovideroperationstatesyncresultsourcesitempluginParametersitem]
 
-schema ApplicationstatusoperationstatesyncresultsourcesitempluginEnvitem:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcesitempluginEnvitem:
     """
     EnvEntry represents an entry in the application's environment
 
@@ -4633,9 +4024,9 @@ schema ApplicationstatusoperationstatesyncresultsourcesitempluginEnvitem:
     name : str
     value : str
 
-schema ApplicationstatusoperationstatesyncresultsourcesitempluginParametersitem:
+schema ApplicationstatusatprovideroperationstatesyncresultsourcesitempluginParametersitem:
     """
-    ApplicationstatusoperationstatesyncresultsourcesitempluginParametersitem schema.
+    ApplicationSourcePluginParameter holds options specific to config management parameters
 
     Attributes
     ----------
@@ -4653,38 +4044,37 @@ schema ApplicationstatusoperationstatesyncresultsourcesitempluginParametersitem:
     name? : str
     string? : str
 
-schema ApplicationstatusResourcesitem:
+schema ApplicationstatusatproviderResourcesitem:
     """
-    ResourceStatus holds the current synchronization and health status of a Kubernetes resource.
+    ResourceStatus holds the current sync and health status of a resource
 
     Attributes
     ----------
     group : str, optional
-        Group represents the API group of the resource (e.g., "apps" for Deployments).
-    health : ApplicationstatusresourcesitemHealth, optional
-        Health indicates the health status of the resource (e.g., Healthy, Degraded, Progressing).
+        No description available.
+    health : ApplicationstatusatproviderresourcesitemHealth, optional
+        HealthStatus contains information about the currently observed health state of an application or resource
     hook : bool, optional
-        Hook is true if the resource is used as a lifecycle hook in an Argo CD application.
+        No description available.
     kind : str, optional
-        Kind specifies the type of the resource (e.g., "Deployment", "Service").
+        No description available.
     name : str, optional
-        Name is the unique name of the resource within the namespace.
+        No description available.
     namespace : str, optional
-        Namespace defines the Kubernetes namespace where the resource is located.
+        No description available.
     requiresDeletionConfirmation : bool, optional
-        RequiresDeletionConfirmation is true if the resource requires explicit user confirmation before deletion.
+        No description available.
     requiresPruning : bool, optional
-        RequiresPruning is true if the resource needs to be pruned (deleted) as part of synchronization.
+        No description available.
     status : str, optional
-        Status represents the synchronization state of the resource (e.g., Synced, OutOfSync).
+        No description available.
     syncWave : int, optional
-        SyncWave determines the order in which resources are applied during a sync operation.
-        Lower values are applied first.
+        No description available.
     version : str, optional
-        Version indicates the API version of the resource (e.g., "v1", "v1beta1").
+        No description available.
     """
     group? : str
-    health? : ApplicationstatusresourcesitemHealth
+    health? : ApplicationstatusatproviderresourcesitemHealth
     hook? : bool
     kind? : str
     name? : str
@@ -4695,210 +4085,24 @@ schema ApplicationstatusResourcesitem:
     syncWave? : int
     version? : str
 
-schema ApplicationstatusresourcesitemHealth:
+schema ApplicationstatusatproviderresourcesitemHealth:
     """
-    Health indicates the health status of the resource (e.g., Healthy, Degraded, Progressing).
+    HealthStatus contains information about the currently observed health state of an application or resource
 
     Attributes
     ----------
     lastTransitionTime : str, optional
         LastTransitionTime is the time the HealthStatus was set or updated
-
-        Deprecated: this field is not used and will be removed in a future release.
     message : str, optional
         Message is a human-readable informational message describing the health status
     status : str, optional
-        Status holds the status code of the resource
+        Status holds the status code of the application or resource
     """
     lastTransitionTime? : str
     message? : str
     status? : str
 
-schema ApplicationstatusSourcehydrator:
-    """
-    SourceHydrator stores information about the current state of source hydration
-
-    Attributes
-    ----------
-    currentOperation : ApplicationstatussourcehydratorCurrentoperation, optional
-        CurrentOperation holds the status of the hydrate operation
-    lastSuccessfulOperation : ApplicationstatussourcehydratorLastsuccessfuloperation, optional
-        LastSuccessfulOperation holds info about the most recent successful hydration
-    """
-    currentOperation? : ApplicationstatussourcehydratorCurrentoperation
-    lastSuccessfulOperation? : ApplicationstatussourcehydratorLastsuccessfuloperation
-
-schema ApplicationstatussourcehydratorCurrentoperation:
-    """
-    CurrentOperation holds the status of the hydrate operation
-
-    Attributes
-    ----------
-    drySHA : str, optional
-        DrySHA holds the resolved revision (sha) of the dry source as of the most recent reconciliation
-    finishedAt : str, optional
-        FinishedAt indicates when the hydrate operation finished
-    hydratedSHA : str, optional
-        HydratedSHA holds the resolved revision (sha) of the hydrated source as of the most recent reconciliation
-    message : str, required
-        Message contains a message describing the current status of the hydrate operation
-    phase : "Hydrating" | "Failed" | "Hydrated", required
-        Phase indicates the status of the hydrate operation
-    sourceHydrator : ApplicationstatussourcehydratorcurrentoperationSourcehydrator, optional
-        SourceHydrator holds the hydrator config used for the hydrate operation
-    startedAt : str, optional
-        StartedAt indicates when the hydrate operation started
-    """
-    drySHA? : str
-    finishedAt? : str
-    hydratedSHA? : str
-    message : str
-    phase : "Hydrating" | "Failed" | "Hydrated"
-    sourceHydrator? : ApplicationstatussourcehydratorcurrentoperationSourcehydrator
-    startedAt? : str
-
-schema ApplicationstatussourcehydratorcurrentoperationSourcehydrator:
-    """
-    SourceHydrator holds the hydrator config used for the hydrate operation
-
-    Attributes
-    ----------
-    drySource : ApplicationstatussourcehydratorcurrentoperationsourcehydratorDrysource, required
-        DrySource specifies where the dry "don't repeat yourself" manifest source lives.
-    hydrateTo : ApplicationstatussourcehydratorcurrentoperationsourcehydratorHydrateto, optional
-        HydrateTo specifies an optional "staging" location to push hydrated manifests to. An external system would then
-        have to move manifests to the SyncSource, e.g. by pull request.
-    syncSource : ApplicationstatussourcehydratorcurrentoperationsourcehydratorSyncsource, required
-        SyncSource specifies where to sync hydrated manifests from.
-    """
-    drySource : ApplicationstatussourcehydratorcurrentoperationsourcehydratorDrysource
-    hydrateTo? : ApplicationstatussourcehydratorcurrentoperationsourcehydratorHydrateto
-    syncSource : ApplicationstatussourcehydratorcurrentoperationsourcehydratorSyncsource
-
-schema ApplicationstatussourcehydratorcurrentoperationsourcehydratorDrysource:
-    """
-    DrySource specifies where the dry "don't repeat yourself" manifest source lives.
-
-    Attributes
-    ----------
-    path : str, required
-        Path is a directory path within the Git repository where the manifests are located
-    repoURL : str, required
-        RepoURL is the URL to the git repository that contains the application manifests
-    targetRevision : str, required
-        TargetRevision defines the revision of the source to hydrate
-    """
-    path : str
-    repoURL : str
-    targetRevision : str
-
-schema ApplicationstatussourcehydratorcurrentoperationsourcehydratorHydrateto:
-    """
-    HydrateTo specifies an optional "staging" location to push hydrated manifests to. An external system would then
-    have to move manifests to the SyncSource, e.g. by pull request.
-
-    Attributes
-    ----------
-    targetBranch : str, required
-        TargetBranch is the branch to which hydrated manifests should be committed
-    """
-    targetBranch : str
-
-schema ApplicationstatussourcehydratorcurrentoperationsourcehydratorSyncsource:
-    """
-    SyncSource specifies where to sync hydrated manifests from.
-
-    Attributes
-    ----------
-    path : str, required
-        Path is a directory path within the git repository where hydrated manifests should be committed to and synced
-        from. If hydrateTo is set, this is just the path from which hydrated manifests will be synced.
-    targetBranch : str, required
-        TargetBranch is the branch to which hydrated manifests should be committed
-    """
-    path : str
-    targetBranch : str
-
-schema ApplicationstatussourcehydratorLastsuccessfuloperation:
-    """
-    LastSuccessfulOperation holds info about the most recent successful hydration
-
-    Attributes
-    ----------
-    drySHA : str, optional
-        DrySHA holds the resolved revision (sha) of the dry source as of the most recent reconciliation
-    hydratedSHA : str, optional
-        HydratedSHA holds the resolved revision (sha) of the hydrated source as of the most recent reconciliation
-    sourceHydrator : ApplicationstatussourcehydratorlastsuccessfuloperationSourcehydrator, optional
-        SourceHydrator holds the hydrator config used for the hydrate operation
-    """
-    drySHA? : str
-    hydratedSHA? : str
-    sourceHydrator? : ApplicationstatussourcehydratorlastsuccessfuloperationSourcehydrator
-
-schema ApplicationstatussourcehydratorlastsuccessfuloperationSourcehydrator:
-    """
-    SourceHydrator holds the hydrator config used for the hydrate operation
-
-    Attributes
-    ----------
-    drySource : ApplicationstatussourcehydratorlastsuccessfuloperationsourcehydratorDrysource, required
-        DrySource specifies where the dry "don't repeat yourself" manifest source lives.
-    hydrateTo : ApplicationstatussourcehydratorlastsuccessfuloperationsourcehydratorHydrateto, optional
-        HydrateTo specifies an optional "staging" location to push hydrated manifests to. An external system would then
-        have to move manifests to the SyncSource, e.g. by pull request.
-    syncSource : ApplicationstatussourcehydratorlastsuccessfuloperationsourcehydratorSyncsource, required
-        SyncSource specifies where to sync hydrated manifests from.
-    """
-    drySource : ApplicationstatussourcehydratorlastsuccessfuloperationsourcehydratorDrysource
-    hydrateTo? : ApplicationstatussourcehydratorlastsuccessfuloperationsourcehydratorHydrateto
-    syncSource : ApplicationstatussourcehydratorlastsuccessfuloperationsourcehydratorSyncsource
-
-schema ApplicationstatussourcehydratorlastsuccessfuloperationsourcehydratorDrysource:
-    """
-    DrySource specifies where the dry "don't repeat yourself" manifest source lives.
-
-    Attributes
-    ----------
-    path : str, required
-        Path is a directory path within the Git repository where the manifests are located
-    repoURL : str, required
-        RepoURL is the URL to the git repository that contains the application manifests
-    targetRevision : str, required
-        TargetRevision defines the revision of the source to hydrate
-    """
-    path : str
-    repoURL : str
-    targetRevision : str
-
-schema ApplicationstatussourcehydratorlastsuccessfuloperationsourcehydratorHydrateto:
-    """
-    HydrateTo specifies an optional "staging" location to push hydrated manifests to. An external system would then
-    have to move manifests to the SyncSource, e.g. by pull request.
-
-    Attributes
-    ----------
-    targetBranch : str, required
-        TargetBranch is the branch to which hydrated manifests should be committed
-    """
-    targetBranch : str
-
-schema ApplicationstatussourcehydratorlastsuccessfuloperationsourcehydratorSyncsource:
-    """
-    SyncSource specifies where to sync hydrated manifests from.
-
-    Attributes
-    ----------
-    path : str, required
-        Path is a directory path within the git repository where hydrated manifests should be committed to and synced
-        from. If hydrateTo is set, this is just the path from which hydrated manifests will be synced.
-    targetBranch : str, required
-        TargetBranch is the branch to which hydrated manifests should be committed
-    """
-    path : str
-    targetBranch : str
-
-schema ApplicationstatusSummary:
+schema ApplicationstatusatproviderSummary:
     """
     Summary contains a list of URLs and container images used by this application
 
@@ -4912,13 +4116,13 @@ schema ApplicationstatusSummary:
     externalURLs? : [str]
     images? : [str]
 
-schema ApplicationstatusSync:
+schema ApplicationstatusatproviderSync:
     """
     Sync contains information about the application's current sync status
 
     Attributes
     ----------
-    comparedTo : ApplicationstatussyncComparedto, optional
+    comparedTo : ApplicationstatusatprovidersyncComparedto, optional
         ComparedTo contains information about what has been compared
     revision : str, optional
         Revision contains information about the revision the comparison has been performed to
@@ -4927,80 +4131,203 @@ schema ApplicationstatusSync:
     status : str, required
         Status is the sync state of the comparison
     """
-    comparedTo? : ApplicationstatussyncComparedto
+    comparedTo? : ApplicationstatusatprovidersyncComparedto
     revision? : str
     revisions? : [str]
     status : str
 
-schema ApplicationstatussyncComparedto:
+schema ApplicationstatusatprovidersyncComparedto:
     """
     ComparedTo contains information about what has been compared
 
     Attributes
     ----------
-    destination : ApplicationstatussynccomparedtoDestination, required
+    destination : ApplicationstatusatprovidersynccomparedtoDestination, required
         Destination is a reference to the application's destination used for comparison
-    ignoreDifferences : [ApplicationstatussynccomparedtoIgnoredifferencesitem], optional
-        IgnoreDifferences is a reference to the application's ignored differences used for comparison
-    source : ApplicationstatussynccomparedtoSource, optional
+    source : ApplicationstatusatprovidersynccomparedtoSource, optional
         Source is a reference to the application's source used for comparison
-    sources : [ApplicationstatussynccomparedtoSourcesitem], optional
+    sources : [ApplicationstatusatprovidersynccomparedtoSourcesitem], optional
         Sources is a reference to the application's multiple sources used for comparison
     """
-    destination : ApplicationstatussynccomparedtoDestination
-    ignoreDifferences? : [ApplicationstatussynccomparedtoIgnoredifferencesitem]
-    source? : ApplicationstatussynccomparedtoSource
-    sources? : [ApplicationstatussynccomparedtoSourcesitem]
+    destination : ApplicationstatusatprovidersynccomparedtoDestination
+    source? : ApplicationstatusatprovidersynccomparedtoSource
+    sources? : [ApplicationstatusatprovidersynccomparedtoSourcesitem]
 
-schema ApplicationstatussynccomparedtoDestination:
+schema ApplicationstatusatprovidersynccomparedtoDestination:
     """
     Destination is a reference to the application's destination used for comparison
 
     Attributes
     ----------
     name : str, optional
-        Name is an alternate way of specifying the target cluster by its symbolic name. This must be set if Server is not set.
+        Name is an alternate way of specifying the target cluster by its symbolic name
+    nameRef : ApplicationstatusatprovidersynccomparedtodestinationNameref, optional
+        NameRef is a reference to a Cluster used to set Name
+    nameSelector : ApplicationstatusatprovidersynccomparedtodestinationNameselector, optional
+        NameSelector is a reference to a Cluster used to set Name
     namespace : str, optional
         Namespace specifies the target namespace for the application's resources.
         The namespace will only be set for namespace-scoped resources that have not set a value for .metadata.namespace
     server : str, optional
-        Server specifies the URL of the target cluster's Kubernetes control plane API. This must be set if Name is not set.
+        Server specifies the URL of the target cluster and must be set to the Kubernetes control plane API
+    serverRef : ApplicationstatusatprovidersynccomparedtodestinationServerref, optional
+        ServerRef is a reference to Cluster used to set Server
+    serverSelector : ApplicationstatusatprovidersynccomparedtodestinationServerselector, optional
+        ServerSelector selects references to Cluster used to set Server
     """
     name? : str
+    nameRef? : ApplicationstatusatprovidersynccomparedtodestinationNameref
+    nameSelector? : ApplicationstatusatprovidersynccomparedtodestinationNameselector
     namespace? : str
     server? : str
+    serverRef? : ApplicationstatusatprovidersynccomparedtodestinationServerref
+    serverSelector? : ApplicationstatusatprovidersynccomparedtodestinationServerselector
 
-schema ApplicationstatussynccomparedtoIgnoredifferencesitem:
+schema ApplicationstatusatprovidersynccomparedtodestinationNameref:
     """
-    ResourceIgnoreDifferences contains resource filter and list of json paths which should be ignored during comparison with live state.
+    NameRef is a reference to a Cluster used to set Name
 
     Attributes
     ----------
-    group : str, optional
-        No description available.
-    jqPathExpressions : [str], optional
-        No description available.
-    jsonPointers : [str], optional
-        No description available.
-    kind : str, required
-        No description available.
-    managedFieldsManagers : [str], optional
-        ManagedFieldsManagers is a list of trusted managers. Fields mutated by those managers will take precedence over the
-        desired state defined in the SCM and won't be displayed in diffs
-    name : str, optional
-        No description available.
-    namespace : str, optional
-        No description available.
+    name : str, required
+        Name of the referenced object.
+    policy : ApplicationstatusatprovidersynccomparedtodestinationnamerefPolicy, optional
+        Policies for referencing.
     """
-    group? : str
-    jqPathExpressions? : [str]
-    jsonPointers? : [str]
-    kind : str
-    managedFieldsManagers? : [str]
-    name? : str
-    namespace? : str
+    name : str
+    policy? : ApplicationstatusatprovidersynccomparedtodestinationnamerefPolicy
 
-schema ApplicationstatussynccomparedtoSource:
+schema ApplicationstatusatprovidersynccomparedtodestinationnamerefPolicy:
+    """
+    Policies for referencing.
+
+    Attributes
+    ----------
+    resolution : "Required" | "Optional", optional
+        Resolution specifies whether resolution of this reference is required.
+        The default is 'Required', which means the reconcile will fail if the
+        reference cannot be resolved. 'Optional' means this reference will be
+        a no-op if it cannot be resolved.
+    resolve : "Always" | "IfNotPresent", optional
+        Resolve specifies when this reference should be resolved. The default
+        is 'IfNotPresent', which will attempt to resolve the reference only when
+        the corresponding field is not present. Use 'Always' to resolve the
+        reference on every reconcile.
+    """
+    resolution? : "Required" | "Optional"
+    resolve? : "Always" | "IfNotPresent"
+
+schema ApplicationstatusatprovidersynccomparedtodestinationNameselector:
+    """
+    NameSelector is a reference to a Cluster used to set Name
+
+    Attributes
+    ----------
+    matchControllerRef : bool, optional
+        MatchControllerRef ensures an object with the same controller reference
+        as the selecting object is selected.
+    matchLabels : {str:str}, optional
+        MatchLabels ensures an object with matching labels is selected.
+    policy : ApplicationstatusatprovidersynccomparedtodestinationnameselectorPolicy, optional
+        Policies for selection.
+    """
+    matchControllerRef? : bool
+    matchLabels? : {str:str}
+    policy? : ApplicationstatusatprovidersynccomparedtodestinationnameselectorPolicy
+
+schema ApplicationstatusatprovidersynccomparedtodestinationnameselectorPolicy:
+    """
+    Policies for selection.
+
+    Attributes
+    ----------
+    resolution : "Required" | "Optional", optional
+        Resolution specifies whether resolution of this reference is required.
+        The default is 'Required', which means the reconcile will fail if the
+        reference cannot be resolved. 'Optional' means this reference will be
+        a no-op if it cannot be resolved.
+    resolve : "Always" | "IfNotPresent", optional
+        Resolve specifies when this reference should be resolved. The default
+        is 'IfNotPresent', which will attempt to resolve the reference only when
+        the corresponding field is not present. Use 'Always' to resolve the
+        reference on every reconcile.
+    """
+    resolution? : "Required" | "Optional"
+    resolve? : "Always" | "IfNotPresent"
+
+schema ApplicationstatusatprovidersynccomparedtodestinationServerref:
+    """
+    ServerRef is a reference to Cluster used to set Server
+
+    Attributes
+    ----------
+    name : str, required
+        Name of the referenced object.
+    policy : ApplicationstatusatprovidersynccomparedtodestinationserverrefPolicy, optional
+        Policies for referencing.
+    """
+    name : str
+    policy? : ApplicationstatusatprovidersynccomparedtodestinationserverrefPolicy
+
+schema ApplicationstatusatprovidersynccomparedtodestinationserverrefPolicy:
+    """
+    Policies for referencing.
+
+    Attributes
+    ----------
+    resolution : "Required" | "Optional", optional
+        Resolution specifies whether resolution of this reference is required.
+        The default is 'Required', which means the reconcile will fail if the
+        reference cannot be resolved. 'Optional' means this reference will be
+        a no-op if it cannot be resolved.
+    resolve : "Always" | "IfNotPresent", optional
+        Resolve specifies when this reference should be resolved. The default
+        is 'IfNotPresent', which will attempt to resolve the reference only when
+        the corresponding field is not present. Use 'Always' to resolve the
+        reference on every reconcile.
+    """
+    resolution? : "Required" | "Optional"
+    resolve? : "Always" | "IfNotPresent"
+
+schema ApplicationstatusatprovidersynccomparedtodestinationServerselector:
+    """
+    ServerSelector selects references to Cluster used to set Server
+
+    Attributes
+    ----------
+    matchControllerRef : bool, optional
+        MatchControllerRef ensures an object with the same controller reference
+        as the selecting object is selected.
+    matchLabels : {str:str}, optional
+        MatchLabels ensures an object with matching labels is selected.
+    policy : ApplicationstatusatprovidersynccomparedtodestinationserverselectorPolicy, optional
+        Policies for selection.
+    """
+    matchControllerRef? : bool
+    matchLabels? : {str:str}
+    policy? : ApplicationstatusatprovidersynccomparedtodestinationserverselectorPolicy
+
+schema ApplicationstatusatprovidersynccomparedtodestinationserverselectorPolicy:
+    """
+    Policies for selection.
+
+    Attributes
+    ----------
+    resolution : "Required" | "Optional", optional
+        Resolution specifies whether resolution of this reference is required.
+        The default is 'Required', which means the reconcile will fail if the
+        reference cannot be resolved. 'Optional' means this reference will be
+        a no-op if it cannot be resolved.
+    resolve : "Always" | "IfNotPresent", optional
+        Resolve specifies when this reference should be resolved. The default
+        is 'IfNotPresent', which will attempt to resolve the reference only when
+        the corresponding field is not present. Use 'Always' to resolve the
+        reference on every reconcile.
+    """
+    resolution? : "Required" | "Optional"
+    resolve? : "Always" | "IfNotPresent"
+
+schema ApplicationstatusatprovidersynccomparedtoSource:
     """
     Source is a reference to the application's source used for comparison
 
@@ -5008,17 +4335,17 @@ schema ApplicationstatussynccomparedtoSource:
     ----------
     chart : str, optional
         Chart is a Helm chart name, and must be specified for applications sourced from a Helm repo.
-    directory : ApplicationstatussynccomparedtosourceDirectory, optional
+    directory : ApplicationstatusatprovidersynccomparedtosourceDirectory, optional
         Directory holds path/directory specific options
-    helm : ApplicationstatussynccomparedtosourceHelm, optional
+    helm : ApplicationstatusatprovidersynccomparedtosourceHelm, optional
         Helm holds helm specific options
-    kustomize : ApplicationstatussynccomparedtosourceKustomize, optional
+    kustomize : ApplicationstatusatprovidersynccomparedtosourceKustomize, optional
         Kustomize holds kustomize specific options
     name : str, optional
-        Name is used to refer to a source and is displayed in the UI. It is used in multi-source Applications.
+        Name is the name of the application source
     path : str, optional
         Path is a directory path within the Git repository, and is only valid for applications sourced from Git.
-    plugin : ApplicationstatussynccomparedtosourcePlugin, optional
+    plugin : ApplicationstatusatprovidersynccomparedtosourcePlugin, optional
         Plugin holds config management plugin specific options
     ref : str, optional
         Ref is reference to another source within sources field. This field will not be used if used with a `source` tag.
@@ -5030,17 +4357,17 @@ schema ApplicationstatussynccomparedtoSource:
         In case of Helm, this is a semver tag for the Chart's version.
     """
     chart? : str
-    directory? : ApplicationstatussynccomparedtosourceDirectory
-    helm? : ApplicationstatussynccomparedtosourceHelm
-    kustomize? : ApplicationstatussynccomparedtosourceKustomize
+    directory? : ApplicationstatusatprovidersynccomparedtosourceDirectory
+    helm? : ApplicationstatusatprovidersynccomparedtosourceHelm
+    kustomize? : ApplicationstatusatprovidersynccomparedtosourceKustomize
     name? : str
     path? : str
-    plugin? : ApplicationstatussynccomparedtosourcePlugin
+    plugin? : ApplicationstatusatprovidersynccomparedtosourcePlugin
     ref? : str
     repoURL : str
     targetRevision? : str
 
-schema ApplicationstatussynccomparedtosourceDirectory:
+schema ApplicationstatusatprovidersynccomparedtosourceDirectory:
     """
     Directory holds path/directory specific options
 
@@ -5050,34 +4377,34 @@ schema ApplicationstatussynccomparedtosourceDirectory:
         Exclude contains a glob pattern to match paths against that should be explicitly excluded from being used during manifest generation
     include : str, optional
         Include contains a glob pattern to match paths against that should be explicitly included during manifest generation
-    jsonnet : ApplicationstatussynccomparedtosourcedirectoryJsonnet, optional
+    jsonnet : ApplicationstatusatprovidersynccomparedtosourcedirectoryJsonnet, optional
         Jsonnet holds options specific to Jsonnet
     recurse : bool, optional
         Recurse specifies whether to scan a directory recursively for manifests
     """
     exclude? : str
     include? : str
-    jsonnet? : ApplicationstatussynccomparedtosourcedirectoryJsonnet
+    jsonnet? : ApplicationstatusatprovidersynccomparedtosourcedirectoryJsonnet
     recurse? : bool
 
-schema ApplicationstatussynccomparedtosourcedirectoryJsonnet:
+schema ApplicationstatusatprovidersynccomparedtosourcedirectoryJsonnet:
     """
     Jsonnet holds options specific to Jsonnet
 
     Attributes
     ----------
-    extVars : [ApplicationstatussynccomparedtosourcedirectoryjsonnetExtvarsitem], optional
+    extVars : [ApplicationstatusatprovidersynccomparedtosourcedirectoryjsonnetExtvarsitem], optional
         ExtVars is a list of Jsonnet External Variables
     libs : [str], optional
         Additional library search dirs
-    tlas : [ApplicationstatussynccomparedtosourcedirectoryjsonnetTlasitem], optional
+    tlas : [ApplicationstatusatprovidersynccomparedtosourcedirectoryjsonnetTlasitem], optional
         TLAS is a list of Jsonnet Top-level Arguments
     """
-    extVars? : [ApplicationstatussynccomparedtosourcedirectoryjsonnetExtvarsitem]
+    extVars? : [ApplicationstatusatprovidersynccomparedtosourcedirectoryjsonnetExtvarsitem]
     libs? : [str]
-    tlas? : [ApplicationstatussynccomparedtosourcedirectoryjsonnetTlasitem]
+    tlas? : [ApplicationstatusatprovidersynccomparedtosourcedirectoryjsonnetTlasitem]
 
-schema ApplicationstatussynccomparedtosourcedirectoryjsonnetExtvarsitem:
+schema ApplicationstatusatprovidersynccomparedtosourcedirectoryjsonnetExtvarsitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -5094,7 +4421,7 @@ schema ApplicationstatussynccomparedtosourcedirectoryjsonnetExtvarsitem:
     name : str
     value : str
 
-schema ApplicationstatussynccomparedtosourcedirectoryjsonnetTlasitem:
+schema ApplicationstatusatprovidersynccomparedtosourcedirectoryjsonnetTlasitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -5111,7 +4438,7 @@ schema ApplicationstatussynccomparedtosourcedirectoryjsonnetTlasitem:
     name : str
     value : str
 
-schema ApplicationstatussynccomparedtosourceHelm:
+schema ApplicationstatusatprovidersynccomparedtosourceHelm:
     """
     Helm holds helm specific options
 
@@ -5120,7 +4447,7 @@ schema ApplicationstatussynccomparedtosourceHelm:
     apiVersions : [str], optional
         APIVersions specifies the Kubernetes resource API versions to pass to Helm when templating manifests. By default,
         Argo CD uses the API versions of the target cluster. The format is [group/]version/kind.
-    fileParameters : [ApplicationstatussynccomparedtosourcehelmFileparametersitem], optional
+    fileParameters : [ApplicationstatusatprovidersynccomparedtosourcehelmFileparametersitem], optional
         FileParameters are file parameters to the helm template
     ignoreMissingValueFiles : bool, optional
         IgnoreMissingValueFiles prevents helm template from failing when valueFiles do not exist locally by not appending them to helm template --values
@@ -5129,7 +4456,7 @@ schema ApplicationstatussynccomparedtosourceHelm:
         uses the Kubernetes version of the target cluster.
     namespace : str, optional
         Namespace is an optional namespace to template with. If left empty, defaults to the app's destination namespace.
-    parameters : [ApplicationstatussynccomparedtosourcehelmParametersitem], optional
+    parameters : [ApplicationstatusatprovidersynccomparedtosourcehelmParametersitem], optional
         Parameters is a list of Helm parameters which are passed to the helm template command upon manifest generation
     passCredentials : bool, optional
         PassCredentials pass credentials to all domains (Helm's --pass-credentials)
@@ -5151,11 +4478,11 @@ schema ApplicationstatussynccomparedtosourceHelm:
         Version is the Helm version to use for templating ("3")
     """
     apiVersions? : [str]
-    fileParameters? : [ApplicationstatussynccomparedtosourcehelmFileparametersitem]
+    fileParameters? : [ApplicationstatusatprovidersynccomparedtosourcehelmFileparametersitem]
     ignoreMissingValueFiles? : bool
     kubeVersion? : str
     namespace? : str
-    parameters? : [ApplicationstatussynccomparedtosourcehelmParametersitem]
+    parameters? : [ApplicationstatusatprovidersynccomparedtosourcehelmParametersitem]
     passCredentials? : bool
     releaseName? : str
     skipCrds? : bool
@@ -5166,7 +4493,7 @@ schema ApplicationstatussynccomparedtosourceHelm:
     valuesObject? : any
     version? : str
 
-schema ApplicationstatussynccomparedtosourcehelmFileparametersitem:
+schema ApplicationstatusatprovidersynccomparedtosourcehelmFileparametersitem:
     """
     HelmFileParameter is a file parameter that's passed to helm template during manifest generation
 
@@ -5180,7 +4507,7 @@ schema ApplicationstatussynccomparedtosourcehelmFileparametersitem:
     name? : str
     path? : str
 
-schema ApplicationstatussynccomparedtosourcehelmParametersitem:
+schema ApplicationstatusatprovidersynccomparedtosourcehelmParametersitem:
     """
     HelmParameter is a parameter that's passed to helm template during manifest generation
 
@@ -5197,7 +4524,7 @@ schema ApplicationstatussynccomparedtosourcehelmParametersitem:
     name? : str
     value? : str
 
-schema ApplicationstatussynccomparedtosourceKustomize:
+schema ApplicationstatusatprovidersynccomparedtosourceKustomize:
     """
     Kustomize holds kustomize specific options
 
@@ -5235,9 +4562,9 @@ schema ApplicationstatussynccomparedtosourceKustomize:
         NameSuffix is a suffix appended to resources for Kustomize apps
     namespace : str, optional
         Namespace sets the namespace that Kustomize adds to all resources
-    patches : [ApplicationstatussynccomparedtosourcekustomizePatchesitem], optional
+    patches : [ApplicationstatusatprovidersynccomparedtosourcekustomizePatchesitem], optional
         Patches is a list of Kustomize patches
-    replicas : [ApplicationstatussynccomparedtosourcekustomizeReplicasitem], optional
+    replicas : [ApplicationstatusatprovidersynccomparedtosourcekustomizeReplicasitem], optional
         Replicas is a list of Kustomize Replicas override specifications
     version : str, optional
         Version controls which version of Kustomize to use for rendering manifests
@@ -5257,13 +4584,13 @@ schema ApplicationstatussynccomparedtosourceKustomize:
     namePrefix? : str
     nameSuffix? : str
     namespace? : str
-    patches? : [ApplicationstatussynccomparedtosourcekustomizePatchesitem]
-    replicas? : [ApplicationstatussynccomparedtosourcekustomizeReplicasitem]
+    patches? : [ApplicationstatusatprovidersynccomparedtosourcekustomizePatchesitem]
+    replicas? : [ApplicationstatusatprovidersynccomparedtosourcekustomizeReplicasitem]
     version? : str
 
-schema ApplicationstatussynccomparedtosourcekustomizePatchesitem:
+schema ApplicationstatusatprovidersynccomparedtosourcekustomizePatchesitem:
     """
-    ApplicationstatussynccomparedtosourcekustomizePatchesitem schema.
+    KustomizePatch is a kustomize patch
 
     Attributes
     ----------
@@ -5273,17 +4600,17 @@ schema ApplicationstatussynccomparedtosourcekustomizePatchesitem:
         No description available.
     path : str, optional
         No description available.
-    target : ApplicationstatussynccomparedtosourcekustomizepatchesitemTarget, optional
-        No description available.
+    target : ApplicationstatusatprovidersynccomparedtosourcekustomizepatchesitemTarget, optional
+        KustomizeSelector is a selector of a Kustomize Patch
     """
     options? : {str:bool}
     patch? : str
     path? : str
-    target? : ApplicationstatussynccomparedtosourcekustomizepatchesitemTarget
+    target? : ApplicationstatusatprovidersynccomparedtosourcekustomizepatchesitemTarget
 
-schema ApplicationstatussynccomparedtosourcekustomizepatchesitemTarget:
+schema ApplicationstatusatprovidersynccomparedtosourcekustomizepatchesitemTarget:
     """
-    ApplicationstatussynccomparedtosourcekustomizepatchesitemTarget schema.
+    KustomizeSelector is a selector of a Kustomize Patch
 
     Attributes
     ----------
@@ -5310,9 +4637,9 @@ schema ApplicationstatussynccomparedtosourcekustomizepatchesitemTarget:
     namespace? : str
     version? : str
 
-schema ApplicationstatussynccomparedtosourcekustomizeReplicasitem:
+schema ApplicationstatusatprovidersynccomparedtosourcekustomizeReplicasitem:
     """
-    ApplicationstatussynccomparedtosourcekustomizeReplicasitem schema.
+    KustomizeReplica override specifications
 
     Attributes
     ----------
@@ -5324,24 +4651,24 @@ schema ApplicationstatussynccomparedtosourcekustomizeReplicasitem:
     count : any
     name : str
 
-schema ApplicationstatussynccomparedtosourcePlugin:
+schema ApplicationstatusatprovidersynccomparedtosourcePlugin:
     """
     Plugin holds config management plugin specific options
 
     Attributes
     ----------
-    env : [ApplicationstatussynccomparedtosourcepluginEnvitem], optional
-        Env is a list of environment variable entries
+    env : [ApplicationstatusatprovidersynccomparedtosourcepluginEnvitem], optional
+        Env holds options specific to config management plugins
     name : str, optional
         No description available.
-    parameters : [ApplicationstatussynccomparedtosourcepluginParametersitem], optional
-        No description available.
+    parameters : [ApplicationstatusatprovidersynccomparedtosourcepluginParametersitem], optional
+        ApplicationSourcePluginParameters is a list of specific config management parameters
     """
-    env? : [ApplicationstatussynccomparedtosourcepluginEnvitem]
+    env? : [ApplicationstatusatprovidersynccomparedtosourcepluginEnvitem]
     name? : str
-    parameters? : [ApplicationstatussynccomparedtosourcepluginParametersitem]
+    parameters? : [ApplicationstatusatprovidersynccomparedtosourcepluginParametersitem]
 
-schema ApplicationstatussynccomparedtosourcepluginEnvitem:
+schema ApplicationstatusatprovidersynccomparedtosourcepluginEnvitem:
     """
     EnvEntry represents an entry in the application's environment
 
@@ -5355,9 +4682,9 @@ schema ApplicationstatussynccomparedtosourcepluginEnvitem:
     name : str
     value : str
 
-schema ApplicationstatussynccomparedtosourcepluginParametersitem:
+schema ApplicationstatusatprovidersynccomparedtosourcepluginParametersitem:
     """
-    ApplicationstatussynccomparedtosourcepluginParametersitem schema.
+    ApplicationSourcePluginParameter holds options specific to config management parameters
 
     Attributes
     ----------
@@ -5375,7 +4702,7 @@ schema ApplicationstatussynccomparedtosourcepluginParametersitem:
     name? : str
     string? : str
 
-schema ApplicationstatussynccomparedtoSourcesitem:
+schema ApplicationstatusatprovidersynccomparedtoSourcesitem:
     """
     ApplicationSource contains all required information about the source of an application
 
@@ -5383,17 +4710,17 @@ schema ApplicationstatussynccomparedtoSourcesitem:
     ----------
     chart : str, optional
         Chart is a Helm chart name, and must be specified for applications sourced from a Helm repo.
-    directory : ApplicationstatussynccomparedtosourcesitemDirectory, optional
+    directory : ApplicationstatusatprovidersynccomparedtosourcesitemDirectory, optional
         Directory holds path/directory specific options
-    helm : ApplicationstatussynccomparedtosourcesitemHelm, optional
+    helm : ApplicationstatusatprovidersynccomparedtosourcesitemHelm, optional
         Helm holds helm specific options
-    kustomize : ApplicationstatussynccomparedtosourcesitemKustomize, optional
+    kustomize : ApplicationstatusatprovidersynccomparedtosourcesitemKustomize, optional
         Kustomize holds kustomize specific options
     name : str, optional
-        Name is used to refer to a source and is displayed in the UI. It is used in multi-source Applications.
+        Name is the name of the application source
     path : str, optional
         Path is a directory path within the Git repository, and is only valid for applications sourced from Git.
-    plugin : ApplicationstatussynccomparedtosourcesitemPlugin, optional
+    plugin : ApplicationstatusatprovidersynccomparedtosourcesitemPlugin, optional
         Plugin holds config management plugin specific options
     ref : str, optional
         Ref is reference to another source within sources field. This field will not be used if used with a `source` tag.
@@ -5405,17 +4732,17 @@ schema ApplicationstatussynccomparedtoSourcesitem:
         In case of Helm, this is a semver tag for the Chart's version.
     """
     chart? : str
-    directory? : ApplicationstatussynccomparedtosourcesitemDirectory
-    helm? : ApplicationstatussynccomparedtosourcesitemHelm
-    kustomize? : ApplicationstatussynccomparedtosourcesitemKustomize
+    directory? : ApplicationstatusatprovidersynccomparedtosourcesitemDirectory
+    helm? : ApplicationstatusatprovidersynccomparedtosourcesitemHelm
+    kustomize? : ApplicationstatusatprovidersynccomparedtosourcesitemKustomize
     name? : str
     path? : str
-    plugin? : ApplicationstatussynccomparedtosourcesitemPlugin
+    plugin? : ApplicationstatusatprovidersynccomparedtosourcesitemPlugin
     ref? : str
     repoURL : str
     targetRevision? : str
 
-schema ApplicationstatussynccomparedtosourcesitemDirectory:
+schema ApplicationstatusatprovidersynccomparedtosourcesitemDirectory:
     """
     Directory holds path/directory specific options
 
@@ -5425,34 +4752,34 @@ schema ApplicationstatussynccomparedtosourcesitemDirectory:
         Exclude contains a glob pattern to match paths against that should be explicitly excluded from being used during manifest generation
     include : str, optional
         Include contains a glob pattern to match paths against that should be explicitly included during manifest generation
-    jsonnet : ApplicationstatussynccomparedtosourcesitemdirectoryJsonnet, optional
+    jsonnet : ApplicationstatusatprovidersynccomparedtosourcesitemdirectoryJsonnet, optional
         Jsonnet holds options specific to Jsonnet
     recurse : bool, optional
         Recurse specifies whether to scan a directory recursively for manifests
     """
     exclude? : str
     include? : str
-    jsonnet? : ApplicationstatussynccomparedtosourcesitemdirectoryJsonnet
+    jsonnet? : ApplicationstatusatprovidersynccomparedtosourcesitemdirectoryJsonnet
     recurse? : bool
 
-schema ApplicationstatussynccomparedtosourcesitemdirectoryJsonnet:
+schema ApplicationstatusatprovidersynccomparedtosourcesitemdirectoryJsonnet:
     """
     Jsonnet holds options specific to Jsonnet
 
     Attributes
     ----------
-    extVars : [ApplicationstatussynccomparedtosourcesitemdirectoryjsonnetExtvarsitem], optional
+    extVars : [ApplicationstatusatprovidersynccomparedtosourcesitemdirectoryjsonnetExtvarsitem], optional
         ExtVars is a list of Jsonnet External Variables
     libs : [str], optional
         Additional library search dirs
-    tlas : [ApplicationstatussynccomparedtosourcesitemdirectoryjsonnetTlasitem], optional
+    tlas : [ApplicationstatusatprovidersynccomparedtosourcesitemdirectoryjsonnetTlasitem], optional
         TLAS is a list of Jsonnet Top-level Arguments
     """
-    extVars? : [ApplicationstatussynccomparedtosourcesitemdirectoryjsonnetExtvarsitem]
+    extVars? : [ApplicationstatusatprovidersynccomparedtosourcesitemdirectoryjsonnetExtvarsitem]
     libs? : [str]
-    tlas? : [ApplicationstatussynccomparedtosourcesitemdirectoryjsonnetTlasitem]
+    tlas? : [ApplicationstatusatprovidersynccomparedtosourcesitemdirectoryjsonnetTlasitem]
 
-schema ApplicationstatussynccomparedtosourcesitemdirectoryjsonnetExtvarsitem:
+schema ApplicationstatusatprovidersynccomparedtosourcesitemdirectoryjsonnetExtvarsitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -5469,7 +4796,7 @@ schema ApplicationstatussynccomparedtosourcesitemdirectoryjsonnetExtvarsitem:
     name : str
     value : str
 
-schema ApplicationstatussynccomparedtosourcesitemdirectoryjsonnetTlasitem:
+schema ApplicationstatusatprovidersynccomparedtosourcesitemdirectoryjsonnetTlasitem:
     """
     JsonnetVar represents a variable to be passed to jsonnet during manifest generation
 
@@ -5486,7 +4813,7 @@ schema ApplicationstatussynccomparedtosourcesitemdirectoryjsonnetTlasitem:
     name : str
     value : str
 
-schema ApplicationstatussynccomparedtosourcesitemHelm:
+schema ApplicationstatusatprovidersynccomparedtosourcesitemHelm:
     """
     Helm holds helm specific options
 
@@ -5495,7 +4822,7 @@ schema ApplicationstatussynccomparedtosourcesitemHelm:
     apiVersions : [str], optional
         APIVersions specifies the Kubernetes resource API versions to pass to Helm when templating manifests. By default,
         Argo CD uses the API versions of the target cluster. The format is [group/]version/kind.
-    fileParameters : [ApplicationstatussynccomparedtosourcesitemhelmFileparametersitem], optional
+    fileParameters : [ApplicationstatusatprovidersynccomparedtosourcesitemhelmFileparametersitem], optional
         FileParameters are file parameters to the helm template
     ignoreMissingValueFiles : bool, optional
         IgnoreMissingValueFiles prevents helm template from failing when valueFiles do not exist locally by not appending them to helm template --values
@@ -5504,7 +4831,7 @@ schema ApplicationstatussynccomparedtosourcesitemHelm:
         uses the Kubernetes version of the target cluster.
     namespace : str, optional
         Namespace is an optional namespace to template with. If left empty, defaults to the app's destination namespace.
-    parameters : [ApplicationstatussynccomparedtosourcesitemhelmParametersitem], optional
+    parameters : [ApplicationstatusatprovidersynccomparedtosourcesitemhelmParametersitem], optional
         Parameters is a list of Helm parameters which are passed to the helm template command upon manifest generation
     passCredentials : bool, optional
         PassCredentials pass credentials to all domains (Helm's --pass-credentials)
@@ -5526,11 +4853,11 @@ schema ApplicationstatussynccomparedtosourcesitemHelm:
         Version is the Helm version to use for templating ("3")
     """
     apiVersions? : [str]
-    fileParameters? : [ApplicationstatussynccomparedtosourcesitemhelmFileparametersitem]
+    fileParameters? : [ApplicationstatusatprovidersynccomparedtosourcesitemhelmFileparametersitem]
     ignoreMissingValueFiles? : bool
     kubeVersion? : str
     namespace? : str
-    parameters? : [ApplicationstatussynccomparedtosourcesitemhelmParametersitem]
+    parameters? : [ApplicationstatusatprovidersynccomparedtosourcesitemhelmParametersitem]
     passCredentials? : bool
     releaseName? : str
     skipCrds? : bool
@@ -5541,7 +4868,7 @@ schema ApplicationstatussynccomparedtosourcesitemHelm:
     valuesObject? : any
     version? : str
 
-schema ApplicationstatussynccomparedtosourcesitemhelmFileparametersitem:
+schema ApplicationstatusatprovidersynccomparedtosourcesitemhelmFileparametersitem:
     """
     HelmFileParameter is a file parameter that's passed to helm template during manifest generation
 
@@ -5555,7 +4882,7 @@ schema ApplicationstatussynccomparedtosourcesitemhelmFileparametersitem:
     name? : str
     path? : str
 
-schema ApplicationstatussynccomparedtosourcesitemhelmParametersitem:
+schema ApplicationstatusatprovidersynccomparedtosourcesitemhelmParametersitem:
     """
     HelmParameter is a parameter that's passed to helm template during manifest generation
 
@@ -5572,7 +4899,7 @@ schema ApplicationstatussynccomparedtosourcesitemhelmParametersitem:
     name? : str
     value? : str
 
-schema ApplicationstatussynccomparedtosourcesitemKustomize:
+schema ApplicationstatusatprovidersynccomparedtosourcesitemKustomize:
     """
     Kustomize holds kustomize specific options
 
@@ -5610,9 +4937,9 @@ schema ApplicationstatussynccomparedtosourcesitemKustomize:
         NameSuffix is a suffix appended to resources for Kustomize apps
     namespace : str, optional
         Namespace sets the namespace that Kustomize adds to all resources
-    patches : [ApplicationstatussynccomparedtosourcesitemkustomizePatchesitem], optional
+    patches : [ApplicationstatusatprovidersynccomparedtosourcesitemkustomizePatchesitem], optional
         Patches is a list of Kustomize patches
-    replicas : [ApplicationstatussynccomparedtosourcesitemkustomizeReplicasitem], optional
+    replicas : [ApplicationstatusatprovidersynccomparedtosourcesitemkustomizeReplicasitem], optional
         Replicas is a list of Kustomize Replicas override specifications
     version : str, optional
         Version controls which version of Kustomize to use for rendering manifests
@@ -5632,13 +4959,13 @@ schema ApplicationstatussynccomparedtosourcesitemKustomize:
     namePrefix? : str
     nameSuffix? : str
     namespace? : str
-    patches? : [ApplicationstatussynccomparedtosourcesitemkustomizePatchesitem]
-    replicas? : [ApplicationstatussynccomparedtosourcesitemkustomizeReplicasitem]
+    patches? : [ApplicationstatusatprovidersynccomparedtosourcesitemkustomizePatchesitem]
+    replicas? : [ApplicationstatusatprovidersynccomparedtosourcesitemkustomizeReplicasitem]
     version? : str
 
-schema ApplicationstatussynccomparedtosourcesitemkustomizePatchesitem:
+schema ApplicationstatusatprovidersynccomparedtosourcesitemkustomizePatchesitem:
     """
-    ApplicationstatussynccomparedtosourcesitemkustomizePatchesitem schema.
+    KustomizePatch is a kustomize patch
 
     Attributes
     ----------
@@ -5648,17 +4975,17 @@ schema ApplicationstatussynccomparedtosourcesitemkustomizePatchesitem:
         No description available.
     path : str, optional
         No description available.
-    target : ApplicationstatussynccomparedtosourcesitemkustomizepatchesitemTarget, optional
-        No description available.
+    target : ApplicationstatusatprovidersynccomparedtosourcesitemkustomizepatchesitemTarget, optional
+        KustomizeSelector is a selector of a Kustomize Patch
     """
     options? : {str:bool}
     patch? : str
     path? : str
-    target? : ApplicationstatussynccomparedtosourcesitemkustomizepatchesitemTarget
+    target? : ApplicationstatusatprovidersynccomparedtosourcesitemkustomizepatchesitemTarget
 
-schema ApplicationstatussynccomparedtosourcesitemkustomizepatchesitemTarget:
+schema ApplicationstatusatprovidersynccomparedtosourcesitemkustomizepatchesitemTarget:
     """
-    ApplicationstatussynccomparedtosourcesitemkustomizepatchesitemTarget schema.
+    KustomizeSelector is a selector of a Kustomize Patch
 
     Attributes
     ----------
@@ -5685,9 +5012,9 @@ schema ApplicationstatussynccomparedtosourcesitemkustomizepatchesitemTarget:
     namespace? : str
     version? : str
 
-schema ApplicationstatussynccomparedtosourcesitemkustomizeReplicasitem:
+schema ApplicationstatusatprovidersynccomparedtosourcesitemkustomizeReplicasitem:
     """
-    ApplicationstatussynccomparedtosourcesitemkustomizeReplicasitem schema.
+    KustomizeReplica override specifications
 
     Attributes
     ----------
@@ -5699,24 +5026,24 @@ schema ApplicationstatussynccomparedtosourcesitemkustomizeReplicasitem:
     count : any
     name : str
 
-schema ApplicationstatussynccomparedtosourcesitemPlugin:
+schema ApplicationstatusatprovidersynccomparedtosourcesitemPlugin:
     """
     Plugin holds config management plugin specific options
 
     Attributes
     ----------
-    env : [ApplicationstatussynccomparedtosourcesitempluginEnvitem], optional
-        Env is a list of environment variable entries
+    env : [ApplicationstatusatprovidersynccomparedtosourcesitempluginEnvitem], optional
+        Env holds options specific to config management plugins
     name : str, optional
         No description available.
-    parameters : [ApplicationstatussynccomparedtosourcesitempluginParametersitem], optional
-        No description available.
+    parameters : [ApplicationstatusatprovidersynccomparedtosourcesitempluginParametersitem], optional
+        ApplicationSourcePluginParameters is a list of specific config management parameters
     """
-    env? : [ApplicationstatussynccomparedtosourcesitempluginEnvitem]
+    env? : [ApplicationstatusatprovidersynccomparedtosourcesitempluginEnvitem]
     name? : str
-    parameters? : [ApplicationstatussynccomparedtosourcesitempluginParametersitem]
+    parameters? : [ApplicationstatusatprovidersynccomparedtosourcesitempluginParametersitem]
 
-schema ApplicationstatussynccomparedtosourcesitempluginEnvitem:
+schema ApplicationstatusatprovidersynccomparedtosourcesitempluginEnvitem:
     """
     EnvEntry represents an entry in the application's environment
 
@@ -5730,9 +5057,9 @@ schema ApplicationstatussynccomparedtosourcesitempluginEnvitem:
     name : str
     value : str
 
-schema ApplicationstatussynccomparedtosourcesitempluginParametersitem:
+schema ApplicationstatusatprovidersynccomparedtosourcesitempluginParametersitem:
     """
-    ApplicationstatussynccomparedtosourcesitempluginParametersitem schema.
+    ApplicationSourcePluginParameter holds options specific to config management parameters
 
     Attributes
     ----------
@@ -5749,3 +5076,34 @@ schema ApplicationstatussynccomparedtosourcesitempluginParametersitem:
     map? : {str:str}
     name? : str
     string? : str
+
+schema ApplicationstatusConditionsitem:
+    """
+    A Condition that may apply to a resource.
+
+    Attributes
+    ----------
+    lastTransitionTime : str, required
+        LastTransitionTime is the last time this condition transitioned from one
+        status to another.
+    message : str, optional
+        A Message containing details about this condition's last transition from
+        one status to another, if any.
+    observedGeneration : int, optional
+        ObservedGeneration represents the .metadata.generation that the condition was set based upon.
+        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+        with respect to the current state of the instance.
+    reason : str, required
+        A Reason for this condition's last transition from one status to another.
+    status : str, required
+        Status of this condition; is it currently True, False, or Unknown?
+    type : str, required
+        Type of this condition. At most one of each condition type may apply to
+        a resource at any point in time.
+    """
+    lastTransitionTime : str
+    message? : str
+    observedGeneration? : int
+    reason : str
+    status : str
+    type : str

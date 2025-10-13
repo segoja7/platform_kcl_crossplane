@@ -2,14 +2,14 @@ import ..schemas as argo
 
 _argo_app_keycloak_resource = argo.ApplicationBlueprint {
     _name = "kcl-keycloak"
-    _namespace = "keycloak" #TODO: Finalizers
+    _namespace = "argocd"
     _destination = {
         server = "https://kubernetes.default.svc"
-        namespace = "default"
+        namespace = "keycloak"
     }
     _project = "default"
     _source = {
-        path = "xargoapps/gitops_manifests/workloads/keycloak"
+        path = "xargoapps/gitops_manifests/workloads/dev/keycloak"
         repoURL = "https://github.com/segoja7/platform_as_data"
         targetRevision = "HEAD"
         plugin = {

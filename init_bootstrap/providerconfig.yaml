@@ -9,18 +9,23 @@ spec:
       namespace: crossplane-system
       name: aws-secret
       key: creds
----
-apiVersion: argocd.crossplane.io/v1alpha1
-kind: ProviderConfig
-metadata:
-  name: argocd-provider
-spec:
-  credentials:
-    secretRef:
-      key: Data
-      name: eks-cluster-xcluster-example-segoja7 #remote cluster (xcluster composition)
-      namespace: default
-    source: Secret
+# ---
+# The following ArgoCD ProviderConfig is dynamically managed by the
+# ./init_bootstrap/create-argocd-token-secret.sh script.
+# ---
+# apiVersion: argocd.crossplane.io/v1alpha1
+# kind: ProviderConfig
+# metadata:
+#   name: argocd-provider
+# spec:
+#   serverAddr: argocd-server.argocd.svc:443 # This is a placeholder and will be overridden by the Cluster resource if it connects to a remote ArgoCD. For local, it's fine.
+#   insecure: true
+#   credentials:
+#     source: Secret
+#     secretRef:
+#       namespace: crossplane-system
+#       name: argocd-credentials # The secret created by our script
+#       key: authToken
 
 
 #kubectl create secret generic aws-secret   --namespace=crossplane-system   --from-file=creds=<>
