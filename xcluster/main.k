@@ -693,6 +693,64 @@ if cert_manager_release == "True":
     _cert_manager_resources = [_certificate_resource, _clusterissuer_resource]
 
 
+_argo_sa_names = ["argocd-application-controller", "argocd-server"]
+_argo_sa_subjects = ["system:serviceaccount:argocd:${s}" for s in _argo_sa_names]
+_argocd_hub_role_resource = role.RoleBlueprint {
+    _name = "role-eks-cluster-hub-argo-${_id}"
+    _labels = _labels | {
+        "argocd-hub": _id
+    }
+    _providerConfig = _providerConfig
+    _assumeRolePolicyDocument = json.encode({
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow",
+        "Principal": {
+            "Federated": "arn:aws:iam::${_accountId}:oidc-provider/${_issuer_url}"
+        },
+        "Action": "sts:AssumeRoleWithWebIdentity",
+        "Condition": {
+            "StringEquals": {
+                "${_issuer_url}:sub": _argo_sa_subjects,
+                "${_issuer_url}:aud": "sts.amazonaws.com"
+            }
+        }
+    }] 
+})
+    _description = "Role for ArgoCD on the Hub cluster to manage Spokes"
+    _tags = _tags | {
+        Name = _name
+    }
+}
+
+_argocd_hub_policy_document = json.encode({
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow",
+        "Action": "sts:AssumeRole",
+        "Resource": "*"
+    }]
+})
+
+_argocd_hub_policy_resource = policy.PolicyBlueprint {
+    _name = "policy-hub-argocd-${_id}"
+    _labels = _labels
+    _providerConfig = _providerConfig
+    _description = "Policy that allows the ArgoCD Hub role to assume Spoke roles."
+    _document = _argocd_hub_policy_document
+    _tags = _tags | { 
+        Name = _name 
+    }
+}
+
+
+_argocd_hub_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
+    _name = "policy-attachment-hub-argocd-${_id}"
+    _labels = _labels
+    _providerConfig = _providerConfig
+    _roleName = _argocd_hub_role_resource._name 
+    _policyArn = "arn:aws:iam::${_accountId}:policy/${_argocd_hub_policy_resource._name}"
+}
 
 items = [
     extraResourcesRequest,
@@ -706,4 +764,8 @@ items = [
     _providerconfig_kubernetes_resource,
     _object_argocd_ingress,
     _object_argo_cm_resource
-] + _oidc_resources + _helm_addon_resources + _cert_manager_resources
+] + _oidc_resources + _helm_addon_resources + _cert_manager_resources + [
+    _argocd_hub_policy_resource, 
+    _argocd_hub_policy_attachment_resource,
+    _argocd_hub_role_resource
+]
