@@ -186,6 +186,10 @@ spec:
                 type: string
                 description: Name of the Kubernetes secret for SSL certificates
                 default: ssl-cert-default
+              enableArgo:
+                type: bool
+                description: Enable ArgoCD.
+                default: false
               clusterTopology:
                 type: object
                 properties:
@@ -197,14 +201,14 @@ spec:
                     type: string    
                     description: "ID of the Hub cluster claim. Required only when the type is 'Spoke'."        
                 required: [typeCluster]
-                oneOf:
-                  - properties:
-                    typeCluster:
-                      enum: ["Hub", "Standalone"]  
-                  - properties:
-                    typeCluster:
-                      enum: ["Spoke"]
-                    required: [hubId]
+                allOf:
+                  - if:
+                      properties:
+                        typeCluster:
+                          const: "Spoke"
+                    then:
+                      required:
+                        - hubId
             required: ["id", "region", "accountId", "networkId", "hostedZoneID", "domainNames", "certificateSecretName"]
 
 
