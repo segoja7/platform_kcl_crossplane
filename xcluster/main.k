@@ -1,4 +1,5 @@
 import json
+import base64
 import schemas.role as role
 import schemas.rolePolicyAttachment as rolePolicyAttachment
 import schemas.kmsKey as kmsKey
@@ -38,6 +39,7 @@ _helmAddonsConfig = oxr.spec.helmAddonsConfig or []
 _domainNames = oxr.spec.domainNames
 _certificateSecretName = oxr.spec.certificateSecretName 
 _hostedZoneID = oxr.spec.hostedZoneID or "hosted_zone_id_not_set"
+_clusterTopology = oxr.spec.clusterTopology
 
 _cluster_assume_role_policy = json.encode({
     "Version": "2012-10-17",
@@ -308,6 +310,7 @@ _providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
     }
 }
 
+
 _release_helm_resource = release.ReleaseBlueprint {
     _name = "argocd"
     _labels = _labels
@@ -515,7 +518,14 @@ extraResourcesRequest = {
             "matchLabels": {
                 "claim-name": _networkId
             }
-        }
+        },
+        "roles": {
+            "apiVersion": "iam.aws.crossplane.io/v1beta1",
+            "kind": "Role",
+            "matchLabels": {
+                "argocd-hub": _clusterTopology.hubId
+            }
+        }        
     }
 }
 
@@ -692,65 +702,150 @@ if cert_manager_release == "True":
     }
     _cert_manager_resources = [_certificate_resource, _clusterissuer_resource]
 
-
-_argo_sa_names = ["argocd-application-controller", "argocd-server"]
-_argo_sa_subjects = ["system:serviceaccount:argocd:${s}" for s in _argo_sa_names]
-_argocd_hub_role_resource = role.RoleBlueprint {
-    _name = "role-eks-cluster-hub-argo-${_id}"
-    _labels = _labels | {
-        "argocd-hub": _id
+_hub_resources = []
+_spoke_resources = []
+if _clusterTopology.typeCluster == "Hub":
+    _argo_sa_names = ["argocd-application-controller", "argocd-server"]
+    _argo_sa_subjects = ["system:serviceaccount:argocd:${s}" for s in _argo_sa_names]
+    _argocd_hub_role_resource = role.RoleBlueprint {
+        _name = "role-eks-cluster-hub-argo-${_id}"
+        _labels = _labels | {
+            "argocd-hub": _id
+        }
+        _providerConfig = _providerConfig
+        _assumeRolePolicyDocument = json.encode({
+        "Version": "2012-10-17",
+        "Statement": [{
+            "Effect": "Allow",
+            "Principal": {
+                "Federated": "arn:aws:iam::${_accountId}:oidc-provider/${_issuer_url}"
+            },
+            "Action": "sts:AssumeRoleWithWebIdentity",
+            "Condition": {
+                "StringEquals": {
+                    "${_issuer_url}:sub": _argo_sa_subjects,
+                    "${_issuer_url}:aud": "sts.amazonaws.com"
+                }
+            }
+        }] 
+    })
+        _description = "Role for ArgoCD on the Hub cluster to manage Spokes"
+        _tags = _tags | {
+            Name = _name
+        }
     }
-    _providerConfig = _providerConfig
-    _assumeRolePolicyDocument = json.encode({
-    "Version": "2012-10-17",
-    "Statement": [{
-        "Effect": "Allow",
-        "Principal": {
-            "Federated": "arn:aws:iam::${_accountId}:oidc-provider/${_issuer_url}"
+
+    _argocd_hub_policy_document = json.encode({
+        "Version": "2012-10-17",
+        "Statement": [{
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "*"
+        }]
+    })
+
+    _argocd_hub_policy_resource = policy.PolicyBlueprint {
+        _name = "policy-hub-argocd-${_id}"
+        _labels = _labels
+        _providerConfig = _providerConfig
+        _description = "Policy that allows the ArgoCD Hub role to assume Spoke roles."
+        _document = _argocd_hub_policy_document
+        _tags = _tags | { 
+            Name = _name 
+        }
+    }
+
+
+    _argocd_hub_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
+        _name = "policy-attachment-hub-argocd-${_id}"
+        _labels = _labels
+        _providerConfig = _providerConfig
+        _roleName = _argocd_hub_role_resource._name 
+        _policyArn = "arn:aws:iam::${_accountId}:policy/${_argocd_hub_policy_resource._name}"
+    }
+    _hub_resources = [ _argocd_hub_policy_resource, _argocd_hub_policy_attachment_resource, _argocd_hub_role_resource]
+
+elif _clusterTopology.typeCluster == "Spoke":
+   _hub_role_arn = ""
+   if er?.roles and len(er.roles) > 0:
+       _hub_role_arn = er.roles[0]?.Resource?.status?.atProvider?.arn or ""
+
+    _argocd_spoke_role_resource = role.RoleBlueprint {
+        _name = "role-eks-cluster-spoke-argo-${_id}"
+        _labels = _labels | {
+            "argocd-spoke": _id
+        }
+        _providerConfig = _providerConfig
+        _assumeRolePolicyDocument = json.encode({
+        "Version": "2012-10-17",
+        "Statement": [{
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": _hub_role_arn
+            },
+            "Action": "sts:AssumeRole",
+        }] 
+    })
+        _description = "Role for ArgoCD on the Hub cluster to manage Spokes"
+        _tags = _tags | {
+            Name = _name
+        }
+    }
+    # _argocd_spoke_policy_document = json.encode({
+    #     "Version": "2012-10-17",
+    #     "Statement": [{
+    #         "Effect": "Allow",
+    #         "Action": "sts:AssumeRole",
+    #         "Resource": "*"
+    #     }]
+    # })
+
+    _argocd_spoke_policy_attachment_resource = [rolePolicyAttachment.RolepolicyattachmentBlueprint {
+        _name = "spoke-argocd-policy-${s.name}-${_id}".lower()
+        _labels = _labels
+        _providerConfig = _providerConfig
+        _roleName = _argocd_spoke_role_resource._name
+        _policyArn = s.arn
+    } for s in [
+        {name = "AmazonEKSClusterPolicy", arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"}, 
+    ]]
+
+    _spoke_server_url = ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.endpoint or ""
+    _spoke_ca_data = ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.certificateAuthority?.data or ""
+    _spoke_role_arn = ocds?[_argocd_spoke_role_resource._name]?.Resource?.status?.atProvider?.arn or ""
+
+    _spoke_config_json = {
+        "tlsClientConfig": {
+            "insecure": False,
+            "caData": _spoke_ca_data 
         },
-        "Action": "sts:AssumeRoleWithWebIdentity",
-        "Condition": {
-            "StringEquals": {
-                "${_issuer_url}:sub": _argo_sa_subjects,
-                "${_issuer_url}:aud": "sts.amazonaws.com"
+        "awsAuthConfig": {
+            "clusterName": _eks_cluster_resource._name,
+            "roleARN": _spoke_role_arn
+        }
+    }
+    _argocd_spoke_secret_resource = object.ObjectBlueprint {
+        _name = "spoke-argocd-credentials-${_id}"
+        _manifest = {
+            apiVersion = "v1"
+            kind = "Secret"
+            metadata = {
+                name = _name
+                namespace = "argocd"
+                labels = {
+                    "argocd.argoproj.io/secret-type": "cluster"
+                }
+            }
+            type = "Opaque"
+            data = {
+                "name": base64.encode(_id),
+                "server": base64.encode(_spoke_server_url),
+                "config": base64.encode(json.encode(_spoke_config_json))
             }
         }
-    }] 
-})
-    _description = "Role for ArgoCD on the Hub cluster to manage Spokes"
-    _tags = _tags | {
-        Name = _name
-    }
-}
-
-_argocd_hub_policy_document = json.encode({
-    "Version": "2012-10-17",
-    "Statement": [{
-        "Effect": "Allow",
-        "Action": "sts:AssumeRole",
-        "Resource": "*"
-    }]
-})
-
-_argocd_hub_policy_resource = policy.PolicyBlueprint {
-    _name = "policy-hub-argocd-${_id}"
-    _labels = _labels
-    _providerConfig = _providerConfig
-    _description = "Policy that allows the ArgoCD Hub role to assume Spoke roles."
-    _document = _argocd_hub_policy_document
-    _tags = _tags | { 
-        Name = _name 
-    }
-}
-
-
-_argocd_hub_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
-    _name = "policy-attachment-hub-argocd-${_id}"
-    _labels = _labels
-    _providerConfig = _providerConfig
-    _roleName = _argocd_hub_role_resource._name 
-    _policyArn = "arn:aws:iam::${_accountId}:policy/${_argocd_hub_policy_resource._name}"
-}
+        _providerConfig = "provider-kubernetes-${_clusterTopology.hubId}"
+    }    
+    _spoke_resources = [ _argocd_spoke_role_resource ] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource]  
 
 items = [
     extraResourcesRequest,
@@ -764,8 +859,4 @@ items = [
     _providerconfig_kubernetes_resource,
     _object_argocd_ingress,
     _object_argo_cm_resource
-] + _oidc_resources + _helm_addon_resources + _cert_manager_resources + [
-    _argocd_hub_policy_resource, 
-    _argocd_hub_policy_attachment_resource,
-    _argocd_hub_role_resource
-]
+] + _oidc_resources + _helm_addon_resources + _cert_manager_resources + _hub_resources + _spoke_resources

@@ -186,11 +186,25 @@ spec:
                 type: string
                 description: Name of the Kubernetes secret for SSL certificates
                 default: ssl-cert-default
+              clusterTopology:
+                type: object
+                properties:
+                  typeCluster:
+                    type: string
+                    description: "The role of the cluster. Don't create a spoke cluster if before you don't create a hub cluster"
+                    enum: ["Hub", "Spoke", "Standalone"]
+                  hubId:
+                    type: string    
+                    description: "ID of the Hub cluster claim. Required only when the type is 'Spoke'."        
+                required: [typeCluster]
+                oneOf:
+                  - properties:
+                    typeCluster:
+                      enum: ["Hub", "Standalone"]  
+                  - properties:
+                    typeCluster:
+                      enum: ["Spoke"]
+                    required: [hubId]
             required: ["id", "region", "accountId", "networkId", "hostedZoneID", "domainNames", "certificateSecretName"]
-          # status:
-          #   type: object
-          #   properties:
-          #     oidcIssuerUrl:
-          #       type: string
-          #       description: "The OIDC issuer URL of the EKS cluster."
+
 
