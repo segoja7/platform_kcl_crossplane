@@ -8,7 +8,7 @@ import schemas.eksCluster as eksCluster
 import schemas.eksNodeGroup as eksNodegroup
 import schemas.eksAddon as eksAddon
 import schemas.providerConfigHelm as providerConfigHelm
-import schemas.securityGroupRule as securityGroupRule
+#import schemas.securityGroupRule as securityGroupRule
 import schemas.release as release
 import schemas.providerConfigKubernetes as providerConfigKubernetes
 import schemas.object as object
@@ -859,26 +859,25 @@ elif _clusterTopology.typeCluster == "Spoke":
             }
             _providerConfig = "provider-kubernetes-${_clusterTopology.hubId}"
         }
-        
-        # Get hub security group ID from extraResources
-        _hub_securityGroupId = ""
-        if er?.clusters and len(er.clusters) > 0:
-            _hub_securityGroupId = er.clusters[0]?.Resource?.status?.atProvider?.resourcesVpcConfig?.clusterSecurityGroupId or ""
+        # _spoke_securityGroupId = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.resourcesVpcConfig?.clusterSecurityGroupId or "10.0.0.0/8"
+        # _hub_securityGroupId = ""
+        # if er?.clusters and len(er.clusters) > 0:
+        #     _hub_securityGroupId = er.clusters[0]?.Resource?.status?.atProvider?.resourcesVpcConfig?.clusterSecurityGroupId or ""
 
-        _spoke_sg_rule = securityGroupRule.SecuritygroupruleBlueprint {
-            _name = "spoke-sg-rule-${_id}"
-            _labels = _labels
-            _providerConfig = _providerConfig
-            _type = "ingress"
-            _fromPort = 443
-            _toPort = 443
-            _protocol = "tcp"
-            _cidrBlock = "10.0.0.0/8"
-            _region = _region
-            _sourceSecurityGroupId = _hub_securityGroupId
-        }
+        # _spoke_sg_rule = securityGroupRule.SecuritygroupruleBlueprint {
+        #     _name = "spoke-sg-rule-${_id}"
+        #     _labels = _labels
+        #     _providerConfig = _providerConfig
+        #     _type = "ingress"
+        #     _fromPort = 443
+        #     _toPort = 443
+        #     _protocol = "tcp"
+        #     # _cidrBlock = "10.0.0.0/8"
+        #     _region = _region
+        #     _sourceSecurityGroupId = _hub_securityGroupId
+        # }
         
-        _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource, _spoke_sg_rule]
+        _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource]#, _spoke_sg_rule]
 
 
 items = [
