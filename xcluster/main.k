@@ -538,7 +538,7 @@ extraResourcesRequest = {
             }
         }
         "clusters": {
-            "apiVersion": "eks.aws.crossplane.io"
+            "apiVersion": "eks.aws.crossplane.io/v1beta1"
             "kind": "Cluster"
             "matchLabels": {
                 "argocd-hub": _clusterTopology.hubId
