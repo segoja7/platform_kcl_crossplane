@@ -757,6 +757,7 @@ if _clusterTopology.typeCluster == "Hub":
         _policyArn = "arn:aws:iam::${_accountId}:policy/${_argocd_hub_policy_resource._name}"
     }
     _hub_resources = [_argocd_hub_policy_resource, _argocd_hub_policy_attachment_resource, _argocd_hub_role_resource]
+    
 elif _clusterTopology.typeCluster == "Spoke":
     _hub_role_arn = ""
     if er?.roles and len(er.roles) > 0:
