@@ -310,7 +310,7 @@ if len(_enabledInterfaceEndpoints) > 0:
             _serviceName = "com.amazonaws.${_region}.${service}"
             _privateDNSEnabled = True
             _subnetIdRefs = [
-                { name = subnet._name } for subnet in _subnet_resource if subnet._labels["subnet.type"] != "public"
+                { name = subnet._name } for subnet in _subnet_resource if subnet._labels["subnet.type"] != "public" or != "database"
             ]
             _securityGroupIdRefs = [{ name = _sg_for_interface_endpoints._name }]
         }
