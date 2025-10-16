@@ -477,26 +477,26 @@ if _enableArgo == True:
             }
             data = {
                 "plugin.yaml": """apiVersion: argoproj.io/v1alpha1
-    kind: ConfigManagementPlugin
-    metadata:
-    name: kcl
-    spec:
-    version: v1.0
-    generate:
-        command: ["sh", "-c"]
-        args:
-        - |
-            export KCL_CACHE_PATH=/tmp
-            export KCL_PKG_PATH=/tmp
-            tempfile=$(mktemp)
-            kcl run -q -o $tempfile > /dev/null 2>&1
-            error=$?
-            if [ $error -eq 0 ]; then
-            cat $tempfile
-            rm $tempfile
-            fi
-            exit $error
-    """
+kind: ConfigManagementPlugin
+metadata:
+  name: kcl
+spec:
+  version: v1.0
+  generate:
+    command: ["sh", "-c"]
+    args:
+    - |
+      export KCL_CACHE_PATH=/tmp
+      export KCL_PKG_PATH=/tmp
+      tempfile=$(mktemp)
+      kcl run -q -o $tempfile > /dev/null 2>&1
+      error=$?
+      if [ $error -eq 0 ]; then
+        cat $tempfile
+        rm $tempfile
+      fi
+      exit $error
+"""
             }
         }
         _providerConfig = _providerconfig_kubernetes_resource._name

@@ -209,6 +209,10 @@ spec:
                     then:
                       required:
                         - hubId
+                    else:
+                      properties:
+                        hubId:
+                          not: {}
             required: ["id", "region", "accountId", "networkId", "hostedZoneID", "domainNames", "certificateSecretName"]
 
 
