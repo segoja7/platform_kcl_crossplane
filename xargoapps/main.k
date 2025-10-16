@@ -30,11 +30,7 @@ _argo_cluster_resource = argo.ClusterBlueprint {
     _name = "hub-cluster-${_id}"
     _providerConfig = _providerConfig
     _config = {
-        kubeconfigSecretRef = {
-            name = _kubeconfigSecret.name #"eks-cluster-xcluster-example-segoja7"
-            namespace = _kubeconfigSecret.namespace #"default"
-            key = _kubeconfigSecret.keyKubeconfig #"kubeconfig"
-        }
+        
     }
     _clusterName = _name
 }

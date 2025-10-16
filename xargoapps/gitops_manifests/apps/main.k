@@ -8,7 +8,7 @@ argo.ApplicationBlueprint {
             "resources-finalizer.argocd.argoproj.io"
     ] 
     _destination = {
-        name = "hub-cluster-xargoapp-example-segoja7"
+        name = "spoke1"
         namespace = "keycloak"
     }
     _project = "default"
