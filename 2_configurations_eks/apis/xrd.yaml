@@ -187,7 +187,7 @@ spec:
                 description: Name of the Kubernetes secret for SSL certificates
                 default: ssl-cert-default
               enableArgo:
-                type: bool
+                type: boolean
                 description: Enable ArgoCD.
                 default: false
               clusterTopology:
