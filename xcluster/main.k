@@ -339,6 +339,23 @@ if _enableArgo == True:
             "global": {
                 "domain": "argo.segoja7.com"
             }
+            "controller": {
+                "serviceAccount": {
+                    "annotations": {
+                        "eks.amazonaws.com/role-arn": "arn:aws:iam::${_accountId}:role/${_argocd_hub_role_resource._name}"
+                    }
+                }
+            }
+            "server": {
+                "serviceAccount": {
+                    "annotations": {
+                        "eks.amazonaws.com/role-arn": "arn:aws:iam::${_accountId}:role/${_argocd_hub_role_resource._name}"
+                    }
+                }
+                "ingress": {
+                    "enabled": False
+                }
+            }
             "configs": {
                 "params": {
                     "server.insecure": True
@@ -349,11 +366,6 @@ if _enableArgo == True:
                 # "rbac": {
                 #     "policy.csv": "g, provider-argocd, role:admin"
                 # }
-            }
-            "server": {
-                "ingress": {
-                    "enabled": False
-                }
             }
             "repoServer": {
                 "volumes": [
