@@ -852,9 +852,9 @@ elif _clusterTopology.typeCluster == "Spoke":
                 }
                 type = "Opaque"
                 data = {
-                    "name": _id
-                    "server": _spoke_server_url
-                    "config": json.encode(_spoke_config_json)
+                    "name": base64.encode(_id)
+                    "server": base64.encode(_spoke_server_url)
+                    "config": base64.encode(json.encode(_spoke_config_json))
                 }
             }
             _providerConfig = "provider-kubernetes-${_clusterTopology.hubId}"
