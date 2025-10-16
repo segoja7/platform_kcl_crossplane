@@ -796,9 +796,9 @@ elif _clusterTopology.typeCluster == "Spoke":
             {name = "AmazonEKSClusterPolicy", arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"}
         ]]
 
-        _spoke_server_url = ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.endpoint or ""
-        _spoke_ca_data = ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.certificateAuthority?.data or ""
-        _spoke_role_arn = ocds?[_argocd_spoke_role_resource._name]?.Resource?.status?.atProvider?.arn or ""
+        _spoke_server_url = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.endpoint or ""
+        _spoke_ca_data = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.certificateAuthority?.data or ""
+        _spoke_role_arn = _ocds?[_argocd_spoke_role_resource._name]?.Resource?.status?.atProvider?.arn or ""
 
         _spoke_config_json = {
             "tlsClientConfig": {
