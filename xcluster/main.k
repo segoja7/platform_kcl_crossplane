@@ -537,6 +537,13 @@ extraResourcesRequest = {
                 "argocd-hub": _clusterTopology.hubId
             }
         }
+        "clusters": {
+            "apiVersion": "eks.aws.crossplane.io"
+            "kind": "Cluster"
+            "matchLabels": {
+                "argocd-hub": _clusterTopology.hubId
+            }
+        }        
     }
 }
 
@@ -820,7 +827,7 @@ elif _clusterTopology.typeCluster == "Spoke":
         _spoke_server_url = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.endpoint or ""
         _spoke_ca_data = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.certificateAuthorityData or ""
         _spoke_role_arn = _ocds?[_argocd_spoke_role_resource._name]?.Resource?.status?.atProvider?.arn or ""
-
+        
         _spoke_config_json = {
             "tlsClientConfig": {
                 "insecure": False
@@ -853,7 +860,11 @@ elif _clusterTopology.typeCluster == "Spoke":
             _providerConfig = "provider-kubernetes-${_clusterTopology.hubId}"
         }
         
-        # Security group rule to allow hub to access spoke
+        # Get hub security group ID from extraResources
+        _hub_securityGroupId = ""
+        if er?.clusters and len(er.clusters) > 0:
+            _hub_securityGroupId = er.clusters[0]?.Resource?.status?.atProvider?.resourcesVpcConfig?.clusterSecurityGroupId or ""
+
         _spoke_sg_rule = securityGroupRule.SecuritygroupruleBlueprint {
             _name = "spoke-sg-rule-${_id}"
             _labels = _labels
@@ -864,11 +875,7 @@ elif _clusterTopology.typeCluster == "Spoke":
             _protocol = "tcp"
             _cidrBlock = "10.0.0.0/8"
             _region = _region
-            _securityGroupIdSelector = {
-                matchLabels = {
-                    "crossplane.io/composite" = _id
-                }
-            }
+            _sourceSecurityGroupId = _hub_securityGroupId
         }
         
         _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource, _spoke_sg_rule]
