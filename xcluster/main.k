@@ -343,12 +343,12 @@ if _enableArgo == True:
                 "params": {
                     "server.insecure": True
                 }
-                "cm": {
-                    "accounts.provider-argocd": "apiKey"
-                }
-                "rbac": {
-                    "policy.csv": "g, provider-argocd, role:admin"
-                }
+                # "cm": {
+                #     "accounts.provider-argocd": "apiKey"
+                # }
+                # "rbac": {
+                #     "policy.csv": "g, provider-argocd, role:admin"
+                # }
             }
             "server": {
                 "ingress": {
