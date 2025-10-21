@@ -518,7 +518,6 @@ spec:
     _argo_resources = [_release_helm_resource, _object_argocd_ingress, _object_argo_cm_resource]
 
 
-# Request extra resources para obtener el VPC del network
 extraResourcesRequest = {
     "apiVersion": "meta.krm.kcl.dev/v1alpha1"
     "kind": "ExtraResources"
@@ -805,14 +804,6 @@ elif _clusterTopology.typeCluster == "Spoke":
             }
         }
 
-        # _argocd_spoke_policy_document = json.encode({
-        #     "Version": "2012-10-17",
-        #     "Statement": [{
-        #         "Effect": "Allow",
-        #         "Action": "sts:AssumeRole",
-        #         "Resource": "*"
-        #     }]
-        # })
         _argocd_spoke_policy_attachment_resource = [rolePolicyAttachment.RolepolicyattachmentBlueprint {
             _name = "spoke-argocd-policy-${s.name}-${_id}".lower()
             _labels = _labels
