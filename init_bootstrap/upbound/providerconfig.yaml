@@ -1,0 +1,15 @@
+apiVersion: aws.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: segoja7
+spec:
+  credentials:
+    secretRef:
+      key: creds
+      name: aws-secret
+      namespace: crossplane-system
+    source: Secret
+
+
+
+#kubectl create secret generic aws-secret   --namespace=crossplane-system   --from-file=creds=<>

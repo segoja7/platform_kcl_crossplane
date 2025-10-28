@@ -1,14 +1,18 @@
 import json
-import schemas.vpc as vpc
-import schemas.subnet as subnets
-import schemas.internetGateway as internetGateway
-import schemas.eip as eip
-import schemas.natGateway as natGateway
-import schemas.routeTable as routeTable
-import schemas.securityGroup as securityGroup
-import schemas.vpcEndpoint as vpcEndpoint
-import schemas.flowLog as flowLog
-import schemas.logGroup as logGroup
+import schemas.up.vpc as vpc
+import schemas.up.subnet as subnets
+import schemas.up.internetGateway as internetGateway
+import schemas.up.eip as eip
+import schemas.up.natGateway as natGateway
+import schemas.up.routeTable as routeTable
+import schemas.up.routeTableAssociation as routeTableAssociation
+import schemas.up.route as route
+
+import schemas.up.mainRouteTableAssociation as mainRouteTableAssociation
+import schemas.up.securityGroup as securityGroup
+import schemas.up.vpcEndpoint as vpcEndpoint
+import schemas.up.flowLog as flowLog
+import schemas.up.logGroup as logGroup
 import schemas.role as role
 import schemas.rolePolicyAttachment as rolePolicyAttachment
 
@@ -112,6 +116,9 @@ if _natStrategy == "PerAZ":
         }
         for s in _public_subnets
     ]
+    # _main_route_table = mainRouteTableAssociation.MainroutetableassociationBlueprint {
+
+    # }
     _public_route_table = routeTable.RoutetableBlueprint {
         _name = "rt-${_id}-public"
         _region = _region
@@ -122,22 +129,6 @@ if _natStrategy == "PerAZ":
         _vpcIdSelector = {
             matchControllerRef = True
         }
-        _routes = [
-            {
-                destinationCidrBlock = "0.0.0.0/0", 
-                gatewayIdSelector = {
-                    matchControllerRef = True
-                }
-            }
-        ]
-        _associations = [
-            {
-                subnetIdRef = {
-                    name = "subnet-${_id}-${s.az}-${s.type}"
-                }
-            } 
-            for s in _public_subnets
-        ]
     }
     _private_route_tables = [
         routeTable.RoutetableBlueprint {
@@ -150,25 +141,62 @@ if _natStrategy == "PerAZ":
             _vpcIdSelector = {
                 matchControllerRef = True
             }
-            _routes = [
-                {
-                    destinationCidrBlock = "0.0.0.0/0",
-                    natGatewayIdRef = {
-                        name = "ng-${_id}-${az}"
-                    }
-                }
-            ]
-            _associations = [
-                {
-                    subnetIdRef ={
-                        name = "subnet-${_id}-${s.az}-${s.type}"
-                    }
-                } 
-                for s in _subnets if s.az == az and s.type != "public"
-            ]
         } for az in _azs
     ]
-    _route_table_resources = [_public_route_table] + _private_route_tables
+    _public_route_table_associations = [
+        routeTableAssociation.RoutetableassociationBlueprint {
+            _name = "rta-${_id}-public-${s.az}"
+            _providerConfig = _providerConfig
+            _routeTableIdRef.name = _public_route_table._name
+            _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
+            _region = _region
+
+        }
+        for s in _public_subnets
+    ]
+
+    _private_route_table_associations = [
+        routeTableAssociation.RoutetableassociationBlueprint {
+            _name = "rta-${_id}-private-${s.az}"
+            _providerConfig = _providerConfig
+            _routeTableIdRef.name = _private_route_table._name
+            _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
+            _region = _region
+
+        }
+        for s in _subnets if s.az == az and s.type != "public"
+    ]
+
+    _public_routes = {
+        route.RouteBlueprint {
+            _name = "route-${_id}-public"
+            _providerConfig = _providerConfig
+            _destinationCidrBlock = "0.0.0.0/0"
+            _gatewayIdSelector = {
+                matchControllerRef = True
+            }
+            _routeTableIdRef.name = _public_route_table._name
+
+            _region = _region
+        }
+    }
+
+    _private_routes = {
+        route.RouteBlueprint {
+            _name = "route-${_id}-private"
+            _providerConfig = _providerConfig
+            _destinationCidrBlock = "0.0.0.0/0"
+            _natGatewayIdRef = {
+                name = "ng-${_id}-${az}"
+            } for s in _subnets if s.az == az and s.type != "public"
+            _routeTableIdRef.name = _private_route_tables._name
+
+            _region = _region
+        }
+    }
+
+
+    _route_table_resources = [_public_route_table] + _private_route_tables + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes
 
 else: # _natStrategy == "Single"
     # --- Estrategia: Un Único NAT Gateway para todas las Zonas ---
@@ -206,25 +234,11 @@ else: # _natStrategy == "Single"
         _tags = _tags | {
             Name = _name
         }
-        _routes = [
-            {
-                destinationCidrBlock = "0.0.0.0/0",
-                gatewayIdSelector = {
-                    matchControllerRef = True
-                }
-            }
-        ]
         _vpcIdSelector = {
             matchControllerRef = True
         }
-        _associations = [
-            {
-                subnetIdRef = {
-                    name = "subnet-${_id}-${s.az}-${s.type}"
-                }
-            } for s in _public_subnets
-        ]
     }
+
     _private_route_table = routeTable.RoutetableBlueprint {
         _name = "rt-${_id}-private"
         _region = _region
@@ -232,26 +246,63 @@ else: # _natStrategy == "Single"
         _tags = _tags | {
             Name = _name
         }
-        _routes = [
-            {
-                destinationCidrBlock = "0.0.0.0/0",
-                natGatewayIdSelector = {
-                    matchControllerRef = True
-                }
-            }
-        ]
         _vpcIdSelector = {
             matchControllerRef = True
         }
-        _associations = [
-            {
-                subnetIdRef = {
-                    name = "subnet-${_id}-${s.az}-${s.type}"
-                }
-            } for s in _private_subnets + _database_subnets
-        ]
     }
-    _route_table_resources = [_public_route_table, _private_route_table]
+
+    _public_route_table_associations = [
+        routeTableAssociation.RoutetableassociationBlueprint {
+            _name = "rta-${_id}-public-${s.az}"
+            _providerConfig = _providerConfig
+            _routeTableIdRef.name = _public_route_table._name
+            _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
+            _region = _region
+
+        }
+        for s in _public_subnets
+    ]
+
+    _private_route_table_associations = [
+        routeTableAssociation.RoutetableassociationBlueprint {
+            _name = "rta-${_id}-private-${s.az}"
+            _providerConfig = _providerConfig
+            _routeTableIdRef.name = _private_route_table._name
+            _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
+            _region = _region
+
+        }
+        for s in _subnets if s.az == az and s.type != "public"
+    ]
+
+    _public_routes = {
+        route.RouteBlueprint {
+            _name = "route-${_id}-public"
+            _providerConfig = _providerConfig
+            _destinationCidrBlock = "0.0.0.0/0"
+            _gatewayIdSelector = {
+                matchControllerRef = True
+            }
+            _routeTableIdRef.name = _public_route_table._name
+
+            _region = _region
+        }
+    }
+
+    _private_routes = [
+        route.RouteBlueprint {
+            _name = "route-${_id}-private"
+            _providerConfig = _providerConfig
+            _destinationCidrBlock = "0.0.0.0/0"
+            _natGatewayIdRef = {
+                name = "ng-${_id}-${az}"
+            }
+            _routeTableIdRef.name = _private_route_table._name
+            _region = _region
+        } for s in _subnets if s.az == az and s.type != "public"
+    ]
+
+    _route_table_resources = [_public_route_table, _private_route_table] + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes
 
 
 _interface_endpoint_resources = []
