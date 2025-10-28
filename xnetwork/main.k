@@ -29,7 +29,7 @@ _tags = observed_xr.spec.tags or {}
 _instanceTenancy = observed_xr.spec.instanceTenancy or "default"
 _providerConfig = observed_xr.spec.providerConfigName or "default"
 _subnets = observed_xr.spec.subnets or []
-_labels = {"claim-name" = _id}
+_labels = {"claim-name": _id}
 _natStrategy = observed_xr.spec.natGatewayStrategy or "Single"
 _public_subnets = [s for s in _subnets if s.type == "public"]
 _private_subnets = [s for s in _subnets if s.type == "private"]
@@ -45,7 +45,7 @@ _vpc_resource = vpc.VpcBlueprint {
     _labels = _labels
     _region = _region
     _cidrBlock = _cidrBlock
-    _enableDnsHostNames = _enableDnsHostNames
+    _enableDnsHostnames = _enableDnsHostnames
     _enableDnsSupport = _enableDnsSupport
     _tags = _tags | {
         Name = _name
@@ -63,7 +63,7 @@ _subnet_resource = [
         _providerConfig = _providerConfig
         _availabilityZone = s.az
         _cidrBlock = s.cidr
-        _mapPublicIPOnLaunch = True if s.type == "public" else False
+        _mapPublicIpOnLaunch = True if s.type == "public" else False
         _region = _region
         _tags = _tags | {
             Name = _name
@@ -88,345 +88,345 @@ _internetGateway_resource = internetGateway.InternetgatewayBlueprint {
         }
 }
 
-_eip_resources = []
-_nat_gateway_resources = []
-_route_table_resources = []
+# _eip_resources = []
+# _nat_gateway_resources = []
+# _route_table_resources = []
 
-if _natStrategy == "PerAZ":
-    # --- Estrategia: Un NAT Gateway por Zona de Disponibilidad ---
-    _eip_resources = [
-        eip.AddressBlueprint {
-            _name = "eip-${_id}-${s.az}"
-            _providerConfig = _providerConfig
-            _region = _region
-            _tags = _tags | {
-                Name = _name
-            }             
-        }
-        for s in _public_subnets
-    ]
-    _nat_gateway_resources = [
-        natGateway.NatgatewayBlueprint {
-            _name = "ng-${_id}-${s.az}"
-            _region = _region
-            _providerConfig = _providerConfig
-            _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
-            _allocationIdRef.name = "eip-${_id}-${s.az}"
-            _tags = _tags | {
-                Name = _name
-            } 
-        }
-        for s in _public_subnets
-    ]
-    # _main_route_table = mainRouteTableAssociation.MainroutetableassociationBlueprint {
+# if _natStrategy == "PerAZ":
+#     # --- Estrategia: Un NAT Gateway por Zona de Disponibilidad ---
+#     _eip_resources = [
+#         eip.AddressBlueprint {
+#             _name = "eip-${_id}-${s.az}"
+#             _providerConfig = _providerConfig
+#             _region = _region
+#             _tags = _tags | {
+#                 Name = _name
+#             }             
+#         }
+#         for s in _public_subnets
+#     ]
+#     _nat_gateway_resources = [
+#         natGateway.NatgatewayBlueprint {
+#             _name = "ng-${_id}-${s.az}"
+#             _region = _region
+#             _providerConfig = _providerConfig
+#             _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
+#             _allocationIdRef.name = "eip-${_id}-${s.az}"
+#             _tags = _tags | {
+#                 Name = _name
+#             } 
+#         }
+#         for s in _public_subnets
+#     ]
+#     # _main_route_table = mainRouteTableAssociation.MainroutetableassociationBlueprint {
 
-    # }
-    _public_route_table = routeTable.RoutetableBlueprint {
-        _name = "rt-${_id}-public"
-        _region = _region
-        _providerConfig = _providerConfig
-        _tags = _tags | {
-            Name = _name
-        }
-        _vpcIdSelector = {
-            matchControllerRef = True
-        }
-    }
-    _private_route_tables = [
-        routeTable.RoutetableBlueprint {
-            _name = "rt-${_id}-private-${az}"
-            _region = _region
-            _providerConfig = _providerConfig
-            _tags = _tags | {
-                Name = _name
-            }
-            _vpcIdSelector = {
-                matchControllerRef = True
-            }
-        } for az in _azs
-    ]
-    _public_route_table_associations = [
-        routeTableAssociation.RoutetableassociationBlueprint {
-            _name = "rta-${_id}-public-${s.az}"
-            _providerConfig = _providerConfig
-            _routeTableIdRef.name = _public_route_table._name
-            _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
-            _region = _region
+#     # }
+#     _public_route_table = routeTable.RoutetableBlueprint {
+#         _name = "rt-${_id}-public"
+#         _region = _region
+#         _providerConfig = _providerConfig
+#         _tags = _tags | {
+#             Name = _name
+#         }
+#         _vpcIdSelector = {
+#             matchControllerRef = True
+#         }
+#     }
+#     _private_route_tables = [
+#         routeTable.RoutetableBlueprint {
+#             _name = "rt-${_id}-private-${az}"
+#             _region = _region
+#             _providerConfig = _providerConfig
+#             _tags = _tags | {
+#                 Name = _name
+#             }
+#             _vpcIdSelector = {
+#                 matchControllerRef = True
+#             }
+#         } for az in _azs
+#     ]
+#     _public_route_table_associations = [
+#         routeTableAssociation.RoutetableassociationBlueprint {
+#             _name = "rta-${_id}-public-${s.az}"
+#             _providerConfig = _providerConfig
+#             _routeTableIdRef.name = _public_route_table._name
+#             _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
+#             _region = _region
 
-        }
-        for s in _public_subnets
-    ]
+#         }
+#         for s in _public_subnets
+#     ]
 
-    _private_route_table_associations = [
-        routeTableAssociation.RoutetableassociationBlueprint {
-            _name = "rta-${_id}-private-${s.az}"
-            _providerConfig = _providerConfig
-            _routeTableIdRef.name = _private_route_table._name
-            _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
-            _region = _region
+#     _private_route_table_associations = [
+#         routeTableAssociation.RoutetableassociationBlueprint {
+#             _name = "rta-${_id}-private-${s.az}"
+#             _providerConfig = _providerConfig
+#             _routeTableIdRef.name = _private_route_table._name
+#             _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
+#             _region = _region
 
-        }
-        for s in _subnets if s.az == az and s.type != "public"
-    ]
+#         }
+#         for s in _subnets if s.az == az and s.type != "public"
+#     ]
 
-    _public_routes = {
-        route.RouteBlueprint {
-            _name = "route-${_id}-public"
-            _providerConfig = _providerConfig
-            _destinationCidrBlock = "0.0.0.0/0"
-            _gatewayIdSelector = {
-                matchControllerRef = True
-            }
-            _routeTableIdRef.name = _public_route_table._name
+#     _public_routes = {
+#         route.RouteBlueprint {
+#             _name = "route-${_id}-public"
+#             _providerConfig = _providerConfig
+#             _destinationCidrBlock = "0.0.0.0/0"
+#             _gatewayIdSelector = {
+#                 matchControllerRef = True
+#             }
+#             _routeTableIdRef.name = _public_route_table._name
 
-            _region = _region
-        }
-    }
+#             _region = _region
+#         }
+#     }
 
-    _private_routes = {
-        route.RouteBlueprint {
-            _name = "route-${_id}-private"
-            _providerConfig = _providerConfig
-            _destinationCidrBlock = "0.0.0.0/0"
-            _natGatewayIdRef = {
-                name = "ng-${_id}-${az}"
-            } for s in _subnets if s.az == az and s.type != "public"
-            _routeTableIdRef.name = _private_route_tables._name
+#     _private_routes = {
+#         route.RouteBlueprint {
+#             _name = "route-${_id}-private"
+#             _providerConfig = _providerConfig
+#             _destinationCidrBlock = "0.0.0.0/0"
+#             _natGatewayIdRef = {
+#                 name = "ng-${_id}-${az}"
+#             } for s in _subnets if s.az == az and s.type != "public"
+#             _routeTableIdRef.name = _private_route_tables._name
 
-            _region = _region
-        }
-    }
-
-
-    _route_table_resources = [_public_route_table] + _private_route_tables + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes
-
-else: # _natStrategy == "Single"
-    # --- Estrategia: Un Único NAT Gateway para todas las Zonas ---
-    assert len(_public_subnets) > 0, "La estrategia 'Single' requiere al menos una subnet pública."
-    _eip_resources = [
-        eip.AddressBlueprint {
-            _name = "eip-${_id}"
-            _region = _region
-            _providerConfig = _providerConfig
-            _tags = _tags | {
-                Name = _name
-            }
-        }
-    ]
-    _nat_gateway_resources = [
-        natGateway.NatgatewayBlueprint {
-            _name = "ng-${_id}"
-            _region = _region
-            _providerConfig = _providerConfig
-            _subnetIdRef = {
-                name = "subnet-${_id}-${_public_subnets[0].az}-${_public_subnets[0].type}"
-            }
-            _allocationIdSelector = {
-                matchControllerRef = True
-            }
-            _tags = _tags | {
-                Name = _name
-            }
-        }
-    ]
-    _public_route_table = routeTable.RoutetableBlueprint {
-        _name = "rt-${_id}-public"
-        _region = _region
-        _providerConfig = _providerConfig
-        _tags = _tags | {
-            Name = _name
-        }
-        _vpcIdSelector = {
-            matchControllerRef = True
-        }
-    }
-
-    _private_route_table = routeTable.RoutetableBlueprint {
-        _name = "rt-${_id}-private"
-        _region = _region
-        _providerConfig = _providerConfig
-        _tags = _tags | {
-            Name = _name
-        }
-        _vpcIdSelector = {
-            matchControllerRef = True
-        }
-    }
-
-    _public_route_table_associations = [
-        routeTableAssociation.RoutetableassociationBlueprint {
-            _name = "rta-${_id}-public-${s.az}"
-            _providerConfig = _providerConfig
-            _routeTableIdRef.name = _public_route_table._name
-            _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
-            _region = _region
-
-        }
-        for s in _public_subnets
-    ]
-
-    _private_route_table_associations = [
-        routeTableAssociation.RoutetableassociationBlueprint {
-            _name = "rta-${_id}-private-${s.az}"
-            _providerConfig = _providerConfig
-            _routeTableIdRef.name = _private_route_table._name
-            _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
-            _region = _region
-
-        }
-        for s in _subnets if s.az == az and s.type != "public"
-    ]
-
-    _public_routes = {
-        route.RouteBlueprint {
-            _name = "route-${_id}-public"
-            _providerConfig = _providerConfig
-            _destinationCidrBlock = "0.0.0.0/0"
-            _gatewayIdSelector = {
-                matchControllerRef = True
-            }
-            _routeTableIdRef.name = _public_route_table._name
-
-            _region = _region
-        }
-    }
-
-    _private_routes = [
-        route.RouteBlueprint {
-            _name = "route-${_id}-private"
-            _providerConfig = _providerConfig
-            _destinationCidrBlock = "0.0.0.0/0"
-            _natGatewayIdRef = {
-                name = "ng-${_id}-${az}"
-            }
-            _routeTableIdRef.name = _private_route_table._name
-            _region = _region
-        } for s in _subnets if s.az == az and s.type != "public"
-    ]
-
-    _route_table_resources = [_public_route_table, _private_route_table] + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes
+#             _region = _region
+#         }
+#     }
 
 
-_interface_endpoint_resources = []
+#     _route_table_resources = [_public_route_table] + _private_route_tables + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes
 
-_interface_endpoint_sg_resource = []
+# else: # _natStrategy == "Single"
+#     # --- Estrategia: Un Único NAT Gateway para todas las Zonas ---
+#     assert len(_public_subnets) > 0, "La estrategia 'Single' requiere al menos una subnet pública."
+#     _eip_resources = [
+#         eip.AddressBlueprint {
+#             _name = "eip-${_id}"
+#             _region = _region
+#             _providerConfig = _providerConfig
+#             _tags = _tags | {
+#                 Name = _name
+#             }
+#         }
+#     ]
+#     _nat_gateway_resources = [
+#         natGateway.NatgatewayBlueprint {
+#             _name = "ng-${_id}"
+#             _region = _region
+#             _providerConfig = _providerConfig
+#             _subnetIdRef = {
+#                 name = "subnet-${_id}-${_public_subnets[0].az}-${_public_subnets[0].type}"
+#             }
+#             _allocationIdSelector = {
+#                 matchControllerRef = True
+#             }
+#             _tags = _tags | {
+#                 Name = _name
+#             }
+#         }
+#     ]
+#     _public_route_table = routeTable.RoutetableBlueprint {
+#         _name = "rt-${_id}-public"
+#         _region = _region
+#         _providerConfig = _providerConfig
+#         _tags = _tags | {
+#             Name = _name
+#         }
+#         _vpcIdSelector = {
+#             matchControllerRef = True
+#         }
+#     }
 
-if len(_enabledInterfaceEndpoints) > 0:
+#     _private_route_table = routeTable.RoutetableBlueprint {
+#         _name = "rt-${_id}-private"
+#         _region = _region
+#         _providerConfig = _providerConfig
+#         _tags = _tags | {
+#             Name = _name
+#         }
+#         _vpcIdSelector = {
+#             matchControllerRef = True
+#         }
+#     }
+
+#     _public_route_table_associations = [
+#         routeTableAssociation.RoutetableassociationBlueprint {
+#             _name = "rta-${_id}-public-${s.az}"
+#             _providerConfig = _providerConfig
+#             _routeTableIdRef.name = _public_route_table._name
+#             _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
+#             _region = _region
+
+#         }
+#         for s in _public_subnets
+#     ]
+
+#     _private_route_table_associations = [
+#         routeTableAssociation.RoutetableassociationBlueprint {
+#             _name = "rta-${_id}-private-${s.az}"
+#             _providerConfig = _providerConfig
+#             _routeTableIdRef.name = _private_route_table._name
+#             _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
+#             _region = _region
+
+#         }
+#         for s in _subnets if s.az == az and s.type != "public"
+#     ]
+
+#     _public_routes = {
+#         route.RouteBlueprint {
+#             _name = "route-${_id}-public"
+#             _providerConfig = _providerConfig
+#             _destinationCidrBlock = "0.0.0.0/0"
+#             _gatewayIdSelector = {
+#                 matchControllerRef = True
+#             }
+#             _routeTableIdRef.name = _public_route_table._name
+
+#             _region = _region
+#         }
+#     }
+
+#     _private_routes = [
+#         route.RouteBlueprint {
+#             _name = "route-${_id}-private"
+#             _providerConfig = _providerConfig
+#             _destinationCidrBlock = "0.0.0.0/0"
+#             _natGatewayIdRef = {
+#                 name = "ng-${_id}-${az}"
+#             }
+#             _routeTableIdRef.name = _private_route_table._name
+#             _region = _region
+#         } for s in _subnets if s.az == az and s.type != "public"
+#     ]
+
+#     _route_table_resources = [_public_route_table, _private_route_table] + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes
+
+
+# _interface_endpoint_resources = []
+
+# _interface_endpoint_sg_resource = []
+
+# if len(_enabledInterfaceEndpoints) > 0:
     
-    _sg_for_interface_endpoints = securityGroup.SecuritygroupBlueprint {
-        _name = "security-group-${_id}-interface-endpoints"
-        _labels = _labels
-        _providerConfig = _providerConfig
-        _description = "Security Group for Interface VPC Endpoints"
-        _groupName = _name
-        _vpcIdSelector = {
-            matchControllerRef = True
-        }
-        _region = _region
-        _tags = _tags | { Name = _name }
-    }
+#     _sg_for_interface_endpoints = securityGroup.SecuritygroupBlueprint {
+#         _name = "security-group-${_id}-interface-endpoints"
+#         _labels = _labels
+#         _providerConfig = _providerConfig
+#         _description = "Security Group for Interface VPC Endpoints"
+#         _groupName = _name
+#         _vpcIdSelector = {
+#             matchControllerRef = True
+#         }
+#         _region = _region
+#         _tags = _tags | { Name = _name }
+#     }
 
-    _sg_for_interface_endpoints_rules = securityGroupRule.SecuritygroupruleBlueprint {
-        _name = "sg-rule-${_id}-interface-endpoints-ingress"
-        _providerConfig = _providerConfig
-        _description = "Allow all outbound traffic"
-        _fromPort = 443
-        _toPort = 443
-        _protocol = "tcp"
-        _securityGroupIdSelector = {
-            matchControllerRef = True
-        }
-        _cidrBlocks = ["0.0.0.0/0"]
-        _region = _region
-        _type = "ingress"
-    }
+#     _sg_for_interface_endpoints_rules = securityGroupRule.SecuritygroupruleBlueprint {
+#         _name = "sg-rule-${_id}-interface-endpoints-ingress"
+#         _providerConfig = _providerConfig
+#         _description = "Allow all outbound traffic"
+#         _fromPort = 443
+#         _toPort = 443
+#         _protocol = "tcp"
+#         _securityGroupIdSelector = {
+#             matchControllerRef = True
+#         }
+#         _cidrBlocks = ["0.0.0.0/0"]
+#         _region = _region
+#         _type = "ingress"
+#     }
 
 
 
-    _interface_endpoint_sg_resource = [_sg_for_interface_endpoints, _sg_for_interface_endpoints_rules]
+#     _interface_endpoint_sg_resource = [_sg_for_interface_endpoints, _sg_for_interface_endpoints_rules]
 
-    _interface_endpoint_resources = [
-        vpcEndpoint.VpcendpointBlueprint {
-            _name = "${service}-interface-vpce-${_id}"
-            _labels = _labels
-            _providerConfig = _providerConfig
-            _region = _region
-            _vpcIdSelector = {
-                matchControllerRef = True
-            }
-            _tags = _tags | { Name = _name }
-            _vpcEndpointType = "Interface"
-            _serviceName = "com.amazonaws.${_region}.${service}"
-            _privateDNSEnabled = True
-            _subnetIdRefs = [
-                { name = subnet._name } for subnet in _subnet_resource if subnet._labels["subnet.type"] != "public" #or != "database"
-            ]
-            _securityGroupIdRefs = [{ name = _sg_for_interface_endpoints._name }]
-        }
-        for service in _enabledInterfaceEndpoints
-    ]
+#     _interface_endpoint_resources = [
+#         vpcEndpoint.VpcendpointBlueprint {
+#             _name = "${service}-interface-vpce-${_id}"
+#             _labels = _labels
+#             _providerConfig = _providerConfig
+#             _region = _region
+#             _vpcIdSelector = {
+#                 matchControllerRef = True
+#             }
+#             _tags = _tags | { Name = _name }
+#             _vpcEndpointType = "Interface"
+#             _serviceName = "com.amazonaws.${_region}.${service}"
+#             _privateDNSEnabled = True
+#             _subnetIdRefs = [
+#                 { name = subnet._name } for subnet in _subnet_resource if subnet._labels["subnet.type"] != "public" #or != "database"
+#             ]
+#             _securityGroupIdRefs = [{ name = _sg_for_interface_endpoints._name }]
+#         }
+#         for service in _enabledInterfaceEndpoints
+#     ]
 
-_flow_log_all_resources = []
-if _flowLogsConfig.enabled == True:
-    _log_group_resource = logGroup.LoggroupBlueprint {
-        _name = "vpc-flowlogs-${_id}"
-        _providerConfig = _providerConfig
-        _logGroupName = "/aws/vpc/${_name}"
-        _region = _region
-        _retentionInDays = _flowLogsConfig.retentionInDays or 90
-        _tags = _tags | {
-            Name = _name
-        }
-    }
+# _flow_log_all_resources = []
+# if _flowLogsConfig.enabled == True:
+#     _log_group_resource = logGroup.LoggroupBlueprint {
+#         _name = "vpc-flowlogs-${_id}"
+#         _providerConfig = _providerConfig
+#         _logGroupName = "/aws/vpc/${_name}"
+#         _region = _region
+#         _retentionInDays = _flowLogsConfig.retentionInDays or 90
+#         _tags = _tags | {
+#             Name = _name
+#         }
+#     }
 
-    _flow_log_role_policy_document = json.encode({
-        "Version": "2012-10-17",
-        "Statement": [{
-            "Effect": "Allow",
-            "Principal": {"Service": "vpc-flow-logs.amazonaws.com"},
-            "Action": "sts:AssumeRole"
-        }]
-    })
+#     _flow_log_role_policy_document = json.encode({
+#         "Version": "2012-10-17",
+#         "Statement": [{
+#             "Effect": "Allow",
+#             "Principal": {"Service": "vpc-flow-logs.amazonaws.com"},
+#             "Action": "sts:AssumeRole"
+#         }]
+#     })
 
-    _flow_log_role_resource = role.RoleBlueprint {
-        _name = "role-flowlogs-${_id}"
-        _providerConfig = _providerConfig
-        _assumeRolePolicyDocument = _flow_log_role_policy_document
-        _description = "Role for VPC Flow Logs"
-        _tags = _tags | {
-            Name = _name
-        }
-    }
+#     _flow_log_role_resource = role.RoleBlueprint {
+#         _name = "role-flowlogs-${_id}"
+#         _providerConfig = _providerConfig
+#         _assumeRolePolicyDocument = _flow_log_role_policy_document
+#         _description = "Role for VPC Flow Logs"
+#         _tags = _tags | {
+#             Name = _name
+#         }
+#     }
 
-    _flow_log_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
-        _name = "policy-attachment-flowlogs-${_id}"
-        _providerConfig = _providerConfig
-        _roleName = _flow_log_role_resource._name
-        _policyArn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
-    }
+#     _flow_log_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
+#         _name = "policy-attachment-flowlogs-${_id}"
+#         _providerConfig = _providerConfig
+#         _roleName = _flow_log_role_resource._name
+#         _policyArn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+#     }
 
-    _flow_log_resource = flowLog.FlowlogBlueprint {
-        _name = "flowlog-vpc-${_id}"
-        _region = _region
-        _providerConfig = _providerConfig
-        _logGroupName = _log_group_resource._name
-        _deliverLogsPermissionArnRef = {
-            name = _flow_log_role_resource._name
-        }
-        _vpcIdSelector = { 
-            matchControllerRef = True 
-        }
-        _trafficType = _flowLogsConfig.trafficType or "ALL"
-        _tags = _tags | {
-            Name = _name
-        }
-    }
+#     _flow_log_resource = flowLog.FlowlogBlueprint {
+#         _name = "flowlog-vpc-${_id}"
+#         _region = _region
+#         _providerConfig = _providerConfig
+#         _logGroupName = _log_group_resource._name
+#         _deliverLogsPermissionArnRef = {
+#             name = _flow_log_role_resource._name
+#         }
+#         _vpcIdSelector = { 
+#             matchControllerRef = True 
+#         }
+#         _trafficType = _flowLogsConfig.trafficType or "ALL"
+#         _tags = _tags | {
+#             Name = _name
+#         }
+#     }
     
-    _flow_log_all_resources = [
-        _log_group_resource,
-        _flow_log_role_resource,
-        _flow_log_policy_attachment_resource,
-        _flow_log_resource
-    ]
+#     _flow_log_all_resources = [
+#         _log_group_resource,
+#         _flow_log_role_resource,
+#         _flow_log_policy_attachment_resource,
+#         _flow_log_resource
+#     ]
 
-items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + _interface_endpoint_sg_resource + _interface_endpoint_resources #+ _flow_log_all_resources
+items = [_vpc_resource, _internetGateway_resource] + _subnet_resource #+ _eip_resources + _nat_gateway_resources + _route_table_resources + _interface_endpoint_sg_resource + _interface_endpoint_resources #+ _flow_log_all_resources
