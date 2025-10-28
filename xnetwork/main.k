@@ -13,10 +13,10 @@ import schemas.up.securityGroup as securityGroup
 import schemas.up.securityGroupRule as securityGroupRule
 
 import schemas.up.vpcEndpoint as vpcEndpoint
-import schemas.up.flowLog as flowLog
-import schemas.up.logGroup as logGroup
-import schemas.role as role
-import schemas.rolePolicyAttachment as rolePolicyAttachment
+# import schemas.up.flowLog as flowLog
+# import schemas.up.logGroup as logGroup
+# import schemas.role as role
+# import schemas.rolePolicyAttachment as rolePolicyAttachment
 
 
 observed_xr = option("params").oxr
