@@ -10,6 +10,8 @@ import schemas.up.route as route
 
 import schemas.up.mainRouteTableAssociation as mainRouteTableAssociation
 import schemas.up.securityGroup as securityGroup
+import schemas.up.securityGroupRule as securityGroupRule
+
 import schemas.up.vpcEndpoint as vpcEndpoint
 import schemas.up.flowLog as flowLog
 import schemas.up.logGroup as logGroup
@@ -322,30 +324,26 @@ if len(_enabledInterfaceEndpoints) > 0:
         }
         _region = _region
         _tags = _tags | { Name = _name }
-        _ingress = [{
-            fromPort = 443
-            toPort = 443
-            ipProtocol = "tcp"
-            ipRanges = [
-                { 
-                    cidrIp = _cidrBlock
-                    description = "Allow HTTPS traffic from VPC" 
-                }
-            ]
-        }]
-        _egress = [{
-            fromPort = 0
-            toPort = 0
-            ipProtocol = "-1"
-            ipRanges = [
-                { 
-                    cidrIp = "0.0.0.0/0"
-                    description = "Allow all outbound traffic" 
-                }
-            ]
-        }]
     }
-    _interface_endpoint_sg_resource = [_sg_for_interface_endpoints]
+
+    _sg_for_interface_endpoints_rules = securityGroupRule.SecuritygroupruleBlueprint {
+        _name = "sg-rule-${_id}-interface-endpoints-ingress"
+        _providerConfig = _providerConfig
+        _description = "Allow all outbound traffic"
+        _fromPort = 443
+        _toPort = 443
+        _protocol = "tcp"
+        _securityGroupIdSelector = {
+            matchControllerRef = True
+        }
+        _cidrBlocks = ["0.0.0.0/0"]
+        _region = _region
+        _type = "ingress"
+    }
+
+
+
+    _interface_endpoint_sg_resource = [_sg_for_interface_endpoints, _sg_for_interface_endpoints_rules]
 
     _interface_endpoint_resources = [
         vpcEndpoint.VpcendpointBlueprint {
@@ -431,4 +429,4 @@ if _flowLogsConfig.enabled == True:
         _flow_log_resource
     ]
 
-items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + _interface_endpoint_sg_resource + _interface_endpoint_resources + _flow_log_all_resources
+items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + _interface_endpoint_sg_resource + _interface_endpoint_resources #+ _flow_log_all_resources
