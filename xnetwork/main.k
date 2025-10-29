@@ -302,7 +302,7 @@ else: # _natStrategy == "Single"
         _region = _region
     }
 
-    _route_table_resources = [_public_route_table, _private_route_table] + _public_route_table_associations + _private_route_table_associations + [_public_routes, _private_routes]
+    _route_table_resources = [_public_route_table] + _private_route_tables + _public_route_table_associations + _private_route_table_associations + [_public_routes, _private_routes]
 
 
 # _interface_endpoint_resources = []
