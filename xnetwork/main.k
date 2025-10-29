@@ -157,17 +157,17 @@ if _natStrategy == "PerAZ":
         for s in _public_subnets
     ]
 
-    # _private_route_table_associations = [
-    #     routeTableAssociation.RoutetableassociationBlueprint {
-    #         _name = "rta-${_id}-private-${s.az}"
-    #         _providerConfig = _providerConfig
-    #         _routeTableIdRef.name = _private_route_table._name
-    #         _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
-    #         _region = _region
+    _private_route_table_associations = [
+        routeTableAssociation.RoutetableassociationBlueprint {
+            _name = "rta-${_id}-private-${s.az}"
+            _providerConfig = _providerConfig
+            _routeTableIdRef.name = _private_route_table._name
+            _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
+            _region = _region
 
-    #     }
-    #     for s in _subnets if s.az == az and s.type != "public"
-    # ]
+        }
+        for s in _subnets if s.az == az and s.type != "public"
+    ]
 
     # _public_routes = {
     #     route.RouteBlueprint {
@@ -198,7 +198,7 @@ if _natStrategy == "PerAZ":
     # }
 
 
-    _route_table_resources = [_public_route_table] + _private_route_tables + _public_route_table_associations #+ _private_route_table_associations + [_public_routes] + _private_routes
+    _route_table_resources = [_public_route_table] + _private_route_tables + _public_route_table_associations + _private_route_table_associations #+ [_public_routes] + _private_routes
 
 else: # _natStrategy == "Single"
     # --- Estrategia: Un Único NAT Gateway para todas las Zonas ---
@@ -265,17 +265,17 @@ else: # _natStrategy == "Single"
         for s in _public_subnets
     ]
 
-#     _private_route_table_associations = [
-#         routeTableAssociation.RoutetableassociationBlueprint {
-#             _name = "rta-${_id}-private-${s.az}"
-#             _providerConfig = _providerConfig
-#             _routeTableIdRef.name = _private_route_table._name
-#             _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
-#             _region = _region
+    _private_route_table_associations = [
+        routeTableAssociation.RoutetableassociationBlueprint {
+            _name = "rta-${_id}-private-${s.az}"
+            _providerConfig = _providerConfig
+            _routeTableIdRef.name = _private_route_table._name
+            _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
+            _region = _region
 
-#         }
-#         for s in _subnets if s.az == az and s.type != "public"
-#     ]
+        }
+        for s in _subnets if s.az == az and s.type != "public"
+    ]
 
 #     _public_routes = {
 #         route.RouteBlueprint {
@@ -304,7 +304,7 @@ else: # _natStrategy == "Single"
 #         } for s in _subnets if s.az == az and s.type != "public"
 #     ]
 
-    _route_table_resources = [_public_route_table, _private_route_table] + _public_route_table_associations #+ _private_route_table_associations + [_public_routes] + _private_routes
+    _route_table_resources = [_public_route_table, _private_route_table] + _public_route_table_associations + _private_route_table_associations #+ [_public_routes] + _private_routes
 
 
 # _interface_endpoint_resources = []
