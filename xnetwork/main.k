@@ -159,10 +159,14 @@ if _natStrategy == "PerAZ":
 
     _private_route_table_associations = [
         routeTableAssociation.RoutetableassociationBlueprint {
-            _name = "rta-${_id}-private-${s.az}"
+            _name = "rta-${_id}-private-${s.az}-${s.type}"
             _providerConfig = _providerConfig
-            _routeTableIdRef.name = _private_route_table._name
-            _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
+            _routeTableIdRef = {
+                name = "rt-${_id}-private-${s.az}"
+            }
+            _subnetIdRef = {
+                name = "subnet-${_id}-${s.az}-${s.type}"
+            }
             _region = _region
 
         }
@@ -267,10 +271,14 @@ else: # _natStrategy == "Single"
 
     _private_route_table_associations = [
         routeTableAssociation.RoutetableassociationBlueprint {
-            _name = "rta-${_id}-private-${s.az}"
+            _name = "rta-${_id}-private-${s.az}-${s.type}"
             _providerConfig = _providerConfig
-            _routeTableIdRef.name = _private_route_table._name
-            _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
+            _routeTableIdRef = {
+                name = _private_route_table._name
+            }
+            _subnetIdRef = {
+                name = "subnet-${_id}-${s.az}-${s.type}"
+            }
             _region = _region
 
         }
