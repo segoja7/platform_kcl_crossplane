@@ -295,8 +295,8 @@ else: # _natStrategy == "Single"
         _name = "route-${_id}-private"
         _providerConfig = _providerConfig
         _destinationCidrBlock = "0.0.0.0/0"
-        _natGatewayIdRef = {
-            name = "ng-${_id}"
+        _natGatewayIdSelector = {
+            matchControllerRef = True
         }
         _routeTableIdRef.name = _private_route_table._name
         _region = _region
