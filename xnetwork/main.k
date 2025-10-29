@@ -130,6 +130,7 @@ if _natStrategy == "PerAZ":
             matchControllerRef = True
         }
     } for az in _azs]
+
     _public_route_table_associations = [routeTableAssociation.RoutetableassociationBlueprint {
         _name = "rta-${_id}-public-${s.az}"
         _providerConfig = _providerConfig
@@ -293,7 +294,7 @@ else:
         }
     }
 
-    _route_table_resources = [_public_route_table] + _private_route_tables + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes + [_main_route_table]
+    _route_table_resources = [_public_route_table, _private_route_table] + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes + [_main_route_table]
 # _interface_endpoint_resources = []
 
 # _interface_endpoint_sg_resource = []
