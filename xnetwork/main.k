@@ -7,8 +7,8 @@ import schemas.up.natGateway as natGateway
 import schemas.up.routeTable as routeTable
 import schemas.up.routeTableAssociation as routeTableAssociation
 import schemas.up.route as route
+import schemas.up.mainRouteTableAssociation as mainRouteTableAssociation
 
-# import schemas.up.mainRouteTableAssociation as mainRouteTableAssociation
 # import schemas.up.securityGroup as securityGroup
 # import schemas.up.securityGroupRule as securityGroupRule
 
@@ -118,9 +118,7 @@ if _natStrategy == "PerAZ":
         }
         for s in _public_subnets
     ]
-    # _main_route_table = mainRouteTableAssociation.MainroutetableassociationBlueprint {
 
-    # }
     _public_route_table = routeTable.RoutetableBlueprint {
         _name = "rt-${_id}-public"
         _region = _region
@@ -197,7 +195,19 @@ if _natStrategy == "PerAZ":
         } for az in _azs
     ]
 
-    _route_table_resources = [_public_route_table] + _private_route_tables + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes
+    _main_route_table = mainRouteTableAssociation.MainroutetableassociationBlueprint {
+        _name = "main-rta-${_id}"
+        _providerConfig = _providerConfig
+        _region = _region
+        _routeTableIdSelector = {
+            matchControllerRef = True
+        }
+        _vpcIdSelector = {
+            matchControllerRef = True
+        }
+    }
+
+    _route_table_resources = [_public_route_table] + _private_route_tables + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes + [_main_route_table]
 
 else: # _natStrategy == "Single"
     # --- Estrategia: Un Único NAT Gateway para todas las Zonas ---
@@ -302,7 +312,19 @@ else: # _natStrategy == "Single"
         _region = _region
     }]
 
-    _route_table_resources = [_public_route_table] + _private_route_tables + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes
+    _main_route_table = mainRouteTableAssociation.MainroutetableassociationBlueprint {
+        _name = "main-rta-${_id}"
+        _providerConfig = _providerConfig
+        _region = _region
+        _routeTableIdSelector = {
+            matchControllerRef = True
+        }
+        _vpcIdSelector = {
+            matchControllerRef = True
+        }
+    }
+
+    _route_table_resources = [_public_route_table] + _private_route_tables + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes + [_main_route_table]
 
 
 # _interface_endpoint_resources = []
