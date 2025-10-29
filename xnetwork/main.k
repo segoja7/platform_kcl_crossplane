@@ -12,6 +12,7 @@ import schemas.up.securityGroup as securityGroup
 import schemas.up.securityGroupRule as securityGroupRule
 import schemas.up.vpcEndpoint as vpcEndpoint
 import schemas.up.vpcEndpointSecurityGroupAssociation as vpcEndpointSecurityGroupAssociation
+import schemas.up.vpcEndpointSubnetAssociation as vpcEndpointSubnetAssociation
 
 # import schemas.up.flowLog as flowLog
 # import schemas.up.logGroup as logGroup
@@ -371,7 +372,25 @@ if len(_enabledInterfaceEndpoints) > 0:
         }
         for service in _enabledInterfaceEndpoints
     ]
-    _interface_endpoint_resources = _interface_endpoint + _interface_endpoint_sg_associations
+
+    _interface_endpoint_subnet_associations = [
+        vpcEndpointSubnetAssociation.VpcendpointsubnetassociationBlueprint {
+            _name = "vpce-subnet-assoc-${service}-${_id}-${s.az}"
+            _labels = _labels
+            _providerConfig = _providerConfig
+            _region = _region
+            _subnetIdRef = {
+                name = "subnet-${_id}-${s.az}-${s.type}"
+            }
+            _vpcEndpointIdRef = {
+                name = "${service}-interface-vpce-${_id}"
+            }
+        }
+        for service in _enabledInterfaceEndpoints
+        for s in _private_subnets if s.type == "private"
+    ]
+
+    _interface_endpoint_resources = _interface_endpoint + _interface_endpoint_sg_associations + _interface_endpoint_subnet_associations
 
 # _flow_log_all_resources = []
 # if _flowLogsConfig.enabled == True:
