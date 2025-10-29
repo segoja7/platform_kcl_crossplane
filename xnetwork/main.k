@@ -347,11 +347,10 @@ if len(_enabledInterfaceEndpoints) > 0:
             _vpcEndpointType = "Interface"
             _serviceName = "com.amazonaws.${_region}.${service}"
             _privateDnsEnabled = True
-            _subnetConfiguration = [
-                subnetIdRef = {
-                    name = subnet._name 
-                }
-            ] for subnet in _subnet_resource if subnet._labels["subnet.type"] == "private"
+            _subnetIdRefs = [
+                { name = subnet._name } for subnet in _subnet_resource if subnet._labels["subnet.type"] == "private"
+            ]
+            _securityGroupIdRefs = [{ name = _sg_for_interface_endpoints._name }]
         }
         for service in _enabledInterfaceEndpoints
     ]
