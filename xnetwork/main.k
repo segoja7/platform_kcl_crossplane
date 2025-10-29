@@ -11,6 +11,7 @@ import schemas.up.mainRouteTableAssociation as mainRouteTableAssociation
 import schemas.up.securityGroup as securityGroup
 import schemas.up.securityGroupRule as securityGroupRule
 import schemas.up.vpcEndpoint as vpcEndpoint
+import schemas.up.vpcEndpointSecurityGroupAssociation as vpcEndpointSecurityGroupAssociation
 
 # import schemas.up.flowLog as flowLog
 # import schemas.up.logGroup as logGroup
@@ -299,9 +300,6 @@ _interface_endpoint_resources = []
 
 _interface_endpoint_sg_resource = []
 
-# Debug: Check the value of _enabledInterfaceEndpoints
-# _enabledInterfaceEndpoints should be: ["sts"]
-# len(_enabledInterfaceEndpoints) should be: 1
 
 if len(_enabledInterfaceEndpoints) > 0:
 
@@ -336,7 +334,7 @@ if len(_enabledInterfaceEndpoints) > 0:
 
     _interface_endpoint_sg_resource = [_sg_for_interface_endpoints, _sg_for_interface_endpoints_rules]
 
-    _interface_endpoint_resources = [
+    _interface_endpoint = [
         vpcEndpoint.VpcendpointBlueprint {
             _name = "${service}-interface-vpce-${_id}"
             _labels = _labels
@@ -348,14 +346,31 @@ if len(_enabledInterfaceEndpoints) > 0:
             _tags = _tags | { Name = _name }
             _vpcEndpointType = "Interface"
             _serviceName = "com.amazonaws.${_region}.${service}"
-            _privateDNSEnabled = True
-            _subnetIdRefs = [
-                { name = subnet._name } for subnet in _subnet_resource if subnet._labels["subnet.type"] == "private" 
-            ]
-            _securityGroupIdRefs = [{ name = _sg_for_interface_endpoints._name }]
+            _privateDnsEnabled = True
+            _subnetConfiguration = [
+                subnetIdRef = {
+                    name = subnet._name 
+                }
+            ] for subnet in _subnet_resource if subnet._labels["subnet.type"] == "private"
         }
         for service in _enabledInterfaceEndpoints
     ]
+
+    _interface_endpoint_sg_associations = [
+        vpcEndpointSecurityGroupAssociation.VpcendpointsecuritygroupassociationBlueprint {
+            _name = "vpce-sg-assoc-${service}-${_id}"
+            _labels = _labels
+            _providerConfig = _providerConfig
+            _securityGroupIdRef = {
+                name = _sg_for_interface_endpoints._name
+            }
+            _vpcEndpointIdRef = {
+                name = "${service}-interface-vpce-${_id}"
+            }
+        }
+        for service in _enabledInterfaceEndpoints
+    ]
+    _interface_endpoint_resources = _interface_endpoint + _interface_endpoint_sg_associations
 
 # _flow_log_all_resources = []
 # if _flowLogsConfig.enabled == True:
