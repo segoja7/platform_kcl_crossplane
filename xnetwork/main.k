@@ -186,13 +186,13 @@ if _natStrategy == "PerAZ":
 
     _private_routes = [
         route.RouteBlueprint {
-            _name = "route-${_id}-private"
+            _name = "route-${_id}-private-${s.az}"
             _providerConfig = _providerConfig
             _destinationCidrBlock = "0.0.0.0/0"
             _natGatewayIdRef = {
                 name = "ng-${_id}-${s.az}"
             } 
-            _routeTableIdRef.name = _private_route_tables._name
+            _routeTableIdRef.name = "rt-${_id}-private-${s.az}"
             _region = _region
         } for s in _subnets if s.type != "public"
     ]
@@ -293,13 +293,13 @@ else: # _natStrategy == "Single"
 
     _private_routes = [
         route.RouteBlueprint {
-            _name = "route-${_id}-private"
+            _name = "route-${_id}-private-${s.az}"
             _providerConfig = _providerConfig
             _destinationCidrBlock = "0.0.0.0/0"
             _natGatewayIdRef = {
                 name = "ng-${_id}-${s.az}"
-            } 
-            _routeTableIdRef.name = _private_route_tables._name
+            }
+            _routeTableIdRef.name = "rt-${_id}-private-${s.az}"
             _region = _region
         } for s in _subnets if s.type != "public"
     ]
