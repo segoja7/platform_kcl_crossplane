@@ -334,7 +334,7 @@ if len(_enabledInterfaceEndpoints) > 0:
         _type = "ingress"
     }
 
-     _interface_endpoint_sg_resource = [_sg_for_interface_endpoints, _sg_for_interface_endpoints_rules]
+    _interface_endpoint_sg_resource = [_sg_for_interface_endpoints, _sg_for_interface_endpoints_rules]
 
 #     _interface_endpoint_resources = [
 #         vpcEndpoint.VpcendpointBlueprint {
