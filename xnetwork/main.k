@@ -166,7 +166,7 @@ if _natStrategy == "PerAZ":
             _region = _region
 
         }
-        for s in _subnets if s.az == az and s.type != "public"
+        for s in _subnets if s.az == _azs and s.type != "public"
     ]
 
     # _public_routes = {
@@ -274,7 +274,7 @@ else: # _natStrategy == "Single"
             _region = _region
 
         }
-        for s in _subnets if s.az == az and s.type != "public"
+        for s in _subnets if s.az == _azs and s.type != "public"
     ]
 
 #     _public_routes = {
