@@ -6,7 +6,7 @@ import schemas.up.eip as eip
 import schemas.up.natGateway as natGateway
 import schemas.up.routeTable as routeTable
 import schemas.up.routeTableAssociation as routeTableAssociation
-# import schemas.up.route as route
+import schemas.up.route as route
 
 # import schemas.up.mainRouteTableAssociation as mainRouteTableAssociation
 # import schemas.up.securityGroup as securityGroup
@@ -173,18 +173,15 @@ if _natStrategy == "PerAZ":
         for s in _subnets if s.type != "public"
     ]
 
-    _public_routes = {
-        route.RouteBlueprint {
-            _name = "route-${_id}-public"
-            _providerConfig = _providerConfig
-            _destinationCidrBlock = "0.0.0.0/0"
-            _gatewayIdSelector = {
-                matchControllerRef = True
-            }
-            _routeTableIdRef.name = _public_route_table._name
-
-            _region = _region
+    _public_routes = route.RouteBlueprint {
+        _name = "route-${_id}-public"
+        _providerConfig = _providerConfig
+        _destinationCidrBlock = "0.0.0.0/0"
+        _gatewayIdSelector = {
+            matchControllerRef = True
         }
+        _routeTableIdRef.name = _public_route_table._name
+        _region = _region
     }
 
     # _private_routes = {
@@ -285,18 +282,15 @@ else: # _natStrategy == "Single"
         for s in _subnets if s.type != "public"
     ]
 
-    _public_routes = {
-        route.RouteBlueprint {
-            _name = "route-${_id}-public"
-            _providerConfig = _providerConfig
-            _destinationCidrBlock = "0.0.0.0/0"
-            _gatewayIdSelector = {
-                matchControllerRef = True
-            }
-            _routeTableIdRef.name = _public_route_table._name
-
-            _region = _region
+    _public_routes = route.RouteBlueprint {
+        _name = "route-${_id}-public"
+        _providerConfig = _providerConfig
+        _destinationCidrBlock = "0.0.0.0/0"
+        _gatewayIdSelector = {
+            matchControllerRef = True
         }
+        _routeTableIdRef.name = _public_route_table._name
+        _region = _region
     }
 
 #     _private_routes = [
