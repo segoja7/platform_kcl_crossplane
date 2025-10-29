@@ -184,22 +184,20 @@ if _natStrategy == "PerAZ":
         _region = _region
     }
 
-    # _private_routes = {
-    #     route.RouteBlueprint {
-    #         _name = "route-${_id}-private"
-    #         _providerConfig = _providerConfig
-    #         _destinationCidrBlock = "0.0.0.0/0"
-    #         _natGatewayIdRef = {
-    #             name = "ng-${_id}-${az}"
-    #         } for s in _subnets if s.az == az and s.type != "public"
-    #         _routeTableIdRef.name = _private_route_tables._name
+    _private_routes = [
+        route.RouteBlueprint {
+            _name = "route-${_id}-private"
+            _providerConfig = _providerConfig
+            _destinationCidrBlock = "0.0.0.0/0"
+            _natGatewayIdRef = {
+                name = "ng-${_id}-${s.az}"
+            } 
+            _routeTableIdRef.name = _private_route_tables._name
+            _region = _region
+        } for s in _subnets if s.type != "public"
+    ]
 
-    #         _region = _region
-    #     }
-    # }
-
-
-    _route_table_resources = [_public_route_table] + _private_route_tables + _public_route_table_associations + _private_route_table_associations + [_public_routes] #+ _private_routes
+    _route_table_resources = [_public_route_table] + _private_route_tables + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes
 
 else: # _natStrategy == "Single"
     # --- Estrategia: Un Único NAT Gateway para todas las Zonas ---
@@ -293,20 +291,20 @@ else: # _natStrategy == "Single"
         _region = _region
     }
 
-#     _private_routes = [
-#         route.RouteBlueprint {
-#             _name = "route-${_id}-private"
-#             _providerConfig = _providerConfig
-#             _destinationCidrBlock = "0.0.0.0/0"
-#             _natGatewayIdRef = {
-#                 name = "ng-${_id}-${az}"
-#             }
-#             _routeTableIdRef.name = _private_route_table._name
-#             _region = _region
-#         } for s in _subnets if s.az == az and s.type != "public"
-#     ]
+    _private_routes = [
+        route.RouteBlueprint {
+            _name = "route-${_id}-private"
+            _providerConfig = _providerConfig
+            _destinationCidrBlock = "0.0.0.0/0"
+            _natGatewayIdRef = {
+                name = "ng-${_id}-${s.az}"
+            } 
+            _routeTableIdRef.name = _private_route_tables._name
+            _region = _region
+        } for s in _subnets if s.type != "public"
+    ]
 
-    _route_table_resources = [_public_route_table, _private_route_table] + _public_route_table_associations + _private_route_table_associations + [_public_routes] #+ _private_routes
+    _route_table_resources = [_public_route_table] + _private_route_tables + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes
 
 
 # _interface_endpoint_resources = []
