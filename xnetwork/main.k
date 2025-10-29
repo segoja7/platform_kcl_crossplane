@@ -121,17 +121,17 @@ if _natStrategy == "PerAZ":
     # _main_route_table = mainRouteTableAssociation.MainroutetableassociationBlueprint {
 
     # }
-    # _public_route_table = routeTable.RoutetableBlueprint {
-    #     _name = "rt-${_id}-public"
-    #     _region = _region
-    #     _providerConfig = _providerConfig
-    #     _tags = _tags | {
-    #         Name = _name
-    #     }
-    #     _vpcIdSelector = {
-    #         matchControllerRef = True
-    #     }
-    # }
+    _public_route_table = routeTable.RoutetableBlueprint {
+        _name = "rt-${_id}-public"
+        _region = _region
+        _providerConfig = _providerConfig
+        _tags = _tags | {
+            Name = _name
+        }
+        _vpcIdSelector = {
+            matchControllerRef = True
+        }
+    }
     # _private_route_tables = [
     #     routeTable.RoutetableBlueprint {
     #         _name = "rt-${_id}-private-${az}"
@@ -198,7 +198,7 @@ if _natStrategy == "PerAZ":
     # }
 
 
-    # _route_table_resources = [_public_route_table] + _private_route_tables + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes
+    _route_table_resources = [_public_route_table] #+ _private_route_tables + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes
 
 else: # _natStrategy == "Single"
     # --- Estrategia: Un Único NAT Gateway para todas las Zonas ---
@@ -229,17 +229,17 @@ else: # _natStrategy == "Single"
             }
         }
     ]
-#     _public_route_table = routeTable.RoutetableBlueprint {
-#         _name = "rt-${_id}-public"
-#         _region = _region
-#         _providerConfig = _providerConfig
-#         _tags = _tags | {
-#             Name = _name
-#         }
-#         _vpcIdSelector = {
-#             matchControllerRef = True
-#         }
-#     }
+    _public_route_table = routeTable.RoutetableBlueprint {
+        _name = "rt-${_id}-public"
+        _region = _region
+        _providerConfig = _providerConfig
+        _tags = _tags | {
+            Name = _name
+        }
+        _vpcIdSelector = {
+            matchControllerRef = True
+        }
+    }
 
 #     _private_route_table = routeTable.RoutetableBlueprint {
 #         _name = "rt-${_id}-private"
@@ -304,7 +304,7 @@ else: # _natStrategy == "Single"
 #         } for s in _subnets if s.az == az and s.type != "public"
 #     ]
 
-#     _route_table_resources = [_public_route_table, _private_route_table] + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes
+    _route_table_resources = [_public_route_table]#, _private_route_table] + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes
 
 
 # _interface_endpoint_resources = []
@@ -429,4 +429,4 @@ else: # _natStrategy == "Single"
 #         _flow_log_resource
 #     ]
 
-items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources #+ _route_table_resources + _interface_endpoint_sg_resource + _interface_endpoint_resources #+ _flow_log_all_resources
+items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources #+ _interface_endpoint_sg_resource + _interface_endpoint_resources #+ _flow_log_all_resources
