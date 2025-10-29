@@ -105,22 +105,22 @@ if _natStrategy == "PerAZ":
         }
         for s in _public_subnets
     ]
-    # _nat_gateway_resources = [
-    #     natGateway.NatgatewayBlueprint {
-    #         _name = "ng-${_id}-${s.az}"
-    #         _region = _region
-    #         _providerConfig = _providerConfig
-    #         _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
-    #         _allocationIdRef.name = "eip-${_id}-${s.az}"
-    #         _tags = _tags | {
-    #             Name = _name
-    #         } 
-    #     }
-    #     for s in _public_subnets
-    # ]
-    # # _main_route_table = mainRouteTableAssociation.MainroutetableassociationBlueprint {
+    _nat_gateway_resources = [
+        natGateway.NatgatewayBlueprint {
+            _name = "ng-${_id}-${s.az}"
+            _region = _region
+            _providerConfig = _providerConfig
+            _subnetIdRef.name = "subnet-${_id}-${s.az}-${s.type}"
+            _allocationIdRef.name = "eip-${_id}-${s.az}"
+            _tags = _tags | {
+                Name = _name
+            } 
+        }
+        for s in _public_subnets
+    ]
+    # _main_route_table = mainRouteTableAssociation.MainroutetableassociationBlueprint {
 
-    # # }
+    # }
     # _public_route_table = routeTable.RoutetableBlueprint {
     #     _name = "rt-${_id}-public"
     #     _region = _region
@@ -213,22 +213,22 @@ else: # _natStrategy == "Single"
             }
         }
     ]
-#     _nat_gateway_resources = [
-#         natGateway.NatgatewayBlueprint {
-#             _name = "ng-${_id}"
-#             _region = _region
-#             _providerConfig = _providerConfig
-#             _subnetIdRef = {
-#                 name = "subnet-${_id}-${_public_subnets[0].az}-${_public_subnets[0].type}"
-#             }
-#             _allocationIdSelector = {
-#                 matchControllerRef = True
-#             }
-#             _tags = _tags | {
-#                 Name = _name
-#             }
-#         }
-#     ]
+    _nat_gateway_resources = [
+        natGateway.NatgatewayBlueprint {
+            _name = "ng-${_id}"
+            _region = _region
+            _providerConfig = _providerConfig
+            _subnetIdRef = {
+                name = "subnet-${_id}-${_public_subnets[0].az}-${_public_subnets[0].type}"
+            }
+            _allocationIdSelector = {
+                matchControllerRef = True
+            }
+            _tags = _tags | {
+                Name = _name
+            }
+        }
+    ]
 #     _public_route_table = routeTable.RoutetableBlueprint {
 #         _name = "rt-${_id}-public"
 #         _region = _region
