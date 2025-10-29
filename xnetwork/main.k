@@ -359,6 +359,7 @@ if len(_enabledInterfaceEndpoints) > 0:
             _name = "vpce-sg-assoc-${service}-${_id}"
             _labels = _labels
             _providerConfig = _providerConfig
+            _region = _region
             _securityGroupIdRef = {
                 name = _sg_for_interface_endpoints._name
             }
