@@ -200,19 +200,19 @@ if _natStrategy == "PerAZ":
 
     # _route_table_resources = [_public_route_table] + _private_route_tables + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes
 
-# else: # _natStrategy == "Single"
-#     # --- Estrategia: Un Único NAT Gateway para todas las Zonas ---
-#     assert len(_public_subnets) > 0, "La estrategia 'Single' requiere al menos una subnet pública."
-#     _eip_resources = [
-#         eip.AddressBlueprint {
-#             _name = "eip-${_id}"
-#             _region = _region
-#             _providerConfig = _providerConfig
-#             _tags = _tags | {
-#                 Name = _name
-#             }
-#         }
-#     ]
+else: # _natStrategy == "Single"
+    # --- Estrategia: Un Único NAT Gateway para todas las Zonas ---
+    assert len(_public_subnets) > 0, "La estrategia 'Single' requiere al menos una subnet pública."
+    _eip_resources = [
+        eip.EipBlueprint {
+            _name = "eip-${_id}"
+            _region = _region
+            _providerConfig = _providerConfig
+            _tags = _tags | {
+                Name = _name
+            }
+        }
+    ]
 #     _nat_gateway_resources = [
 #         natGateway.NatgatewayBlueprint {
 #             _name = "ng-${_id}"
