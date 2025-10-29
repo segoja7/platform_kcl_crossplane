@@ -8,9 +8,8 @@ import schemas.up.routeTable as routeTable
 import schemas.up.routeTableAssociation as routeTableAssociation
 import schemas.up.route as route
 import schemas.up.mainRouteTableAssociation as mainRouteTableAssociation
-
-# import schemas.up.securityGroup as securityGroup
-# import schemas.up.securityGroupRule as securityGroupRule
+import schemas.up.securityGroup as securityGroup
+import schemas.up.securityGroupRule as securityGroupRule
 
 # import schemas.up.vpcEndpoint as vpcEndpoint
 # import schemas.up.flowLog as flowLog
@@ -295,41 +294,42 @@ else:
     }
 
     _route_table_resources = [_public_route_table, _private_route_table] + _public_route_table_associations + _private_route_table_associations + [_public_routes] + _private_routes + [_main_route_table]
-# _interface_endpoint_resources = []
 
-# _interface_endpoint_sg_resource = []
+_interface_endpoint_resources = []
 
-# if len(_enabledInterfaceEndpoints) > 0:
+_interface_endpoint_sg_resource = []
 
-#     _sg_for_interface_endpoints = securityGroup.SecuritygroupBlueprint {
-#         _name = "security-group-${_id}-interface-endpoints"
-#         _labels = _labels
-#         _providerConfig = _providerConfig
-#         _description = "Security Group for Interface VPC Endpoints"
-#         _groupName = _name
-#         _vpcIdSelector = {
-#             matchControllerRef = True
-#         }
-#         _region = _region
-#         _tags = _tags | { Name = _name }
-#     }
+if len(_enabledInterfaceEndpoints) > 0:
 
-#     _sg_for_interface_endpoints_rules = securityGroupRule.SecuritygroupruleBlueprint {
-#         _name = "sg-rule-${_id}-interface-endpoints-ingress"
-#         _providerConfig = _providerConfig
-#         _description = "Allow all outbound traffic"
-#         _fromPort = 443
-#         _toPort = 443
-#         _protocol = "tcp"
-#         _securityGroupIdSelector = {
-#             matchControllerRef = True
-#         }
-#         _cidrBlocks = ["0.0.0.0/0"]
-#         _region = _region
-#         _type = "ingress"
-#     }
+    _sg_for_interface_endpoints = securityGroup.SecuritygroupBlueprint {
+        _name = "security-group-${_id}-interface-endpoints"
+        _labels = _labels
+        _providerConfig = _providerConfig
+        _description = "Security Group for Interface VPC Endpoints"
+        _groupName = _name
+        _vpcIdSelector = {
+            matchControllerRef = True
+        }
+        _region = _region
+        _tags = _tags | { Name = _name }
+    }
 
-#     _interface_endpoint_sg_resource = [_sg_for_interface_endpoints, _sg_for_interface_endpoints_rules]
+    _sg_for_interface_endpoints_rules = securityGroupRule.SecuritygroupruleBlueprint {
+        _name = "sg-rule-${_id}-interface-endpoints-ingress"
+        _providerConfig = _providerConfig
+        _description = "Allow all outbound traffic"
+        _fromPort = 443
+        _toPort = 443
+        _protocol = "tcp"
+        _securityGroupIdSelector = {
+            matchControllerRef = True
+        }
+        _cidrBlocks = ["0.0.0.0/0"]
+        _region = _region
+        _type = "ingress"
+    }
+
+     _interface_endpoint_sg_resource = [_sg_for_interface_endpoints, _sg_for_interface_endpoints_rules]
 
 #     _interface_endpoint_resources = [
 #         vpcEndpoint.VpcendpointBlueprint {
@@ -415,5 +415,5 @@ else:
 #         _flow_log_resource
 #     ]
 
-#+ _interface_endpoint_sg_resource + _interface_endpoint_resources #+ _flow_log_all_resources
-items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources
+
+items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + _interface_endpoint_sg_resource #+ _interface_endpoint_resources + _flow_log_all_resources
