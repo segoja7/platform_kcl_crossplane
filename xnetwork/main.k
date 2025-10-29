@@ -347,14 +347,12 @@ if len(_enabledInterfaceEndpoints) > 0:
             _vpcEndpointType = "Interface"
             _serviceName = "com.amazonaws.${_region}.${service}"
             _privateDnsEnabled = True
-            # _subnetConfiguration = [
-            #     subnetIdSelector = {
-            #         matchControllerRef = True
-            #         matchLabels = {
-            #             "subnet.type" = "private"
-            #         }
-            #     }
-            # ]
+            _subnetIdSelector = {
+                matchLabels = {
+                    "claim-name": _id
+                    "subnet.type": "private"
+                }
+            }
         }
         for service in _enabledInterfaceEndpoints
     ]
