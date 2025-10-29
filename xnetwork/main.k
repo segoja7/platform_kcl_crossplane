@@ -299,6 +299,10 @@ _interface_endpoint_resources = []
 
 _interface_endpoint_sg_resource = []
 
+# Debug: Check the value of _enabledInterfaceEndpoints
+# _enabledInterfaceEndpoints should be: ["sts"]
+# len(_enabledInterfaceEndpoints) should be: 1
+
 if len(_enabledInterfaceEndpoints) > 0:
 
     _sg_for_interface_endpoints = securityGroup.SecuritygroupBlueprint {
@@ -306,7 +310,8 @@ if len(_enabledInterfaceEndpoints) > 0:
         _labels = _labels
         _providerConfig = _providerConfig
         _description = "Security Group for Interface VPC Endpoints"
-        _groupName = _name
+        _securitygroupName = _name
+        _revokeRulesOnDelete = True
         _vpcIdSelector = {
             matchControllerRef = True
         }
