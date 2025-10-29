@@ -88,23 +88,23 @@ _internetGateway_resource = internetGateway.InternetgatewayBlueprint {
         }
 }
 
-# _eip_resources = []
-# _nat_gateway_resources = []
-# _route_table_resources = []
+_eip_resources = []
+_nat_gateway_resources = []
+_route_table_resources = []
 
-# if _natStrategy == "PerAZ":
-#     # --- Estrategia: Un NAT Gateway por Zona de Disponibilidad ---
-#     _eip_resources = [
-#         eip.AddressBlueprint {
-#             _name = "eip-${_id}-${s.az}"
-#             _providerConfig = _providerConfig
-#             _region = _region
-#             _tags = _tags | {
-#                 Name = _name
-#             }             
-#         }
-#         for s in _public_subnets
-#     ]
+if _natStrategy == "PerAZ":
+    # --- Estrategia: Un NAT Gateway por Zona de Disponibilidad ---
+    _eip_resources = [
+        eip.AddressBlueprint {
+            _name = "eip-${_id}-${s.az}"
+            _providerConfig = _providerConfig
+            _region = _region
+            _tags = _tags | {
+                Name = _name
+            }             
+        }
+        for s in _public_subnets
+    ]
 #     _nat_gateway_resources = [
 #         natGateway.NatgatewayBlueprint {
 #             _name = "ng-${_id}-${s.az}"
