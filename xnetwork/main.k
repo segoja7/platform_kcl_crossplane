@@ -347,31 +347,31 @@ if len(_enabledInterfaceEndpoints) > 0:
             _vpcEndpointType = "Interface"
             _serviceName = "com.amazonaws.${_region}.${service}"
             _privateDnsEnabled = True
-            _subnetConfiguration = [{
-                subnetIdRef = {
-                    name = "subnet-${_id}-${s.az}-${s.type}"
-                }
-            } for s in _private_subnets]
+            # _subnetConfiguration = [
+            #     subnetIdRef = {
+            #         name = "subnet-${_id}-${s.az}-${s.type}"
+            #     }
+            # ]  for s in _private_subnets
         }
         for service in _enabledInterfaceEndpoints
     ]
 
-    # _interface_endpoint_sg_associations = [
-    #     vpcEndpointSecurityGroupAssociation.VpcendpointsecuritygroupassociationBlueprint {
-    #         _name = "vpce-sg-assoc-${service}-${_id}"
-    #         _labels = _labels
-    #         _providerConfig = _providerConfig
-    #         _region = _region
-    #         _securityGroupIdRef = {
-    #             name = _sg_for_interface_endpoints._name
-    #         }
-    #         _vpcEndpointIdRef = {
-    #             name = "${service}-interface-vpce-${_id}"
-    #         }
-    #     }
-    #     for service in _enabledInterfaceEndpoints
-    # ]
-    _interface_endpoint_resources = _interface_endpoint #+ _interface_endpoint_sg_associations
+    _interface_endpoint_sg_associations = [
+        vpcEndpointSecurityGroupAssociation.VpcendpointsecuritygroupassociationBlueprint {
+            _name = "vpce-sg-assoc-${service}-${_id}"
+            _labels = _labels
+            _providerConfig = _providerConfig
+            _region = _region
+            _securityGroupIdRef = {
+                name = _sg_for_interface_endpoints._name
+            }
+            _vpcEndpointIdRef = {
+                name = "${service}-interface-vpce-${_id}"
+            }
+        }
+        for service in _enabledInterfaceEndpoints
+    ]
+    _interface_endpoint_resources = _interface_endpoint + _interface_endpoint_sg_associations
 
 # _flow_log_all_resources = []
 # if _flowLogsConfig.enabled == True:
