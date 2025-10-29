@@ -95,7 +95,7 @@ _route_table_resources = []
 if _natStrategy == "PerAZ":
     # --- Estrategia: Un NAT Gateway por Zona de Disponibilidad ---
     _eip_resources = [
-        eip.AddressBlueprint {
+        eip.EipBlueprint {
             _name = "eip-${_id}-${s.az}"
             _providerConfig = _providerConfig
             _region = _region
