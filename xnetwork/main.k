@@ -3,7 +3,7 @@ import schemas.up.vpc as vpc
 import schemas.up.subnet as subnets
 import schemas.up.internetGateway as internetGateway
 import schemas.up.eip as eip
-# import schemas.up.natGateway as natGateway
+import schemas.up.natGateway as natGateway
 # import schemas.up.routeTable as routeTable
 # import schemas.up.routeTableAssociation as routeTableAssociation
 # import schemas.up.route as route
