@@ -10,8 +10,8 @@ import schemas.up.route as route
 import schemas.up.mainRouteTableAssociation as mainRouteTableAssociation
 import schemas.up.securityGroup as securityGroup
 import schemas.up.securityGroupRule as securityGroupRule
+import schemas.up.vpcEndpoint as vpcEndpoint
 
-# import schemas.up.vpcEndpoint as vpcEndpoint
 # import schemas.up.flowLog as flowLog
 # import schemas.up.logGroup as logGroup
 # import schemas.role as role
@@ -336,26 +336,26 @@ if len(_enabledInterfaceEndpoints) > 0:
 
     _interface_endpoint_sg_resource = [_sg_for_interface_endpoints, _sg_for_interface_endpoints_rules]
 
-#     _interface_endpoint_resources = [
-#         vpcEndpoint.VpcendpointBlueprint {
-#             _name = "${service}-interface-vpce-${_id}"
-#             _labels = _labels
-#             _providerConfig = _providerConfig
-#             _region = _region
-#             _vpcIdSelector = {
-#                 matchControllerRef = True
-#             }
-#             _tags = _tags | { Name = _name }
-#             _vpcEndpointType = "Interface"
-#             _serviceName = "com.amazonaws.${_region}.${service}"
-#             _privateDNSEnabled = True
-#             _subnetIdRefs = [
-#                 { name = subnet._name } for subnet in _subnet_resource if subnet._labels["subnet.type"] != "public" #or != "database"
-#             ]
-#             _securityGroupIdRefs = [{ name = _sg_for_interface_endpoints._name }]
-#         }
-#         for service in _enabledInterfaceEndpoints
-#     ]
+    _interface_endpoint_resources = [
+        vpcEndpoint.VpcendpointBlueprint {
+            _name = "${service}-interface-vpce-${_id}"
+            _labels = _labels
+            _providerConfig = _providerConfig
+            _region = _region
+            _vpcIdSelector = {
+                matchControllerRef = True
+            }
+            _tags = _tags | { Name = _name }
+            _vpcEndpointType = "Interface"
+            _serviceName = "com.amazonaws.${_region}.${service}"
+            _privateDNSEnabled = True
+            _subnetIdRefs = [
+                { name = subnet._name } for subnet in _subnet_resource if subnet._labels["subnet.type"] == "private" 
+            ]
+            _securityGroupIdRefs = [{ name = _sg_for_interface_endpoints._name }]
+        }
+        for service in _enabledInterfaceEndpoints
+    ]
 
 # _flow_log_all_resources = []
 # if _flowLogsConfig.enabled == True:
@@ -421,4 +421,4 @@ if len(_enabledInterfaceEndpoints) > 0:
 #     ]
 
 
-items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + _interface_endpoint_sg_resource #+ _interface_endpoint_resources + _flow_log_all_resources
+items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + _interface_endpoint_sg_resource + _interface_endpoint_resources #+ _flow_log_all_resources
