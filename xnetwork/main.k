@@ -510,7 +510,7 @@ if _flowLogsConfig.enabled == True and _flowLogsConfig.encryptionEnabled == True
         _flow_log_role_resource,
         _log_group_key_resource,
         _log_group_alias_key_resource,
-#        _log_group_resource,
+        _log_group_resource,
 #        _flow_log_policy_attachment_resource,
 #        _flow_log_resource
     ]
