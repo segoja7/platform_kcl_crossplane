@@ -432,11 +432,11 @@ if _flowLogsConfig.enabled == True and _flowLogsConfig.encryptionEnabled == True
                         "Service": "logs.${_region}.amazonaws.com"
                     },
                     "Action": [
-                        "kms:Encrypt*",
-                        "kms:Decrypt*",
+                        "kms:Encrypt",
+                        "kms:Decrypt",
                         "kms:ReEncrypt*",
                         "kms:GenerateDataKey*",
-                        "kms:Describe*"
+                        "kms:DescribeKey"
                     ],
                     "Resource": "*"
                 },
