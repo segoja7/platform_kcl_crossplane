@@ -457,54 +457,54 @@ if _flowLogsConfig.enabled == True and _flowLogsConfig.encryptionEnabled == True
     }
 
 
-    _log_group_resource = logGroup.GroupBlueprint {
-        _name = "vpc-flowlogs-${_id}"
-        _providerConfig = _providerConfig
-#        _logGroupName = "/aws/vpc/${_name}"
-        _kmsKeyIdSelector = {
-            matchControllerRef = True
-        }
-        _logGroupClass = "STANDARD"
-        _region = _region
-        _retentionInDays = _flowLogsConfig.retentionInDays or 90
-        _tags = _tags | {
-            Name = _name
-        }
-        _skipDestroy = False
-    }
+#     _log_group_resource = logGroup.GroupBlueprint {
+#         _name = "vpc-flowlogs-${_id}"
+#         _providerConfig = _providerConfig
+# #        _logGroupName = "/aws/vpc/${_name}"
+#         _kmsKeyIdSelector = {
+#             matchControllerRef = True
+#         }
+#         _logGroupClass = "STANDARD"
+#         _region = _region
+#         _retentionInDays = _flowLogsConfig.retentionInDays or 90
+#         _tags = _tags | {
+#             Name = _name
+#         }
+#         _skipDestroy = False
+#     }
 
-    _flow_log_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
-        _name = "policy-attachment-flowlogs-${_id}"
-        _providerConfig = _providerConfig
-        _role = _flow_log_role_resource._name
-        _policyArn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
-    }
+#     _flow_log_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
+#         _name = "policy-attachment-flowlogs-${_id}"
+#         _providerConfig = _providerConfig
+#         _role = _flow_log_role_resource._name
+#         _policyArn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+#     }
 
-    _flow_log_resource = flowLog.FlowlogBlueprint {
-        _name = "flowlog-vpc-${_id}"
-        _region = _region
-        _providerConfig = _providerConfig
-        _logDestination = _log_group_resource._name
-        _iamRoleArnRef = {
-            name = _flow_log_role_resource._name
-        }
-        _vpcIdSelector = { 
-            matchControllerRef = True 
-        }
-        _trafficType = _flowLogsConfig.trafficType or "ALL"
-        _tags = _tags | {
-            Name = _name
-        }
-    }
+#     _flow_log_resource = flowLog.FlowlogBlueprint {
+#         _name = "flowlog-vpc-${_id}"
+#         _region = _region
+#         _providerConfig = _providerConfig
+#         _logDestination = _log_group_resource._name
+#         _iamRoleArnRef = {
+#             name = _flow_log_role_resource._name
+#         }
+#         _vpcIdSelector = { 
+#             matchControllerRef = True 
+#         }
+#         _trafficType = _flowLogsConfig.trafficType or "ALL"
+#         _tags = _tags | {
+#             Name = _name
+#         }
+#     }
 
-    _flow_log_all_resources = [
-        _log_group_resource,
-        _flow_log_role_resource,
-        _log_group_key_resource,
-        _log_group_alias_key_resource,
-        _flow_log_policy_attachment_resource,
-        _flow_log_resource
-    ]
+#     _flow_log_all_resources = [
+#         _log_group_resource,
+#         _flow_log_role_resource,
+#         _log_group_key_resource,
+#         _log_group_alias_key_resource,
+#         _flow_log_policy_attachment_resource,
+#         _flow_log_resource
+#     ]
 
 
 items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + _interface_endpoint_sg_resource + _interface_endpoint_resources + _flow_log_all_resources
