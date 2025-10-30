@@ -467,7 +467,7 @@ if _flowLogsConfig.enabled == True and _flowLogsConfig.encryptionEnabled == True
 
 
     _log_group_resource = logGroup.GroupBlueprint {
-        _name = "/aws/vpc/flowlogs/${_id}"
+        _name = "vpc-flowlogs-${_id}"
         _providerConfig = _providerConfig
 #        _logGroupName = "/aws/vpc/${_name}"
         _kmsKeyIdSelector = {
