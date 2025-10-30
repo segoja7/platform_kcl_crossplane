@@ -493,7 +493,7 @@ if _flowLogsConfig.enabled == True and _flowLogsConfig.encryptionEnabled == True
         _name = "flowlog-vpc-${_id}"
         _region = _region
         _providerConfig = _providerConfig
-        _logDestination = _log_group_resource._name
+        _logGroupName = _log_group_resource._name
         _iamRoleArnRef = {
             name = _flow_log_role_resource._name
         }
