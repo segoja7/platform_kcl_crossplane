@@ -447,14 +447,14 @@ if _flowLogsConfig.enabled == True and _flowLogsConfig.encryptionEnabled == True
         _providerConfig = _providerConfig
     }
 
-    _log_group_alias_key_resource = alias.AliasBlueprint {
-        _name = "log-group-alias-${_id}"
-        _targetKeyIdSelector = {
-            matchControllerRef = True
-        }
-        _region = _region
-        _providerConfig = _providerConfig
-    }
+    # _log_group_alias_key_resource = alias.AliasBlueprint {
+    #     _name = "log-group-alias-${_id}"
+    #     _targetKeyIdSelector = {
+    #         matchControllerRef = True
+    #     }
+    #     _region = _region
+    #     _providerConfig = _providerConfig
+    # }
 
 
 #     _log_group_resource = logGroup.GroupBlueprint {
@@ -500,7 +500,7 @@ if _flowLogsConfig.enabled == True and _flowLogsConfig.encryptionEnabled == True
     _flow_log_all_resources = [
         _flow_log_role_resource,
         _log_group_key_resource,
-        _log_group_alias_key_resource,
+#        _log_group_alias_key_resource,
 #        _log_group_resource,
 #        _flow_log_policy_attachment_resource,
 #        _flow_log_resource
