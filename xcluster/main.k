@@ -869,9 +869,8 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
         
 #         _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource]#, _spoke_sg_rule]
 
-
-items = [
     #extraResourcesRequest
+items = [
     _cluster_role_resource
     _node_role_resource
     _eks_cluster_resource]
