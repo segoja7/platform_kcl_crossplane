@@ -489,22 +489,22 @@ if _flowLogsConfig.enabled == True and _flowLogsConfig.encryptionEnabled == True
         _policyArn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
     }
 
-#     _flow_log_resource = flowLog.FlowlogBlueprint {
-#         _name = "flowlog-vpc-${_id}"
-#         _region = _region
-#         _providerConfig = _providerConfig
-#         _logDestination = _log_group_resource._name
-#         _iamRoleArnRef = {
-#             name = _flow_log_role_resource._name
-#         }
-#         _vpcIdSelector = { 
-#             matchControllerRef = True 
-#         }
-#         _trafficType = _flowLogsConfig.trafficType or "ALL"
-#         _tags = _tags | {
-#             Name = _name
-#         }
-#     }
+    _flow_log_resource = flowLog.FlowlogBlueprint {
+        _name = "flowlog-vpc-${_id}"
+        _region = _region
+        _providerConfig = _providerConfig
+        _logDestination = _log_group_resource._name
+        _iamRoleArnRef = {
+            name = _flow_log_role_resource._name
+        }
+        _vpcIdSelector = { 
+            matchControllerRef = True 
+        }
+        _trafficType = _flowLogsConfig.trafficType or "ALL"
+        _tags = _tags | {
+            Name = _name
+        }
+    }
 
     _flow_log_all_resources = [
         _flow_log_role_resource,
@@ -512,7 +512,7 @@ if _flowLogsConfig.enabled == True and _flowLogsConfig.encryptionEnabled == True
         _log_group_alias_key_resource,
         _log_group_resource,
         _flow_log_policy_attachment_resource,
-#        _flow_log_resource
+        _flow_log_resource
     ]
 
 
