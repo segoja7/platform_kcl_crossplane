@@ -497,14 +497,14 @@ if _flowLogsConfig.enabled == True and _flowLogsConfig.encryptionEnabled == True
 #         }
 #     }
 
-#     _flow_log_all_resources = [
-#         _log_group_resource,
-#         _flow_log_role_resource,
-#         _log_group_key_resource,
-#         _log_group_alias_key_resource,
-#         _flow_log_policy_attachment_resource,
-#         _flow_log_resource
-#     ]
+    _flow_log_all_resources = [
+        _flow_log_role_resource,
+        _log_group_key_resource,
+        _log_group_alias_key_resource,
+#        _log_group_resource,
+#        _flow_log_policy_attachment_resource,
+#        _flow_log_resource
+    ]
 
 
 items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + _interface_endpoint_sg_resource + _interface_endpoint_resources + _flow_log_all_resources
