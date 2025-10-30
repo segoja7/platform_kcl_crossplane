@@ -467,7 +467,7 @@ if _flowLogsConfig.enabled == True and _flowLogsConfig.encryptionEnabled == True
 
 
     _log_group_resource = logGroup.GroupBlueprint {
-        _name = "vpc-flowlogs-${_id}"
+        _name = "/aws/vpc/flowlogs/${_id}"
         _providerConfig = _providerConfig
 #        _logGroupName = "/aws/vpc/${_name}"
         _kmsKeyIdSelector = {
@@ -482,12 +482,12 @@ if _flowLogsConfig.enabled == True and _flowLogsConfig.encryptionEnabled == True
         _skipDestroy = True
     }
 
-#     _flow_log_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
-#         _name = "policy-attachment-flowlogs-${_id}"
-#         _providerConfig = _providerConfig
-#         _role = _flow_log_role_resource._name
-#         _policyArn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
-#     }
+    _flow_log_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
+        _name = "policy-attachment-flowlogs-${_id}"
+        _providerConfig = _providerConfig
+        _role = _flow_log_role_resource._name
+        _policyArn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+    }
 
 #     _flow_log_resource = flowLog.FlowlogBlueprint {
 #         _name = "flowlog-vpc-${_id}"
@@ -511,7 +511,7 @@ if _flowLogsConfig.enabled == True and _flowLogsConfig.encryptionEnabled == True
         _log_group_key_resource,
         _log_group_alias_key_resource,
         _log_group_resource,
-#        _flow_log_policy_attachment_resource,
+        _flow_log_policy_attachment_resource,
 #        _flow_log_resource
     ]
 
