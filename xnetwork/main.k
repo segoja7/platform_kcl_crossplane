@@ -423,25 +423,34 @@ if _flowLogsConfig.enabled == True and _flowLogsConfig.encryptionEnabled == True
         _keyUsage = "ENCRYPT_DECRYPT"
         _multiRegion = False
         _policy = json.encode({
-            "Sid": "Enable VPC Flow Logs Encryption",
-            "Effect": "Allow",
-            "Principal": {
-                "Service": "vpc-flow-logs.amazonaws.com"
-            },
-            "Action": [
-                "kms:Encrypt",
-                "kms:Decrypt",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*",
-                "kms:DescribeKey"
-            ],
-            "Resource": "*",
-            "Condition": {
-                "StringEquals": {
-                    "kms:GranteePrincipal": "arn:aws:iam::${_accountId}:role/${_flow_log_role_resource._name}"
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "Enable CloudWatch logs encryption",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Service": "logs.${_region}.amazonaws.com"
+                    },
+                    "Action": [
+                        "kms:Encrypt*",
+                        "kms:Decrypt*",
+                        "kms:ReEncrypt*",
+                        "kms:GenerateDataKey*",
+                        "kms:Describe*"
+                    ],
+                    "Resource": "*"
+                },
+                {
+                    "Sid": "Allow account root to manage the key",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": "arn:aws:iam::${_accountId}:root"
+                    },
+                    "Action": "kms:*",
+                    "Resource": "*"
                 }
-            }
-            })
+            ]
+        })
         _region = _region
         _tags = _tags | {Name = _name}
         _providerConfig = _providerConfig
