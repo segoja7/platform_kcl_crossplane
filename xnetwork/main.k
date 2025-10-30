@@ -13,13 +13,18 @@ import schemas.up.securityGroupRule as securityGroupRule
 import schemas.up.vpcEndpoint as vpcEndpoint
 import schemas.up.vpcEndpointSecurityGroupAssociation as vpcEndpointSecurityGroupAssociation
 import schemas.up.vpcEndpointSubnetAssociation as vpcEndpointSubnetAssociation
+import schemas.up.logGroup as logGroup
+import schemas.up.key as key
+import schemas.up.alias as alias
+import schemas.up.role as role
+import schemas.rolePolicyAttachment as rolePolicyAttachment
+import schemas.up.flowLog as flowLog
 
-# import schemas.up.flowLog as flowLog
-# import schemas.up.logGroup as logGroup
-# import schemas.role as role
-# import schemas.rolePolicyAttachment as rolePolicyAttachment
+
+
 observed_xr = option("params").oxr
 _id = observed_xr.spec.id
+_accountId = observed_xr.spec.accountId
 _region = observed_xr.spec.region
 _cidrBlock = observed_xr.spec.vpcCidr
 _enableDnsHostnames = observed_xr.spec.enableDnsHostNames or True
@@ -348,11 +353,6 @@ if len(_enabledInterfaceEndpoints) > 0:
             _vpcEndpointType = "Interface"
             _serviceName = "com.amazonaws.${_region}.${service}"
             _privateDnsEnabled = True
-            # _subnetConfiguration = [
-            #     subnetIdRef = {
-            #         name = "subnet-${_id}-${s.az}-${s.type}"
-            #     }
-            # ]  for s in _private_subnets
         }
         for service in _enabledInterfaceEndpoints
     ]
@@ -392,68 +392,119 @@ if len(_enabledInterfaceEndpoints) > 0:
 
     _interface_endpoint_resources = _interface_endpoint + _interface_endpoint_sg_associations + _interface_endpoint_subnet_associations
 
-# _flow_log_all_resources = []
-# if _flowLogsConfig.enabled == True:
-#     _log_group_resource = logGroup.LoggroupBlueprint {
-#         _name = "vpc-flowlogs-${_id}"
-#         _providerConfig = _providerConfig
-#         _logGroupName = "/aws/vpc/${_name}"
-#         _region = _region
-#         _retentionInDays = _flowLogsConfig.retentionInDays or 90
-#         _tags = _tags | {
-#             Name = _name
-#         }
-#     }
+_flow_log_all_resources = []
+if _flowLogsConfig.enabled == True and _flowLogsConfig.encryptionEnabled == True:
 
-#     _flow_log_role_policy_document = json.encode({
-#         "Version": "2012-10-17",
-#         "Statement": [{
-#             "Effect": "Allow",
-#             "Principal": {"Service": "vpc-flow-logs.amazonaws.com"},
-#             "Action": "sts:AssumeRole"
-#         }]
-#     })
+    _flow_log_role_policy_document = json.encode({
+        "Version": "2012-10-17",
+        "Statement": [{
+            "Effect": "Allow",
+            "Principal": {"Service": "vpc-flow-logs.amazonaws.com"},
+            "Action": "sts:AssumeRole"
+        }]
+    })   
 
-#     _flow_log_role_resource = role.RoleBlueprint {
-#         _name = "role-flowlogs-${_id}"
-#         _providerConfig = _providerConfig
-#         _assumeRolePolicyDocument = _flow_log_role_policy_document
-#         _description = "Role for VPC Flow Logs"
-#         _tags = _tags | {
-#             Name = _name
-#         }
-#     }
+    _flow_log_role_resource = role.RoleBlueprint {
+        _name = "role-flowlogs-${_id}"
+        _providerConfig = _providerConfig
+        _assumeRolePolicy = _flow_log_role_policy_document
+        _description = "Role for VPC Flow Logs"
+        _tags = _tags | {
+            Name = _name
+        }
+    }
 
-#     _flow_log_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
-#         _name = "policy-attachment-flowlogs-${_id}"
-#         _providerConfig = _providerConfig
-#         _roleName = _flow_log_role_resource._name
-#         _policyArn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
-#     }
+    _log_group_key_resource = key.KeyBlueprint {
+        _name = "log-group-key-${_id}"
+        _deletionWindowInDays = 7
+        _description = "KMS Key for VPC Flow Logs"
+        _enableKeyRotation = True
+        _isEnabled = True
+        _keyUsage = "ENCRYPT_DECRYPT"
+        _multiRegion = False
+        _policy = json.encode({
+            "Sid": "Enable VPC Flow Logs Encryption",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "vpc-flow-logs.amazonaws.com"
+            },
+            "Action": [
+                "kms:Encrypt",
+                "kms:Decrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+                "kms:DescribeKey"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "kms:GranteePrincipal": "arn:aws:iam::${_accountId}:role/${_flow_log_role_resource._name}"
+                }
+            }
+            })
+        _region = _region
+        _tags = _tags | {Name = _name}
+        _providerConfig = _providerConfig
+    }
 
-#     _flow_log_resource = flowLog.FlowlogBlueprint {
-#         _name = "flowlog-vpc-${_id}"
-#         _region = _region
-#         _providerConfig = _providerConfig
-#         _logGroupName = _log_group_resource._name
-#         _deliverLogsPermissionArnRef = {
-#             name = _flow_log_role_resource._name
-#         }
-#         _vpcIdSelector = { 
-#             matchControllerRef = True 
-#         }
-#         _trafficType = _flowLogsConfig.trafficType or "ALL"
-#         _tags = _tags | {
-#             Name = _name
-#         }
-#     }
-
-#     _flow_log_all_resources = [
-#         _log_group_resource,
-#         _flow_log_role_resource,
-#         _flow_log_policy_attachment_resource,
-#         _flow_log_resource
-#     ]
+    _log_group_alias_key_resource = alias.AliasBlueprint {
+        _name = "log-group-alias-${_id}"
+        _targetKeyIdSelector = {
+            matchControllerRef = True
+        }
+        _region = _region
+        _providerConfig = _providerConfig
+    }
 
 
-items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + _interface_endpoint_sg_resource + _interface_endpoint_resources #+ _flow_log_all_resources
+    _log_group_resource = logGroup.GroupBlueprint {
+        _name = "vpc-flowlogs-${_id}"
+        _providerConfig = _providerConfig
+#        _logGroupName = "/aws/vpc/${_name}"
+        _kmsKeyIdSelector = {
+            matchControllerRef = True
+        }
+        _logGroupClass = "STANDARD"
+        _region = _region
+        _retentionInDays = _flowLogsConfig.retentionInDays or 90
+        _tags = _tags | {
+            Name = _name
+        }
+        _skipDestroy = False
+    }
+
+    _flow_log_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
+        _name = "policy-attachment-flowlogs-${_id}"
+        _providerConfig = _providerConfig
+        _role = _flow_log_role_resource._name
+        _policyArn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+    }
+
+    _flow_log_resource = flowLog.FlowlogBlueprint {
+        _name = "flowlog-vpc-${_id}"
+        _region = _region
+        _providerConfig = _providerConfig
+        _logDestination = _log_group_resource._name
+        _iamRoleArnRef = {
+            name = _flow_log_role_resource._name
+        }
+        _vpcIdSelector = { 
+            matchControllerRef = True 
+        }
+        _trafficType = _flowLogsConfig.trafficType or "ALL"
+        _tags = _tags | {
+            Name = _name
+        }
+    }
+
+    _flow_log_all_resources = [
+        _log_group_resource,
+        _flow_log_role_resource,
+        _log_group_key_resource,
+        _log_group_alias_key_resource,
+        _flow_log_policy_attachment_resource,
+        _flow_log_resource
+    ]
+
+
+items = [_vpc_resource, _internetGateway_resource] + _subnet_resource + _eip_resources + _nat_gateway_resources + _route_table_resources + _interface_endpoint_sg_resource + _interface_endpoint_resources + _flow_log_all_resources

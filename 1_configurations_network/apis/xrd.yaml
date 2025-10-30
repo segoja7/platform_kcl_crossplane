@@ -22,6 +22,9 @@ spec:
               id:
                 type: string
                 description: ID for this VPC and its resources.
+              accountId:
+                type: string
+                description: AWS Account ID where the VPC will be created.
               region:
                 type: string
                 description: AWS Region for the VPC.
@@ -95,6 +98,9 @@ spec:
                   enabled:
                     type: boolean
                     description: Set to true to enable VPC Flow Logs.
+                  encryptionEnabled:
+                    type: boolean
+                    description: Set to true to enable encryption for VPC Flow Logs.
                   retentionInDays:
                     type: integer
                     description: Number of days to retain the logs.

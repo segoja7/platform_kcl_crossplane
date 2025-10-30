@@ -5,6 +5,27 @@ metadata:
 spec:
   package: xpkg.upbound.io/upbound/provider-aws-ec2:v2
 ---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: upbound-provider-aws-cloudwatchlogs
+spec:
+  package: xpkg.upbound.io/upbound/provider-aws-cloudwatchlogs:v2
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: upbound-provider-aws-kms
+spec:
+  package: xpkg.upbound.io/upbound/provider-aws-kms:v2
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: upbound-provider-aws-iam
+spec:
+  package: xpkg.upbound.io/upbound/provider-aws-iam:v2
+---
 # apiVersion: pkg.crossplane.io/v1
 # kind: Provider
 # metadata:
