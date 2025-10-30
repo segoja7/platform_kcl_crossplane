@@ -494,8 +494,9 @@ if _flowLogsConfig.enabled == True and _flowLogsConfig.encryptionEnabled == True
         _region = _region
         _providerConfig = _providerConfig
         _logDestinationSelector = {
-            matchControllerRef = True
+            name = _log_group_resource._name
         }
+        _logDestinationType = "cloud-watch-logs"
         _iamRoleArnRef = {
             name = _flow_log_role_resource._name
         }
