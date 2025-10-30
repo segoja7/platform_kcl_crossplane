@@ -17,7 +17,7 @@ import schemas.up.logGroup as logGroup
 import schemas.up.key as key
 import schemas.up.alias as alias
 import schemas.up.role as role
-import schemas.rolePolicyAttachment as rolePolicyAttachment
+import schemas.up.rolePolicyAttachment as rolePolicyAttachment
 import schemas.up.flowLog as flowLog
 
 
