@@ -5,7 +5,7 @@ import schemas.up.rolePolicyAttachment as rolePolicyAttachment
 import schemas.up.kmsKey as kmsKey
 import schemas.up.kmsAlias as kmsAlias
 import schemas.up.eksCluster as eksCluster
-# import schemas.eksNodeGroup as eksNodegroup
+import schemas.up.eksNodeGroup as eksNodegroup
 # import schemas.eksAddon as eksAddon
 # import schemas.providerConfigHelm as providerConfigHelm
 # #import schemas.securityGroupRule as securityGroupRule
@@ -207,36 +207,44 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
     }
 }
 
-# _cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
-#     _name = "cluster-nodegroup-${_id}"
-#     _labels = _labels
-#     _providerConfig = _providerConfig
-#     _amiType = _nodeGroupConfig.amiType
-#     _capacityType = _nodeGroupConfig.capacityType
-#     _clusterNameSelector = {
-#         matchControllerRef = True
-#     }
-#     _diskSize = _nodeGroupConfig.diskSize
-#     _instanceTypes = _nodeGroupConfig.instanceTypes
-#     _nodeRoleRef = {
-#         name = _node_role_resource._name
-#     }
-#     _region = _region
-#     _scalingConfig = {
-#         desiredSize = _nodeGroupConfig.desiredSize
-#         maxSize = _nodeGroupConfig.maxSize
-#         minSize = _nodeGroupConfig.minSize
-#     }
-#     _subnetSelector = {
-#         matchLabels = {
-#             "claim-name": _networkId
-#             "subnet.type": "private"
-#         }
-#     }
-#     _tags = _tags | {Name = _name}
-#     if _nodeGroupConfig.updateConfig != None:
-#         _updateConfig = _nodeGroupConfig.updateConfig
-# }
+_cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
+    _name = "cluster-nodegroup-${_id}"
+    _labels = _labels
+    _providerConfig = _providerConfig
+    _amiType = _nodeGroupConfig.amiType
+    _capacityType = _nodeGroupConfig.capacityType
+    _clusterNameSelector = {
+        matchControllerRef = True
+    }
+    _diskSize = _nodeGroupConfig.diskSize
+    _forceUpdateVersion = True
+    _instanceTypes = _nodeGroupConfig.instanceTypes
+    _nodeRoleArnRef = {
+        name = _node_role_resource._name
+    }
+    _region = _region
+    _scalingConfig = [{
+        desiredSize = _nodeGroupConfig.desiredSize
+        maxSize = _nodeGroupConfig.maxSize
+        minSize = _nodeGroupConfig.minSize
+    }]
+    _subnetIdSelector = {
+        matchLabels = {
+            "claim-name": _networkId
+            "subnet.type": "private"
+        }
+    }
+    # _updateConfig = [{
+    #     maxUnavailable = 1
+    #     maxUnavailablePercentage = 1
+    # }]
+    _versionSelector = {
+        matchControllerRef = True
+    } 
+    _tags = _tags | {Name = _name}
+    if _nodeGroupConfig.updateConfig != None:
+        _updateConfig = _nodeGroupConfig.updateConfig
+}
 
 # _addons_vpc_cni_assume_role_policy = json.encode({
 #     "Version": "2012-10-17"
