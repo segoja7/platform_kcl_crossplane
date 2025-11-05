@@ -234,17 +234,11 @@ _cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
             "subnet.type": "private"
         }
     }
-    _updateConfig = [_nodeGroupConfig.updateConfig.maxUnavailablePercentage]
-    # [{
-    #     maxUnavailable = 
-    #     maxUnavailablePercentage = 1
-    # }]
-    _versionSelector = {
-        matchControllerRef = True
-    } 
-    _tags = _tags | {Name = _name}
-    # if _nodeGroupConfig.updateConfig != None:
-    #     _updateConfig = [_nodeGroupConfig.updateConfig]
+    if _nodeGroupConfig.updateConfig != None:
+        _updateConfig = [{
+            maxUnavailable = _nodeGroupConfig.updateConfig.maxUnavailable
+            maxUnavailablePercentage = _nodeGroupConfig.updateConfig.maxUnavailablePercentage
+        }]
 }
 
 # _addons_vpc_cni_assume_role_policy = json.encode({
