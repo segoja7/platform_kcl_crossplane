@@ -243,7 +243,7 @@ _cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
     } 
     _tags = _tags | {Name = _name}
     if _nodeGroupConfig.updateConfig != None:
-        _updateConfig = _nodeGroupConfig.updateConfig
+        _updateConfig = [_nodeGroupConfig.updateConfig]
 }
 
 # _addons_vpc_cni_assume_role_policy = json.encode({
