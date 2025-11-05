@@ -1,5 +1,5 @@
 import json
-import base64
+#import base64
 import schemas.up.role as role
 import schemas.up.rolePolicyAttachment as rolePolicyAttachment
 import schemas.up.kmsKey as kmsKey
@@ -171,26 +171,26 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
     _labels = _labels
     _region = _region
     _providerConfig = _providerConfig
-    _accessConfig = {
+    _accessConfig = [{
         authenticationMode: _authenticationMode
-        bootstrapClusterCreatorAdminPermissions = True
-    }
+        bootstrapClusterCreatorAdminPermissions: True
+    }]
     _bootstrapSelfManagedAddons = True
     _deletionProtection = False
     _encryptionConfig = _eks_encryption_config
     if len(_logTypes) > 0:
-        enabledClusterLogTypes = [ logTypes ]
+        _enabledClusterLogTypes = _logTypes
     _forceUpdateVersion = False
-    _kubernetesNetworkConfig = {
+    _kubernetesNetworkConfig = [{
         ipFamily: "ipv4"
         serviceIpv4Cidr: "10.96.0.0/16"
-    }
+    }]
     _roleArnRef = {
         name: _cluster_role_resource._name
     }
     _tags = _tags | {Name = _name}        
     _version = _clusterVersion
-    _vpcConfig = {
+    _vpcConfig = [{
         endpointPrivateAccess: _endpointPrivateAccess
         endpointPublicAccess: _endpointPublicAccess
         publicAccessCidrs: _publicAccessCidrs
@@ -200,7 +200,7 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
                 "subnet.type": "private"
             }
         }
-    }
+    }]
     _writeConnectionSecretToRef = {
         name: _name
         namespace: "default"
@@ -871,8 +871,8 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
 
     #extraResourcesRequest
 items = [
-    _cluster_role_resource
-    _node_role_resource
+    _cluster_role_resource,
+    _node_role_resource,
     _eks_cluster_resource]
 #    _cluster_nodegroup_resource
 # ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
