@@ -106,17 +106,13 @@ spec:
                         maxUnavailablePercentage:
                           type: integer
                           description: "Maximum percentage of nodes that can be unavailable during an update."
-                        force:
-                          type: boolean
-                          description: "Force update even if it causes disruption."
-                          default: false
                         maxUnavailable:
                           type: integer
                           description: "Maximum number of nodes that can be unavailable during an update."
-                      not:
-                        required:
-                          - maxUnavailable
-                          - maxUnavailablePercentage
+                      # not:
+                      #   required:
+                      #     - maxUnavailable
+                      #     - maxUnavailablePercentage
               addons:
                 type: array
                 description: "List of EKS addons to install on the cluster."
