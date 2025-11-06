@@ -565,6 +565,7 @@ if oidc_issuer_url and oidc_issuer_url != "":
     _oidc_resource = identityProviderConfig.IdentityproviderconfigBlueprint {
         _name = "openid-eks-${_id}"
         _providerConfig = _providerConfig
+        _region = _region
         _clusterNameSelector = {
             matchControllerRef = True
         }
