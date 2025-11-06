@@ -556,8 +556,8 @@ er = option("params").extraResources or {}
 # if er?.vpc and len(er.vpc) > 0:
 #     _vpc_id = er.vpc[0]?.Resource?.status?.atProvider?.vpcId or ""
 
-observed_cluster_name = _eks_cluster_resource._name
-oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.status?.atProvider?.identity[0]?.oidc[0]?.issuer or ""
+#observed_cluster_name = _eks_cluster_resource._name
+oidc_issuer_url = option("params")?.ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.identity[0]?.oidc[0]?.issuer or ""
 
 # Create OpenIDConnectProvider only when we have a real OIDC URL
 _oidc_resources = []

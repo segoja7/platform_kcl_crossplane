@@ -36,16 +36,16 @@ spec:
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
 metadata:
-  name: upbound-provider-kubernetes
+  name: crossplane-contrib-provider-kubernetes
 spec:
-  package: xpkg.upbound.io/upbound/provider-kubernetes:v1.0.1
+  package: xpkg.upbound.io/crossplane-contrib/provider-kubernetes:v1.0.0
 ---
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
 metadata:
-  name: upbound-provider-helm
+  name: crossplane-contrib-provider-helm
 spec:
-  package: xpkg.upbound.io/upbound/provider-helm:v1.0.3
+  package: xpkg.upbound.io/crossplane-contrib/provider-helm:v1.0.2
 # ---
 # apiVersion: pkg.crossplane.io/v1
 # kind: Provider
