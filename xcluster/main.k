@@ -782,7 +782,9 @@ if _clusterTopology.typeCluster == "Hub":
         _name = "policy-attachment-hub-argocd-${_id}"
         _labels = _labels
         _providerConfig = _providerConfig
-        _role = _argocd_hub_role_resource._name
+        _roleRef = {
+            name = _argocd_hub_role_resource._name
+        }
         _policyArn = "arn:aws:iam::${_accountId}:policy/${_argocd_hub_policy_resource._name}"
     }
     _hub_resources = [_argocd_hub_policy_resource, _argocd_hub_policy_attachment_resource, _argocd_hub_role_resource]
