@@ -557,7 +557,7 @@ er = option("params").extraResources or {}
 #     _vpc_id = er.vpc[0]?.Resource?.status?.atProvider?.vpcId or ""
 
 observed_cluster_name = _eks_cluster_resource._name
-oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.status?.atProvider?.identity?.oidc?.issuer or ""
+oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.status?.atProvider?.identity[0]?.oidc[0]?.issuer or ""
 
 # Create OpenIDConnectProvider only when we have a real OIDC URL
 _oidc_resources = []
@@ -878,7 +878,7 @@ elif _clusterTopology.typeCluster == "Spoke":
 #         #     _sourceSecurityGroupId = _hub_securityGroupId
 #         # }
         
-#         _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource]#, _spoke_sg_rule]
+        _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource]#, _spoke_sg_rule]
 
     #extraResourcesRequest
 items = [
@@ -889,4 +889,6 @@ items = [
 ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
     _providerconfig_helm_resource
     _providerconfig_kubernetes_resource
-] + _argo_resources + _oidc_resources + _hub_resources + _spoke_resources #+ _helm_addon_resources + _cert_manager_resources
+] + _argo_resources + _oidc_resources + _hub_resources + _spoke_resources 
+
+# + _helm_addon_resources + _cert_manager_resources
