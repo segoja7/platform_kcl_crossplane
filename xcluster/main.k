@@ -1,5 +1,5 @@
 import json
-#import base64
+import base64
 import schemas.up.role as role
 import schemas.up.rolePolicyAttachment as rolePolicyAttachment
 import schemas.up.kmsKey as kmsKey
@@ -7,13 +7,13 @@ import schemas.up.kmsAlias as kmsAlias
 import schemas.up.eksCluster as eksCluster
 import schemas.up.eksNodeGroup as eksNodegroup
 import schemas.up.eksAddon as eksAddon
-# import schemas.providerConfigHelm as providerConfigHelm
+import schemas.up.providerConfigHelm as providerConfigHelm
+import schemas.up.release as release
+import schemas.up.providerConfigKubernetes as providerConfigKubernetes
+import schemas.up.object as object
+import schemas.up.identityProviderConfig as identityProviderConfig
 # #import schemas.securityGroupRule as securityGroupRule
-# import schemas.release as release
-# import schemas.providerConfigKubernetes as providerConfigKubernetes
-# import schemas.object as object
-# import schemas.openIDConnectProvider as openIDConnectProvider
-# import schemas.policy as policy
+import schemas.up.policy as policy
 
 oxr = option("params").oxr
 _ocds = option("params").ocds or {}
@@ -294,283 +294,290 @@ _cluster_addons_resource = [eksAddon.AddonBlueprint {
     }
 } for s in _addonsConfig]
 
-# _providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
-#     _name = "provider-helm-${_id}"
-#     _labels = _labels
-#     _annotations = {
-#         "krm.kcl.dev/ready": "True"
-#     }
-#     _credentials = {
-#         source = "Secret"
-#         secretRef = {
-#             namespace = _eks_cluster_resource._writeConnectionSecretToRef.namespace
-#             name = _eks_cluster_resource._writeConnectionSecretToRef.name
-#             key = "kubeconfig"
-#         }
-#     }
-# }
+_providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
+    _name = "provider-helm-${_id}"
+    _labels = _labels
+    _annotations = {
+        "krm.kcl.dev/ready": "True"
+    }
+    _credentials = {
+        source = "Secret"
+        secretRef = {
+            namespace = _eks_cluster_resource._writeConnectionSecretToRef.namespace
+            name = _eks_cluster_resource._writeConnectionSecretToRef.name
+            key = "kubeconfig"
+        }
+    }
+}
 
-# _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlueprint {
-#     _name = "provider-kubernetes-${_id}"
-#     _labels = _labels
-#     _annotations = {
-#         "krm.kcl.dev/ready": "True"
-#     }
-#     _credentials = {
-#         source = "Secret"
-#         secretRef = {
-#             namespace = _eks_cluster_resource._writeConnectionSecretToRef.namespace
-#             name = _eks_cluster_resource._writeConnectionSecretToRef.name
-#             key = "kubeconfig"
-#         }
-#     }
-# }
+_providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlueprint {
+    _name = "provider-kubernetes-${_id}"
+    _labels = _labels
+    _annotations = {
+        "krm.kcl.dev/ready": "True"
+    }
+    _credentials = {
+        source = "Secret"
+        secretRef = {
+            namespace = _eks_cluster_resource._writeConnectionSecretToRef.namespace
+            name = _eks_cluster_resource._writeConnectionSecretToRef.name
+            key = "kubeconfig"
+        }
+    }
+}
 
-# _argo_resources = []
-# if _enableArgo == True:
-#     _release_helm_resource = release.ReleaseBlueprint {
-#         _name = "argocd"
-#         _labels = _labels
-#         _providerConfig = _providerconfig_helm_resource._name
-#         _chart = {
-#             name = "argo-cd"
-#             repository = "https://argoproj.github.io/argo-helm"
-#             version = "7.9.0"
-#         }
-#         # _createNamespace = False
-#         _namespace = "argocd"
-#         _values = {
-#             "global": {
-#                 "domain": "argo.segoja7.com"
-#             }
-#             "controller": {
-#                 "serviceAccount": {
-#                     "annotations": {
-#                         "eks.amazonaws.com/role-arn": "arn:aws:iam::${_accountId}:role/${_argocd_hub_role_resource._name}"
-#                     }
-#                 }
-#             }
-#             "server": {
-#                 "serviceAccount": {
-#                     "annotations": {
-#                         "eks.amazonaws.com/role-arn": "arn:aws:iam::${_accountId}:role/${_argocd_hub_role_resource._name}"
-#                     }
-#                 }
-#                 "ingress": {
-#                     "enabled": False
-#                 }
-#             }
-#             "configs": {
-#                 "params": {
-#                     "server.insecure": True
-#                 }
-#                 # "cm": {
-#                 #     "accounts.provider-argocd": "apiKey"
-#                 # }
-#                 # "rbac": {
-#                 #     "policy.csv": "g, provider-argocd, role:admin"
-#                 # }
-#             }
-#             "repoServer": {
-#                 "volumes": [
-#                     {
-#                         "name": "kcl-binary"
-#                         "emptyDir": {}
-#                     }
-#                     {
-#                         "name": "kcl-plugin-config"
-#                         "configMap": {
-#                             "name": "kcl-plugin"
-#                         }
-#                     }
-#                 ]
-#                 "initContainers": [
-#                     {
-#                         "name": "install-kcl"
-#                         "image": "kcllang/kcl:v0.11.3"
-#                         "command": ["sh", "-c", "cp /usr/local/bin/kcl /kcl-binary/"]
-#                         "volumeMounts": [
-#                             {
-#                                 "name": "kcl-binary"
-#                                 "mountPath": "/kcl-binary"
-#                             }
-#                         ]
-#                     }
-#                 ]
-#                 "extraContainers": [
-#                     {
-#                         "name": "kcl-plugin"
-#                         "command": ["/var/run/argocd/argocd-cmp-server"]
-#                         "image": "quay.io/argoproj/argocd:v2.14.11"
-#                         "securityContext": {
-#                             "runAsNonRoot": True
-#                             "runAsUser": 999
-#                         }
-#                         "volumeMounts": [
-#                             {
-#                                 "mountPath": "/var/run/argocd"
-#                                 "name": "var-files"
-#                             }
-#                             {
-#                                 "mountPath": "/home/argocd/cmp-server/plugins"
-#                                 "name": "plugins"
-#                             }
-#                             {
-#                                 "mountPath": "/usr/local/bin/kcl"
-#                                 "name": "kcl-binary"
-#                                 "subPath": "kcl"
-#                             }
-#                             {
-#                                 "mountPath": "/home/argocd/cmp-server/config/plugin.yaml"
-#                                 "name": "kcl-plugin-config"
-#                                 "subPath": "plugin.yaml"
-#                             }
-#                         ]
-#                     }
-#                 ]
-#             }
-#         }
-#     }
+_argo_resources = []
+if _enableArgo == True:
+    _release_helm_resource = release.ReleaseBlueprint {
+        _name = "argocd"
+        _labels = _labels
+        _providerConfig = _providerconfig_helm_resource._name
+        _chart = {
+            name = "argo-cd"
+            repository = "https://argoproj.github.io/argo-helm"
+            version = "7.9.0"
+        }
+        # _createNamespace = False
+        _namespace = "argocd"
+        _values = {
+            "global": {
+                "domain": "argo.segoja7.com"
+            }
+            "controller": {
+                "serviceAccount": {
+                    "annotations": {
+                        "eks.amazonaws.com/role-arn": "arn:aws:iam::${_accountId}:role/${_argocd_hub_role_resource._name}"
+                    }
+                }
+            }
+            "server": {
+                "serviceAccount": {
+                    "annotations": {
+                        "eks.amazonaws.com/role-arn": "arn:aws:iam::${_accountId}:role/${_argocd_hub_role_resource._name}"
+                    }
+                }
+                "ingress": {
+                    "enabled": False
+                }
+            }
+            "configs": {
+                "params": {
+                    "server.insecure": True
+                }
+                # "cm": {
+                #     "accounts.provider-argocd": "apiKey"
+                # }
+                # "rbac": {
+                #     "policy.csv": "g, provider-argocd, role:admin"
+                # }
+            }
+            "repoServer": {
+                "volumes": [
+                    {
+                        "name": "kcl-binary"
+                        "emptyDir": {}
+                    }
+                    {
+                        "name": "kcl-plugin-config"
+                        "configMap": {
+                            "name": "kcl-plugin"
+                        }
+                    }
+                ]
+                "initContainers": [
+                    {
+                        "name": "install-kcl"
+                        "image": "kcllang/kcl:v0.11.3"
+                        "command": ["sh", "-c", "cp /usr/local/bin/kcl /kcl-binary/"]
+                        "volumeMounts": [
+                            {
+                                "name": "kcl-binary"
+                                "mountPath": "/kcl-binary"
+                            }
+                        ]
+                    }
+                ]
+                "extraContainers": [
+                    {
+                        "name": "kcl-plugin"
+                        "command": ["/var/run/argocd/argocd-cmp-server"]
+                        "image": "quay.io/argoproj/argocd:v2.14.11"
+                        "securityContext": {
+                            "runAsNonRoot": True
+                            "runAsUser": 999
+                        }
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/argocd"
+                                "name": "var-files"
+                            }
+                            {
+                                "mountPath": "/home/argocd/cmp-server/plugins"
+                                "name": "plugins"
+                            }
+                            {
+                                "mountPath": "/usr/local/bin/kcl"
+                                "name": "kcl-binary"
+                                "subPath": "kcl"
+                            }
+                            {
+                                "mountPath": "/home/argocd/cmp-server/config/plugin.yaml"
+                                "name": "kcl-plugin-config"
+                                "subPath": "plugin.yaml"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
 
-#     _object_argocd_ingress = object.ObjectBlueprint {
-#         _name = "argocd-ingress"
-#         _labels = _labels
-#         _manifest = {
-#             apiVersion = "networking.k8s.io/v1"
-#             kind = "Ingress"
-#             metadata = {
-#                 name = "argocd-server-ingress"
-#                 namespace = "argocd"
-#                 annotations = {
-#                     "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
-#                 }
-#             }
-#             spec = {
-#                 ingressClassName = "nginx"
-#                 rules = [
-#                     {
-#                         host = "argo.segoja7.com"
-#                         http = {
-#                             paths = [
-#                                 {
-#                                     path = "/"
-#                                     pathType = "Prefix"
-#                                     backend = {
-#                                         service = {
-#                                             name = "argocd-server"
-#                                             port = {
-#                                                 name = "https"
-#                                             }
-#                                         }
-#                                     }
-#                                 }
-#                             ]
-#                         }
-#                     }
-#                 ]
-#                 tls = [
-#                     {
-#                         hosts = [
-#                             "argo.segoja7.com"
-#                         ]
-#                         secretName = _certificateSecretName
-#                     }
-#                 ]
-#             }
-#         }
-#         _providerConfig = _providerconfig_kubernetes_resource._name
-#     }
+    _object_argocd_ingress = object.ObjectBlueprint {
+        _name = "argocd-ingress"
+        _labels = _labels
+        _manifest = {
+            apiVersion = "networking.k8s.io/v1"
+            kind = "Ingress"
+            metadata = {
+                name = "argocd-server-ingress"
+                namespace = "argocd"
+                annotations = {
+                    "nginx.ingress.kubernetes.io/force-ssl-redirect": "false"
+                }
+            }
+            spec = {
+                ingressClassName = "nginx"
+                rules = [
+                    {
+                        #host = "argo.segoja7.com"
+                        http = {
+                            paths = [
+                                {
+                                    path = "/"
+                                    pathType = "Prefix"
+                                    backend = {
+                                        service = {
+                                            name = "argocd-server"
+                                            port = {
+                                                name = "https"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+                # tls = [
+                #     {
+                #         hosts = [
+                #             "argo.segoja7.com"
+                #         ]
+                #         secretName = _certificateSecretName
+                #     }
+                # ]
+            }
+        }
+        _providerConfig = _providerconfig_kubernetes_resource._name
+    }
 
-#     _object_argo_cm_resource = object.ObjectBlueprint {
-#         _name = "kcl-plugin-configmap"
-#         _labels = _labels
-#         _manifest = {
-#             apiVersion = "v1"
-#             kind = "ConfigMap"
-#             metadata = {
-#                 name = "kcl-plugin"
-#                 namespace = "argocd"
-#             }
-#             data = {
-#                 "plugin.yaml": """apiVersion: argoproj.io/v1alpha1
-# kind: ConfigManagementPlugin
-# metadata:
-#   name: kcl
-# spec:
-#   version: v1.0
-#   generate:
-#     command: ["sh", "-c"]
-#     args:
-#     - |
-#       export KCL_CACHE_PATH=/tmp
-#       export KCL_PKG_PATH=/tmp
-#       tempfile=$(mktemp)
-#       kcl run -q -o $tempfile > /dev/null 2>&1
-#       error=$?
-#       if [ $error -eq 0 ]; then
-#         cat $tempfile
-#         rm $tempfile
-#       fi
-#       exit $error
-# """
-#             }
-#         }
-#         _providerConfig = _providerconfig_kubernetes_resource._name
-#     }
+    _object_argo_cm_resource = object.ObjectBlueprint {
+        _name = "kcl-plugin-configmap"
+        _labels = _labels
+        _manifest = {
+            apiVersion = "v1"
+            kind = "ConfigMap"
+            metadata = {
+                name = "kcl-plugin"
+                namespace = "argocd"
+            }
+            data = {
+                "plugin.yaml": """apiVersion: argoproj.io/v1alpha1
+kind: ConfigManagementPlugin
+metadata:
+  name: kcl
+spec:
+  version: v1.0
+  generate:
+    command: ["sh", "-c"]
+    args:
+    - |
+      export KCL_CACHE_PATH=/tmp
+      export KCL_PKG_PATH=/tmp
+      tempfile=$(mktemp)
+      kcl run -q -o $tempfile > /dev/null 2>&1
+      error=$?
+      if [ $error -eq 0 ]; then
+        cat $tempfile
+        rm $tempfile
+      fi
+      exit $error
+"""
+            }
+        }
+        _providerConfig = _providerconfig_kubernetes_resource._name
+    }
 
-#     _argo_resources = [_release_helm_resource, _object_argocd_ingress, _object_argo_cm_resource]
+    _argo_resources = [_release_helm_resource, _object_argocd_ingress, _object_argo_cm_resource]
 
 
-# extraResourcesRequest = {
-#     "apiVersion": "meta.krm.kcl.dev/v1alpha1"
-#     "kind": "ExtraResources"
-#     "requirements": {
-#         "vpc": {
-#             "apiVersion": "ec2.aws.crossplane.io/v1beta1"
-#             "kind": "VPC"
-#             "matchLabels": {
-#                 "claim-name": _networkId
-#             }
-#         }
-#         "roles": {
-#             "apiVersion": "iam.aws.crossplane.io/v1beta1"
-#             "kind": "Role"
-#             "matchLabels": {
-#                 "argocd-hub": _clusterTopology.hubId
-#             }
-#         }
-#         "clusters": {
-#             "apiVersion": "eks.aws.crossplane.io/v1beta1"
-#             "kind": "Cluster"
-#             "matchLabels": {
-#                 "argocd-hub": _clusterTopology.hubId
-#             }
-#         }        
-#     }
-# }
+extraResourcesRequest = {
+    "apiVersion": "meta.krm.kcl.dev/v1alpha1"
+    "kind": "ExtraResources"
+    "requirements": {
+        # "vpc": {
+        #     "apiVersion": "ec2.aws.crossplane.io/v1beta1"
+        #     "kind": "VPC"
+        #     "matchLabels": {
+        #         "claim-name": _networkId
+        #     }
+        # }
+        "roles": {
+            "apiVersion": "iam.aws.crossplane.io/v1beta1"
+            "kind": "Role"
+            "matchLabels": {
+                "argocd-hub": _clusterTopology.hubId
+            }
+        }
+        "clusters": {
+            "apiVersion": "eks.aws.crossplane.io/v1beta1"
+            "kind": "Cluster"
+            "matchLabels": {
+                "argocd-hub": _clusterTopology.hubId
+            }
+        }        
+    }
+}
 
-# # Get extra resources
-# er = option("params").extraResources or {}
-# # dxr = {**oxr}
+# Get extra resources
+er = option("params").extraResources or {}
+# dxr = {**oxr}
 # _vpc_id = ""
 # if er?.vpc and len(er.vpc) > 0:
 #     _vpc_id = er.vpc[0]?.Resource?.status?.atProvider?.vpcId or ""
 
-# observed_cluster_name = _eks_cluster_resource._name
-# oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.status?.atProvider?.identity?.oidc?.issuer or ""
+observed_cluster_name = _eks_cluster_resource._name
+oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.status?.atProvider?.identity?.oidc?.issuer or ""
 
-# # Create OpenIDConnectProvider only when we have a real OIDC URL
-# _oidc_resources = []
-# if oidc_issuer_url and oidc_issuer_url != "":
-#     _oidc_resource = openIDConnectProvider.OpenidconnectproviderBlueprint {
-#         _name = "openid-eks-${_id}"
-#         _providerConfig = _providerConfig
-#         _clientIDList = ["sts.amazonaws.com"]
-#         _thumbprintList = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
-#         _url = oidc_issuer_url
-#         _tags = _tags | {Name = _name}
-#     }
-#     _oidc_resources = [_oidc_resource]
+# Create OpenIDConnectProvider only when we have a real OIDC URL
+_oidc_resources = []
+if oidc_issuer_url and oidc_issuer_url != "":
+    _oidc_resource = identityProviderConfig.IdentityproviderconfigBlueprint {
+        _name = "openid-eks-${_id}"
+        _providerConfig = _providerConfig
+        _clusterNameSelector = {
+            matchControllerRef = True
+        }
+        _oidc = [{
+            clientId = "sts.amazonaws.com"
+            issuerUrl = oidc_issuer_url
+        }]
+        # _thumbprintList = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
+        _tags = _tags | {Name = _name}
+    }
+    _oidc_resources = [_oidc_resource]
+
+_issuer_url = oidc_issuer_url.replace("https://", "")
 
 # _helm_addon_resources = []
 # if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
@@ -718,141 +725,141 @@ _cluster_addons_resource = [eksAddon.AddonBlueprint {
 #     }
 #     _cert_manager_resources = [_certificate_resource, _clusterissuer_resource]
 
-# _hub_resources = []
-# _spoke_resources = []
-# if _clusterTopology.typeCluster == "Hub":
-#     _argo_sa_names = ["argocd-application-controller", "argocd-server"]
-#     _argo_sa_subjects = ["system:serviceaccount:argocd:${s}" for s in _argo_sa_names]
-#     _argocd_hub_role_resource = role.RoleBlueprint {
-#         _name = "role-eks-cluster-hub-argo-${_id}"
-#         _labels = _labels | {
-#             "argocd-hub": _id
-#         }
-#         _providerConfig = _providerConfig
-#         _assumeRolePolicyDocument = json.encode({
-#             "Version": "2012-10-17"
-#             "Statement": [{
-#                 "Effect": "Allow"
-#                 "Principal": {
-#                     "Federated": "arn:aws:iam::${_accountId}:oidc-provider/${_issuer_url}"
-#                 }
-#                 "Action": "sts:AssumeRoleWithWebIdentity"
-#                 "Condition": {
-#                     "StringEquals": {
-#                         "${_issuer_url}:sub": _argo_sa_subjects
-#                         "${_issuer_url}:aud": "sts.amazonaws.com"
-#                     }
-#                 }
-#             }]
-#         })
-#         _description = "Role for ArgoCD on the Hub cluster to manage Spokes"
-#         _tags = _tags | {
-#             Name = _name
-#         }
-#     }
+_hub_resources = []
+_spoke_resources = []
+if _clusterTopology.typeCluster == "Hub":
+    _argo_sa_names = ["argocd-application-controller", "argocd-server"]
+    _argo_sa_subjects = ["system:serviceaccount:argocd:${s}" for s in _argo_sa_names]
+    _argocd_hub_role_resource = role.RoleBlueprint {
+        _name = "role-eks-cluster-hub-argo-${_id}"
+        _labels = _labels | {
+            "argocd-hub": _id
+        }
+        _providerConfig = _providerConfig
+        _assumeRolePolicy = json.encode({
+            "Version": "2012-10-17"
+            "Statement": [{
+                "Effect": "Allow"
+                "Principal": {
+                    "Federated": "arn:aws:iam::${_accountId}:oidc-provider/${_issuer_url}"
+                }
+                "Action": "sts:AssumeRoleWithWebIdentity"
+                "Condition": {
+                    "StringEquals": {
+                        "${_issuer_url}:sub": _argo_sa_subjects
+                        "${_issuer_url}:aud": "sts.amazonaws.com"
+                    }
+                }
+            }]
+        })
+        _description = "Role for ArgoCD on the Hub cluster to manage Spokes"
+        _tags = _tags | {
+            Name = _name
+        }
+    }
 
-#     _argocd_hub_policy_document = json.encode({
-#         "Version": "2012-10-17"
-#         "Statement": [{
-#             "Effect": "Allow"
-#             "Action": "sts:AssumeRole"
-#             "Resource": "*"
-#         }]
-#     })
+    _argocd_hub_policy_document = json.encode({
+        "Version": "2012-10-17"
+        "Statement": [{
+            "Effect": "Allow"
+            "Action": "sts:AssumeRole"
+            "Resource": "*"
+        }]
+    })
 
-#     _argocd_hub_policy_resource = policy.PolicyBlueprint {
-#         _name = "policy-hub-argocd-${_id}"
-#         _labels = _labels
-#         _providerConfig = _providerConfig
-#         _description = "Policy that allows the ArgoCD Hub role to assume Spoke roles."
-#         _document = _argocd_hub_policy_document
-#         _tags = _tags | {
-#             Name = _name
-#         }
-#     }
+    _argocd_hub_policy_resource = policy.PolicyBlueprint {
+        _name = "policy-hub-argocd-${_id}"
+        _labels = _labels
+        _providerConfig = _providerConfig
+        _description = "Policy that allows the ArgoCD Hub role to assume Spoke roles."
+        _policy = _argocd_hub_policy_document
+        _tags = _tags | {
+            Name = _name
+        }
+    }
 
-#     _argocd_hub_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
-#         _name = "policy-attachment-hub-argocd-${_id}"
-#         _labels = _labels
-#         _providerConfig = _providerConfig
-#         _roleName = _argocd_hub_role_resource._name
-#         _policyArn = "arn:aws:iam::${_accountId}:policy/${_argocd_hub_policy_resource._name}"
-#     }
-#     _hub_resources = [_argocd_hub_policy_resource, _argocd_hub_policy_attachment_resource, _argocd_hub_role_resource]
+    _argocd_hub_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
+        _name = "policy-attachment-hub-argocd-${_id}"
+        _labels = _labels
+        _providerConfig = _providerConfig
+        _role = _argocd_hub_role_resource._name
+        _policyArn = "arn:aws:iam::${_accountId}:policy/${_argocd_hub_policy_resource._name}"
+    }
+    _hub_resources = [_argocd_hub_policy_resource, _argocd_hub_policy_attachment_resource, _argocd_hub_role_resource]
     
-# elif _clusterTopology.typeCluster == "Spoke":
-#     _hub_role_arn = ""
-#     if er?.roles and len(er.roles) > 0:
-#         _hub_role_arn = er.roles[0]?.Resource?.status?.atProvider?.arn or ""
+elif _clusterTopology.typeCluster == "Spoke":
+    _hub_role_arn = ""
+    if er?.roles and len(er.roles) > 0:
+        _hub_role_arn = er.roles[0]?.Resource?.status?.atProvider?.arn or ""
 
-#         _argocd_spoke_role_resource = role.RoleBlueprint {
-#             _name = "role-eks-cluster-spoke-argo-${_id}"
-#             _labels = _labels | {
-#                 "argocd-spoke": _id
-#             }
-#             _providerConfig = _providerConfig
-#             _assumeRolePolicyDocument = json.encode({
-#                 "Version": "2012-10-17"
-#                 "Statement": [{
-#                     "Effect": "Allow"
-#                     "Principal": {
-#                         "AWS": _hub_role_arn
-#                     }
-#                     "Action": "sts:AssumeRole"
-#                 }]
-#             })
-#             _description = "Role for ArgoCD on the Hub cluster to manage Spokes"
-#             _tags = _tags | {
-#                 Name = _name
-#             }
-#         }
+        _argocd_spoke_role_resource = role.RoleBlueprint {
+            _name = "role-eks-cluster-spoke-argo-${_id}"
+            _labels = _labels | {
+                "argocd-spoke": _id
+            }
+            _providerConfig = _providerConfig
+            _assumeRolePolicy = json.encode({
+                "Version": "2012-10-17"
+                "Statement": [{
+                    "Effect": "Allow"
+                    "Principal": {
+                        "AWS": _hub_role_arn
+                    }
+                    "Action": "sts:AssumeRole"
+                }]
+            })
+            _description = "Role for ArgoCD on the Hub cluster to manage Spokes"
+            _tags = _tags | {
+                Name = _name
+            }
+        }
 
-#         _argocd_spoke_policy_attachment_resource = [rolePolicyAttachment.RolepolicyattachmentBlueprint {
-#             _name = "spoke-argocd-policy-${s.name}-${_id}".lower()
-#             _labels = _labels
-#             _providerConfig = _providerConfig
-#             _roleName = _argocd_spoke_role_resource._name
-#             _policyArn = s.arn
-#         } for s in [
-#             {name = "AmazonEKSClusterPolicy", arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"}
-#             {name = "AmazonEKSWorkerNodePolicy", arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"}
-#         ]]
+        _argocd_spoke_policy_attachment_resource = [rolePolicyAttachment.RolepolicyattachmentBlueprint {
+            _name = "spoke-argocd-policy-${s.name}-${_id}".lower()
+            _labels = _labels
+            _providerConfig = _providerConfig
+            _role = _argocd_spoke_role_resource._name
+            _policyArn = s.arn
+        } for s in [
+            {name = "AmazonEKSClusterPolicy", arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"}
+            {name = "AmazonEKSWorkerNodePolicy", arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"}
+        ]]
 
-#         _spoke_server_url = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.endpoint or ""
-#         _spoke_ca_data = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.certificateAuthorityData or ""
-#         _spoke_role_arn = _ocds?[_argocd_spoke_role_resource._name]?.Resource?.status?.atProvider?.arn or ""
+        _spoke_server_url = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.endpoint or ""
+        _spoke_ca_data = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.certificateAuthorityData or ""
+        _spoke_role_arn = _ocds?[_argocd_spoke_role_resource._name]?.Resource?.status?.atProvider?.arn or ""
         
-#         _spoke_config_json = {
-#             "tlsClientConfig": {
-#                 "insecure": False
-#                 "caData": _spoke_ca_data
-#             }
-#             "awsAuthConfig": {
-#                 "clusterName": _eks_cluster_resource._name
-#                 "roleARN": _spoke_role_arn
-#             }
-#         }
-#         _argocd_spoke_secret_resource = object.ObjectBlueprint {
-#             _name = "spoke-argocd-credentials-${_id}"
-#             _manifest = {
-#                 apiVersion = "v1"
-#                 kind = "Secret"
-#                 metadata = {
-#                     name = _name
-#                     namespace = "argocd"
-#                     labels = {
-#                         "argocd.argoproj.io/secret-type": "cluster"
-#                     }
-#                 }
-#                 type = "Opaque"
-#                 data = {
-#                     "name": base64.encode(_id)
-#                     "server": base64.encode(_spoke_server_url)
-#                     "config": base64.encode(json.encode(_spoke_config_json))
-#                 }
-#             }
-#             _providerConfig = "provider-kubernetes-${_clusterTopology.hubId}"
-#         }
+        _spoke_config_json = {
+            "tlsClientConfig": {
+                "insecure": False
+                "caData": _spoke_ca_data
+            }
+            "awsAuthConfig": {
+                "clusterName": _eks_cluster_resource._name
+                "roleARN": _spoke_role_arn
+            }
+        }
+        _argocd_spoke_secret_resource = object.ObjectBlueprint {
+            _name = "spoke-argocd-credentials-${_id}"
+            _manifest = {
+                apiVersion = "v1"
+                kind = "Secret"
+                metadata = {
+                    name = _name
+                    namespace = "argocd"
+                    labels = {
+                        "argocd.argoproj.io/secret-type": "cluster"
+                    }
+                }
+                type = "Opaque"
+                data = {
+                    "name": base64.encode(_id)
+                    "server": base64.encode(_spoke_server_url)
+                    "config": base64.encode(json.encode(_spoke_config_json))
+                }
+            }
+            _providerConfig = "provider-kubernetes-${_clusterTopology.hubId}"
+        }
 #         # _spoke_securityGroupId = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.resourcesVpcConfig?.clusterSecurityGroupId or "10.0.0.0/8"
 #         # _hub_securityGroupId = ""
 #         # if er?.clusters and len(er.clusters) > 0:
@@ -879,8 +886,7 @@ items = [
     _node_role_resource,
     _eks_cluster_resource,
    _cluster_nodegroup_resource
-] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource 
-#+ [
-#     _providerconfig_helm_resource
-#     _providerconfig_kubernetes_resource
-# ] + _argo_resources + _oidc_resources + _helm_addon_resources + _cert_manager_resources + _hub_resources + _spoke_resources
+] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
+    _providerconfig_helm_resource
+    _providerconfig_kubernetes_resource
+] + _argo_resources + _oidc_resources + _hub_resources + _spoke_resources #+ _helm_addon_resources + _cert_manager_resources
