@@ -1,9 +1,9 @@
 # --- Blueprint de Alto Nivel (Generado Automáticamente) ---
 
-import modules.eks_aws_upbound_io.v1beta1.eks_aws_upbound_io_v1beta1_IdentityProviderConfig as identityproviderconfig_schema
+import modules.iam_aws_upbound_io.v1beta1.iam_aws_upbound_io_v1beta1_OpenIDConnectProvider as openidconnectprovider_schema
 
-schema IdentityproviderconfigBlueprint(identityproviderconfig_schema.Identityproviderconfig):
-    """Este Blueprint simplifica la creación de un recurso Identityproviderconfig,
+schema OpenidconnectproviderBlueprint(openidconnectprovider_schema.Openidconnectprovider):
+    """Este Blueprint simplifica la creación de un recurso Openidconnectprovider,
     exponiendo una selección inteligente de campos requeridos y opcionales comunes."""
 
     # Parámetros de entrada simplificados para el usuario
@@ -14,15 +14,13 @@ schema IdentityproviderconfigBlueprint(identityproviderconfig_schema.Identitypro
     _finalizers?: [str]
     _providerConfig: str
     _deletionPolicy?: "Orphan" | "Delete"
-    _initProvider?: identityproviderconfig_schema.IdentityproviderconfigspecInitprovider
+    _initProvider?: openidconnectprovider_schema.OpenidconnectproviderspecInitprovider
     _managementPolicies?: ["Observe" | "Create" | "Update" | "Delete" | "LateInitialize" | "*"]
-    _writeConnectionSecretToRef?: identityproviderconfig_schema.IdentityproviderconfigspecWriteconnectionsecrettoref
-    _clusterName?: str
-    _clusterNameRef?: identityproviderconfig_schema.IdentityproviderconfigspecforproviderClusternameref
-    _clusterNameSelector?: identityproviderconfig_schema.IdentityproviderconfigspecforproviderClusternameselector
-    _oidc?: [identityproviderconfig_schema.IdentityproviderconfigspecforproviderOidcitem]
-    _region: str
+    _writeConnectionSecretToRef?: openidconnectprovider_schema.OpenidconnectproviderspecWriteconnectionsecrettoref
+    _clientIdList?: [str]
     _tags?: {str:str}
+    _thumbprintList?: [str]
+    _url?: str
 
     # Lógica de mapeo de parámetros simples a la estructura compleja
     metadata = {
@@ -38,12 +36,10 @@ schema IdentityproviderconfigBlueprint(identityproviderconfig_schema.Identitypro
         managementPolicies = _managementPolicies
         writeConnectionSecretToRef = _writeConnectionSecretToRef
         forProvider = {
-            clusterName = _clusterName
-            clusterNameRef = _clusterNameRef
-            clusterNameSelector = _clusterNameSelector
-            oidc = _oidc
-            region = _region
+            clientIdList = _clientIdList
             tags = _tags
+            thumbprintList = _thumbprintList
+            url = _url
         }
         providerConfigRef.name = _providerConfig
     }
@@ -51,7 +47,7 @@ schema IdentityproviderconfigBlueprint(identityproviderconfig_schema.Identitypro
 # --- Ejemplo de Uso ---
 # Descomenta y ajusta los valores para usar este Blueprint en tu archivo 'main.k'.
 # items = [
-#     IdentityproviderconfigBlueprint {
+#     OpenidconnectproviderBlueprint {
 #         _name = "example-value" # Reemplazar valor
 #         _namespace = "example-value" # Reemplazar valor
 #         _labels = {
@@ -72,17 +68,11 @@ schema IdentityproviderconfigBlueprint(identityproviderconfig_schema.Identitypro
 #         _writeConnectionSecretToRef = {
 #             # Configure object fields as needed
 #         } # Reemplazar valor
-#         _clusterName = "example-value" # Reemplazar valor
-#         _clusterNameRef = {
-#             # Configure object fields as needed
-#         } # Reemplazar valor
-#         _clusterNameSelector = {
-#             # Configure object fields as needed
-#         } # Reemplazar valor
-#         _oidc = [] # Reemplazar valor
-#         _region = "example-value" # Reemplazar valor
+#         _clientIdList = [] # Reemplazar valor
 #         _tags = {
 #             "Key": "Value"
 #         } # Reemplazar valor
+#         _thumbprintList = [] # Reemplazar valor
+#         _url = "example-value" # Reemplazar valor
 #     }
 # ]

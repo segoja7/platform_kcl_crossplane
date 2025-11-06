@@ -11,7 +11,7 @@ import schemas.up.providerConfigHelm as providerConfigHelm
 import schemas.up.release as release
 import schemas.up.providerConfigKubernetes as providerConfigKubernetes
 import schemas.up.object as object
-import schemas.up.identityProviderConfig as identityProviderConfig
+import schemas.up.openIDConnectProvider as openIDConnectProvider
 # #import schemas.securityGroupRule as securityGroupRule
 import schemas.up.policy as policy
 
@@ -562,18 +562,12 @@ oidc_issuer_url = option("params")?.ocds?[observed_cluster_name]?.Resource?.stat
 # Create OpenIDConnectProvider only when we have a real OIDC URL
 _oidc_resources = []
 if oidc_issuer_url and oidc_issuer_url != "":
-    _oidc_resource = identityProviderConfig.IdentityproviderconfigBlueprint {
+    _oidc_resource = openIDConnectProvider.OpenidconnectproviderBlueprint {
         _name = "openid-eks-${_id}"
         _providerConfig = _providerConfig
-        _region = _region
-        _clusterNameSelector = {
-            matchControllerRef = True
-        }
-        _oidc = [{
-            clientId = "sts.amazonaws.com"
-            issuerUrl = oidc_issuer_url
-        }]
-        # _thumbprintList = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
+        _clientIdList = ["sts.amazonaws.com"]
+        _thumbprintList = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
+        _url = oidc_issuer_url
         _tags = _tags | {Name = _name}
     }
     _oidc_resources = [_oidc_resource]
