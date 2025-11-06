@@ -6,7 +6,7 @@ import schemas.up.kmsKey as kmsKey
 import schemas.up.kmsAlias as kmsAlias
 import schemas.up.eksCluster as eksCluster
 import schemas.up.eksNodeGroup as eksNodegroup
-# import schemas.eksAddon as eksAddon
+import schemas.up.eksAddon as eksAddon
 # import schemas.providerConfigHelm as providerConfigHelm
 # #import schemas.securityGroupRule as securityGroupRule
 # import schemas.release as release
@@ -241,57 +241,58 @@ _cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
         }]
 }
 
-# _addons_vpc_cni_assume_role_policy = json.encode({
-#     "Version": "2012-10-17"
-#     "Statement": [{
-#         "Effect": "Allow"
-#         "Principal": {"Service": "pods.eks.amazonaws.com"}
-#         "Action": [
-#             "sts:AssumeRole"
-#             "sts:TagSession"
-#         ]
-#     }]
-# })
+_addons_vpc_cni_assume_role_policy = json.encode({
+    "Version": "2012-10-17"
+    "Statement": [{
+        "Effect": "Allow"
+        "Principal": {"Service": "pods.eks.amazonaws.com"}
+        "Action": [
+            "sts:AssumeRole"
+            "sts:TagSession"
+        ]
+    }]
+})
 
-# _cni_addon_config = [s for s in _addonsConfig if s.name == "vpc-cni"]
-# _cni_resources = []
-# _cni_role_resource_name = "role-addon-vpc-cni-cluster-${_id}"
+_cni_addon_config = [s for s in _addonsConfig if s.name == "vpc-cni"]
+_cni_resources = []
+_cni_role_resource_name = "role-addon-vpc-cni-cluster-${_id}"
 
-# if len(_cni_addon_config) > 0:
-#     _addons_vpc_cni_role_resource = role.RoleBlueprint {
-#         _name = _cni_role_resource_name
-#         _labels = _labels
-#         _providerConfig = _providerConfig
-#         _assumeRolePolicyDocument = _addons_vpc_cni_assume_role_policy
-#         _description = "Role for VPC CNI addon"
-#         _tags = _tags | {Name = _name}
-#     }
-#     _cni_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
-#         _name = "vpc-cni-policy-attachment-${_id}".lower()
-#         _labels = _labels
-#         _providerConfig = _providerConfig
-#         _roleName = _cni_role_resource_name
-#         _policyArn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-#     }
-#     _cni_resources = [_addons_vpc_cni_role_resource, _cni_policy_attachment_resource]
+if len(_cni_addon_config) > 0:
+    _addons_vpc_cni_role_resource = role.RoleBlueprint {
+        _name = _cni_role_resource_name
+        _labels = _labels
+        _providerConfig = _providerConfig
+        _assumeRolePolicy = _addons_vpc_cni_assume_role_policy
+        _description = "Role for VPC CNI addon"
+        _tags = _tags | {Name = _name}
+    }
+    _cni_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
+        _name = "vpc-cni-policy-attachment-${_id}".lower()
+        _labels = _labels
+        _providerConfig = _providerConfig
+        _role = _cni_role_resource_name
+        _policyArn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+    }
+    _cni_resources = [_addons_vpc_cni_role_resource, _cni_policy_attachment_resource]
 
-# _cluster_addons_resource = [eksAddon.AddonBlueprint {
-#     _name = "addon-${s.name}-${_id}"
-#     _labels = _labels
-#     _providerConfig = _providerConfig
-#     _addonName = s.name
-#     if "version" in s and s.version != None:
-#         _addonVersion = s.version
-#     _clusterNameSelector = {
-#         matchControllerRef = True
-#     }
-#     _region = _region
-#     if "resolveConflicts" in s and s.resolveConflicts != None:
-#         _resolveConflicts = s.resolveConflicts
-#     _tags = _tags | {
-#         Name = "addon-${s.name}-${_id}"
-#     }
-# } for s in _addonsConfig]
+
+_cluster_addons_resource = [eksAddon.AddonBlueprint {
+    _name = "addon-${s.name}-${_id}"
+    _labels = _labels
+    _providerConfig = _providerConfig
+    _addonName = s.name
+    if "version" in s and s.version != None:
+        _addonVersion = s.version
+    _clusterNameSelector = {
+        matchControllerRef = True
+    }
+    _region = _region
+    if "resolveConflicts" in s and s.resolveConflicts != None:
+        _resolveConflictsOnCreate = s.resolveConflicts
+    _tags = _tags | {
+        Name = "addon-${s.name}-${_id}"
+    }
+} for s in _addonsConfig]
 
 # _providerconfig_helm_resource = providerConfigHelm.ProviderconfigBlueprint {
 #     _name = "provider-helm-${_id}"
@@ -878,7 +879,8 @@ items = [
     _node_role_resource,
     _eks_cluster_resource,
    _cluster_nodegroup_resource
-] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources #+ _cni_resources + _cluster_addons_resource + [
+] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource 
+#+ [
 #     _providerconfig_helm_resource
 #     _providerconfig_kubernetes_resource
 # ] + _argo_resources + _oidc_resources + _helm_addon_resources + _cert_manager_resources + _hub_resources + _spoke_resources
