@@ -878,9 +878,7 @@ items = [
     _node_role_resource,
     _eks_cluster_resource,
    _cluster_nodegroup_resource
-]
-
-# ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
+] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources #+ _cni_resources + _cluster_addons_resource + [
 #     _providerconfig_helm_resource
 #     _providerconfig_kubernetes_resource
 # ] + _argo_resources + _oidc_resources + _helm_addon_resources + _cert_manager_resources + _hub_resources + _spoke_resources

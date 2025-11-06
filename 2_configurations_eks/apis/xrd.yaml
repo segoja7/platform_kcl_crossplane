@@ -109,10 +109,9 @@ spec:
                         maxUnavailable:
                           type: integer
                           description: "Maximum number of nodes that can be unavailable during an update."
-                      # not:
-                      #   required:
-                      #     - maxUnavailable
-                      #     - maxUnavailablePercentage
+                      oneOf:
+                        - required: ["maxUnavailable"]
+                        - required: ["maxUnavailablePercentage"]
               addons:
                 type: array
                 description: "List of EKS addons to install on the cluster."
