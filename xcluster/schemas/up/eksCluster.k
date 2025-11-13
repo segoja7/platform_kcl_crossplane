@@ -64,7 +64,7 @@ schema ClusterBlueprint(cluster_schema.Cluster):
             roleArn = _roleArn
             roleArnRef = cluster_schema.ClusterspecforproviderRolearnref {
                 name = _roleArnRef.name
-                policy = ClusterspecforproviderrolearnrefPolicy {
+                policy = cluster_schema.ClusterspecforproviderrolearnrefPolicy {
                     resolution = _roleArnRef.policy.resolution
                     resolve = _roleArnRef.policy.resolve
                 }
@@ -72,7 +72,7 @@ schema ClusterBlueprint(cluster_schema.Cluster):
             roleArnSelector = cluster_schema.ClusterspecforproviderRolearnselector {
                 matchControllerRef = _roleArnSelector.matchControllerRef
                 matchLabels = _roleArnSelector.matchLabels
-                policy = ClusterspecforproviderrolearnselectorPolicy {
+                policy = cluster_schema.ClusterspecforproviderrolearnselectorPolicy {
                     resolution = _roleArnSelector.policy.resolution
                     resolve = _roleArnSelector.policy.resolve
                 }
