@@ -17,26 +17,26 @@ schema ClusterBlueprint(cluster_schema.Cluster):
     _initProvider?: cluster_schema.ClusterspecInitprovider
     _managementPolicies?: ["Observe" | "Create" | "Update" | "Delete" | "LateInitialize" | "*"]
     _writeConnectionSecretToRef?: cluster_schema.ClusterspecWriteconnectionsecrettoref
-    _accessConfig?: any
+    _accessConfig?: [cluster_schema.ClusterspecforproviderAccessconfigitem]
     _bootstrapSelfManagedAddons?: bool
-    _computeConfig?: any
+    _computeConfig?: [cluster_schema.ClusterspecforproviderComputeconfigitem]
     _deletionProtection?: bool
     _enabledClusterLogTypes?: [str]
-    _encryptionConfig?: any
+    _encryptionConfig?: [cluster_schema.ClusterspecforproviderEncryptionconfigitem]
     _forceUpdateVersion?: bool
-    _kubernetesNetworkConfig?: any
-    _outpostConfig?: any
+    _kubernetesNetworkConfig?: [cluster_schema.ClusterspecforproviderKubernetesnetworkconfigitem]
+    _outpostConfig?: [cluster_schema.ClusterspecforproviderOutpostconfigitem]
     _region: str
-    _remoteNetworkConfig?: any
+    _remoteNetworkConfig?: [cluster_schema.ClusterspecforproviderRemotenetworkconfigitem]
     _roleArn?: str
-    _roleArnRef?: any
-    _roleArnSelector?: any
-    _storageConfig?: any
+    _roleArnRef?: cluster_schema.ClusterspecforproviderRolearnref
+    _roleArnSelector?: cluster_schema.ClusterspecforproviderRolearnselector
+    _storageConfig?: [cluster_schema.ClusterspecforproviderStorageconfigitem]
     _tags?: {str:str}
-    _upgradePolicy?: any
+    _upgradePolicy?: [cluster_schema.ClusterspecforproviderUpgradepolicyitem]
     _version?: str
     _vpcConfig?: [cluster_schema.ClusterspecforproviderVpcconfigitem]
-    _zonalShiftConfig?: any
+    _zonalShiftConfig?: [cluster_schema.ClusterspecforproviderZonalshiftconfigitem]
 
     # Lógica de mapeo de parámetros simples a la estructura compleja
     metadata = {
