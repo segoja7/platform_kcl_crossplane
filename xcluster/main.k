@@ -190,17 +190,17 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
     }
     _tags = _tags | {Name = _name}
     _version = _clusterVersion
-    _vpcConfig = {
-        endpointPrivateAccess: _endpointPrivateAccess
-        endpointPublicAccess: _endpointPublicAccess
-        publicAccessCidrs: _publicAccessCidrs
-        subnetIdSelector: {
-            matchLabels: {
-                "claim-name": _networkId
-                "subnet.type": "private"
+    _vpcConfig = [{
+        endpointPrivateAccess = _endpointPrivateAccess
+        endpointPublicAccess = _endpointPublicAccess
+        publicAccessCidrs = _publicAccessCidrs
+        subnetIdSelector = {
+            matchLabels = {
+                "claim-name" = _networkId
+                "subnet.type" = "private"
             }
         }
-    }
+    }]
     _writeConnectionSecretToRef = {
         name: _name
         namespace: "default"
