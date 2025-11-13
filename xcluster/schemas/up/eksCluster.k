@@ -1,6 +1,6 @@
 # --- Blueprint de Alto Nivel (Generado Automáticamente) ---
 
-import xcluster.modules.eks_aws_upbound_io.v1beta1.eks_aws_upbound_io_v1beta1_Cluster as cluster_schema
+import modules.eks_aws_upbound_io.v1beta1.eks_aws_upbound_io_v1beta1_Cluster as cluster_schema
 
 schema ClusterBlueprint(cluster_schema.Cluster):
     """Este Blueprint simplifica la creación de un recurso Cluster,
