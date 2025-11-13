@@ -35,7 +35,7 @@ schema ClusterBlueprint(cluster_schema.Cluster):
     _tags?: {str:str}
     _upgradePolicy?: any
     _version?: str
-    _vpcConfig?: any
+    _vpcConfig?: [cluster_schema.ClusterspecforproviderVpcconfigitem]
     _zonalShiftConfig?: any
 
     # Lógica de mapeo de parámetros simples a la estructura compleja
