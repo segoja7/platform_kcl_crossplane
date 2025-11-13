@@ -1,11 +1,9 @@
 # --- Blueprint de Alto Nivel (Generado Automáticamente) ---
-
 import modules.eks_aws_upbound_io.v1beta1.eks_aws_upbound_io_v1beta1_Cluster as cluster_schema
 
 schema ClusterBlueprint(cluster_schema.Cluster):
     """Este Blueprint simplifica la creación de un recurso Cluster,
     exponiendo una selección inteligente de campos requeridos y opcionales comunes."""
-
     # Parámetros de entrada simplificados para el usuario
     _name: str
     _namespace?: str
@@ -13,9 +11,9 @@ schema ClusterBlueprint(cluster_schema.Cluster):
     _annotations?: {str:str}
     _finalizers?: [str]
     _providerConfig: str
-    _deletionPolicy: cluster_schema."Orphan"
+    _deletionPolicy: "Orphan" | "Delete"
     _initProvider: cluster_schema.ClusterspecInitprovider
-    _managementPolicies: cluster_schema.["Observe"
+    _managementPolicies: ["Observe" | "Create" | "Update" | "Delete" | "LateInitialize" | "*"]
     _writeConnectionSecretToRef: cluster_schema.ClusterspecWriteconnectionsecrettoref
     _accessConfig: any
     _bootstrapSelfManagedAddons: bool
@@ -87,4 +85,7 @@ schema ClusterBlueprint(cluster_schema.Cluster):
             zonalShiftConfig = _zonalShiftConfig
         }
         providerConfigRef.name = _providerConfig
-    }}
+    }
+    
+    
+
