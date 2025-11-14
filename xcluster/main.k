@@ -468,7 +468,7 @@ elif _clusterTopology.typeCluster == "Spoke":
         ]]
 
         _spoke_server_url = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.endpoint or ""
-        _spoke_ca_data = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.certificateAuthorityData or ""
+        _spoke_ca_data = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.certificateAuthority?[0]?.data or ""
         _spoke_role_arn = _ocds?[_argocd_spoke_role_resource._name]?.Resource?.status?.atProvider?.arn or ""
 
         _spoke_config_json = {
