@@ -727,14 +727,14 @@ extraResourcesRequest = {
         #     }
         # }
         "roles": {
-            "apiVersion": "iam.aws.crossplane.io/v1beta1"
+            "apiVersion": "iam.aws.upbound.io/v1beta1"
             "kind": "Role"
             "matchLabels": {
                 "argocd-hub": _clusterTopology.hubId
             }
         }
         "clusters": {
-            "apiVersion": "eks.aws.crossplane.io/v1beta1"
+            "apiVersion": "eks.aws.upbound.io/v1beta2"
             "kind": "Cluster"
             "matchLabels": {
                 "argocd-hub": _clusterTopology.hubId
