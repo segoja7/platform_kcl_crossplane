@@ -532,7 +532,7 @@ elif _clusterTopology.typeCluster == "Spoke":
         #     _sourceSecurityGroupId = _hub_securityGroupId
         # }
 
-        _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource]#, _spoke_sg_rule]
+        _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource, _argocd_spoke_accessentry_resource]#, _spoke_sg_rule]
 
 _argo_resources = []
 if _enableArgo == True:
