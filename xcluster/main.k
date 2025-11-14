@@ -16,6 +16,7 @@ import schemas.up.openIDConnectProvider as openIDConnectProvider
 # #import schemas.securityGroupRule as securityGroupRule
 import schemas.up.policy as policy
 import schemas.up.accessEntry as accessEntry
+import schemas.up.accessPolicyAssociation as accessPolicyAssociation
 
 oxr = option("params").oxr
 _ocds = option("params").ocds or {}
@@ -514,6 +515,23 @@ elif _clusterTopology.typeCluster == "Spoke":
             _providerConfig = _providerConfig
             _region = _region
         }
+
+        _argocd_spoke_accesspolicyassociation_resource = accessPolicyAssociation.AccesspolicyassociationBlueprint {
+            _name = "spoke-argocd-accesspolicyassociation-from-hub"
+            _accessScope = {
+                type: "cluster"
+            }
+
+            _clusterNameSelector = {
+                matchControllerRef = True
+            }
+            _policyArn: "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+            _principalArn = _hub_role_arn
+            _providerConfig = _providerConfig
+            _region = _region
+        }
+
+
         # _spoke_securityGroupId = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.resourcesVpcConfig?.clusterSecurityGroupId or "10.0.0.0/8"
         # _hub_securityGroupId = ""
         # if er?.clusters and len(er.clusters) > 0:
@@ -532,7 +550,7 @@ elif _clusterTopology.typeCluster == "Spoke":
         #     _sourceSecurityGroupId = _hub_securityGroupId
         # }
 
-        _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource, _argocd_spoke_accessentry_resource]#, _spoke_sg_rule]
+        _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource, _argocd_spoke_accessentry_resource, _argocd_spoke_accesspolicyassociation_resource]#, _spoke_sg_rule]
 
 _argo_resources = []
 if _enableArgo == True:
