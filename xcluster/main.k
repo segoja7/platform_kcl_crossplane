@@ -326,6 +326,189 @@ _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlu
     }
 }
 
+observed_cluster_name = _eks_cluster_resource._name
+oidc_issuer_url = option("params")?.ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.identity[0]?.oidc[0]?.issuer or ""
+
+
+# Create OpenIDConnectProvider only when we have a real OIDC URL
+_oidc_resources = []
+if oidc_issuer_url and oidc_issuer_url != "":
+    _oidc_resource = openIDConnectProvider.OpenidconnectproviderBlueprint {
+        _name = "openid-eks-${_id}"
+        _providerConfig = _providerConfig
+        _clientIdList = ["sts.amazonaws.com"]
+        _thumbprintList = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
+        _url = oidc_issuer_url
+        _tags = _tags | {Name = _name}
+    }
+    _oidc_resources = [_oidc_resource]
+
+_issuer_url = oidc_issuer_url.replace("https://", "")
+
+_hub_resources = []
+_spoke_resources = []
+## Get extra resources
+er = option("params").extraResources or {}
+# dxr = {**oxr}
+# _vpc_id = ""
+# if er?.vpc and len(er.vpc) > 0:
+#     _vpc_id = er.vpc[0]?.Resource?.status?.atProvider?.vpcId or ""
+
+
+if _clusterTopology.typeCluster == "Hub":
+    _argo_sa_names = ["argocd-application-controller", "argocd-server"]
+    _argo_sa_subjects = ["system:serviceaccount:argocd:${s}" for s in _argo_sa_names]
+    _argocd_hub_role_resource = role.RoleBlueprint {
+        _name = "role-eks-cluster-hub-argo-${_id}"
+        _labels = _labels | {
+            "argocd-hub": _id
+        }
+        _providerConfig = _providerConfig
+        _assumeRolePolicy = json.encode({
+            "Version": "2012-10-17"
+            "Statement": [{
+                "Effect": "Allow"
+                "Principal": {
+                    "Federated": "arn:aws:iam::${_accountId}:oidc-provider/${_issuer_url}"
+                }
+                "Action": "sts:AssumeRoleWithWebIdentity"
+                "Condition": {
+                    "StringEquals": {
+                        "${_issuer_url}:sub": _argo_sa_subjects
+                        "${_issuer_url}:aud": "sts.amazonaws.com"
+                    }
+                }
+            }]
+        })
+        _description = "Role for ArgoCD on the Hub cluster to manage Spokes"
+        _tags = _tags | {
+            Name = _name
+        }
+    }
+
+    _argocd_hub_policy_document = json.encode({
+        "Version": "2012-10-17"
+        "Statement": [{
+            "Effect": "Allow"
+            "Action": "sts:AssumeRole"
+            "Resource": "*"
+        }]
+    })
+
+    _argocd_hub_policy_resource = policy.PolicyBlueprint {
+        _name = "policy-hub-argocd-${_id}"
+        _labels = _labels
+        _providerConfig = _providerConfig
+        _description = "Policy that allows the ArgoCD Hub role to assume Spoke roles."
+        _policy = _argocd_hub_policy_document
+        _tags = _tags | {
+            Name = _name
+        }
+    }
+
+    _argocd_hub_policy_attachment_resource = rolePolicyAttachment.RolepolicyattachmentBlueprint {
+        _name = "policy-attachment-hub-argocd-${_id}"
+        _labels = _labels
+        _providerConfig = _providerConfig
+        _role = _argocd_hub_role_resource._name
+
+        _policyArn = "arn:aws:iam::${_accountId}:policy/${_argocd_hub_policy_resource._name}"
+    }
+    _hub_resources = [_argocd_hub_policy_resource, _argocd_hub_policy_attachment_resource, _argocd_hub_role_resource]
+
+elif _clusterTopology.typeCluster == "Spoke":
+    _hub_role_arn = ""
+    if er?.roles and len(er.roles) > 0:
+        _hub_role_arn = er.roles[0]?.Resource?.status?.atProvider?.arn or ""
+
+        _argocd_spoke_role_resource = role.RoleBlueprint {
+            _name = "role-eks-cluster-spoke-argo-${_id}"
+            _labels = _labels | {
+                "argocd-spoke": _id
+            }
+            _providerConfig = _providerConfig
+            _assumeRolePolicy = json.encode({
+                "Version": "2012-10-17"
+                "Statement": [{
+                    "Effect": "Allow"
+                    "Principal": {
+                        "AWS": _hub_role_arn
+                    }
+                    "Action": "sts:AssumeRole"
+                }]
+            })
+            _description = "Role for ArgoCD on the Hub cluster to manage Spokes"
+            _tags = _tags | {
+                Name = _name
+            }
+        }
+
+        _argocd_spoke_policy_attachment_resource = [rolePolicyAttachment.RolepolicyattachmentBlueprint {
+            _name = "spoke-argocd-policy-${s.name}-${_id}".lower()
+            _labels = _labels
+            _providerConfig = _providerConfig
+            _role = _argocd_spoke_role_resource._name
+            _policyArn = s.arn
+        } for s in [
+            {name = "AmazonEKSClusterPolicy", arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"}
+            {name = "AmazonEKSWorkerNodePolicy", arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"}
+        ]]
+
+        _spoke_server_url = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.endpoint or ""
+        _spoke_ca_data = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.certificateAuthorityData or ""
+        _spoke_role_arn = _ocds?[_argocd_spoke_role_resource._name]?.Resource?.status?.atProvider?.arn or ""
+
+        _spoke_config_json = {
+            "tlsClientConfig": {
+                "insecure": False
+                "caData": _spoke_ca_data
+            }
+            "awsAuthConfig": {
+                "clusterName": _eks_cluster_resource._name
+                "roleARN": _spoke_role_arn
+            }
+        }
+        _argocd_spoke_secret_resource = object.ObjectBlueprint {
+            _name = "spoke-argocd-credentials-${_id}"
+            _manifest = {
+                apiVersion = "v1"
+                kind = "Secret"
+                metadata = {
+                    name = _name
+                    namespace = "argocd"
+                    labels = {
+                        "argocd.argoproj.io/secret-type": "cluster"
+                    }
+                }
+                type = "Opaque"
+                data = {
+                    "name": base64.encode(_id)
+                    "server": base64.encode(_spoke_server_url)
+                    "config": base64.encode(json.encode(_spoke_config_json))
+                }
+            }
+            _providerConfig = "provider-kubernetes-${_clusterTopology.hubId}"
+        }
+#         # _spoke_securityGroupId = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.resourcesVpcConfig?.clusterSecurityGroupId or "10.0.0.0/8"
+#         # _hub_securityGroupId = ""
+#         # if er?.clusters and len(er.clusters) > 0:
+#         #     _hub_securityGroupId = er.clusters[0]?.Resource?.status?.atProvider?.resourcesVpcConfig?.clusterSecurityGroupId or ""
+
+#         # _spoke_sg_rule = securityGroupRule.SecuritygroupruleBlueprint {
+#         #     _name = "spoke-sg-rule-${_id}"
+#         #     _labels = _labels
+#         #     _providerConfig = _providerConfig
+#         #     _type = "ingress"
+#         #     _fromPort = 443
+#         #     _toPort = 443
+#         #     _protocol = "tcp"
+#         #     # _cidrBlock = "10.0.0.0/8"
+#         #     _region = _region
+#         #     _sourceSecurityGroupId = _hub_securityGroupId
+#         # }
+
+        _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource]#, _spoke_sg_rule]
+
 # _argo_resources = []
 # if _enableArgo == True:
 #     _release_helm_resource = release.ReleaseBlueprint {
@@ -549,30 +732,7 @@ _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlu
 #     }
 # }
 
-# Get extra resources
-er = option("params").extraResources or {}
-# dxr = {**oxr}
-# _vpc_id = ""
-# if er?.vpc and len(er.vpc) > 0:
-#     _vpc_id = er.vpc[0]?.Resource?.status?.atProvider?.vpcId or ""
 
-#observed_cluster_name = _eks_cluster_resource._name
-# oidc_issuer_url = option("params")?.ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.identity[0]?.oidc[0]?.issuer or ""
-
-# # Create OpenIDConnectProvider only when we have a real OIDC URL
-# _oidc_resources = []
-# if oidc_issuer_url and oidc_issuer_url != "":
-#     _oidc_resource = openIDConnectProvider.OpenidconnectproviderBlueprint {
-#         _name = "openid-eks-${_id}"
-#         _providerConfig = _providerConfig
-#         _clientIdList = ["sts.amazonaws.com"]
-#         _thumbprintList = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
-#         _url = oidc_issuer_url
-#         _tags = _tags | {Name = _name}
-#     }
-#     _oidc_resources = [_oidc_resource]
-
-# _issuer_url = oidc_issuer_url.replace("https://", "")
 
 # _helm_addon_resources = []
 # if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
@@ -856,25 +1016,25 @@ er = option("params").extraResources or {}
 #             }
 #             _providerConfig = "provider-kubernetes-${_clusterTopology.hubId}"
 #         }
-#         # _spoke_securityGroupId = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.resourcesVpcConfig?.clusterSecurityGroupId or "10.0.0.0/8"
-#         # _hub_securityGroupId = ""
-#         # if er?.clusters and len(er.clusters) > 0:
-#         #     _hub_securityGroupId = er.clusters[0]?.Resource?.status?.atProvider?.resourcesVpcConfig?.clusterSecurityGroupId or ""
+# #         # _spoke_securityGroupId = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.resourcesVpcConfig?.clusterSecurityGroupId or "10.0.0.0/8"
+# #         # _hub_securityGroupId = ""
+# #         # if er?.clusters and len(er.clusters) > 0:
+# #         #     _hub_securityGroupId = er.clusters[0]?.Resource?.status?.atProvider?.resourcesVpcConfig?.clusterSecurityGroupId or ""
 
-#         # _spoke_sg_rule = securityGroupRule.SecuritygroupruleBlueprint {
-#         #     _name = "spoke-sg-rule-${_id}"
-#         #     _labels = _labels
-#         #     _providerConfig = _providerConfig
-#         #     _type = "ingress"
-#         #     _fromPort = 443
-#         #     _toPort = 443
-#         #     _protocol = "tcp"
-#         #     # _cidrBlock = "10.0.0.0/8"
-#         #     _region = _region
-#         #     _sourceSecurityGroupId = _hub_securityGroupId
-#         # }
+# #         # _spoke_sg_rule = securityGroupRule.SecuritygroupruleBlueprint {
+# #         #     _name = "spoke-sg-rule-${_id}"
+# #         #     _labels = _labels
+# #         #     _providerConfig = _providerConfig
+# #         #     _type = "ingress"
+# #         #     _fromPort = 443
+# #         #     _toPort = 443
+# #         #     _protocol = "tcp"
+# #         #     # _cidrBlock = "10.0.0.0/8"
+# #         #     _region = _region
+# #         #     _sourceSecurityGroupId = _hub_securityGroupId
+# #         # }
 
-        # _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource]#, _spoke_sg_rule]
+#         _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource]#, _spoke_sg_rule]
 
     #extraResourcesRequest
 items = [
@@ -885,6 +1045,6 @@ items = [
 ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
     _providerconfig_helm_resource
     _providerconfig_kubernetes_resource
-] #+ _argo_resources #+ _oidc_resources + _hub_resources + _spoke_resources
+] + _oidc_resources + _hub_resources + _spoke_resources #+ _argo_resources #
 
 # + _helm_addon_resources + _cert_manager_resources
