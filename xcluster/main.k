@@ -512,6 +512,7 @@ elif _clusterTopology.typeCluster == "Spoke":
                 Name = _name
             }
             _providerConfig = _providerConfig
+            _region = _region
         }
         # _spoke_securityGroupId = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.resourcesVpcConfig?.clusterSecurityGroupId or "10.0.0.0/8"
         # _hub_securityGroupId = ""
