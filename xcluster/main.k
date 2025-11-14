@@ -508,7 +508,7 @@ elif _clusterTopology.typeCluster == "Spoke":
                 matchControllerRef = True
             }
             _type = "STANDARD"
-            _principalArn = _hub_role_arn
+            _principalArn = _spoke_role_arn
             _tags = _tags | {
                 Name = _name
             }
@@ -526,7 +526,7 @@ elif _clusterTopology.typeCluster == "Spoke":
                 matchControllerRef = True
             }
             _policyArn: "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-            _principalArn = _hub_role_arn
+            _principalArn = _spoke_role_arn
             _providerConfig = _providerConfig
             _region = _region
         }
