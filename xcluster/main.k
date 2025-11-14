@@ -15,6 +15,7 @@ import schemas.up.object as object
 import schemas.up.openIDConnectProvider as openIDConnectProvider
 # #import schemas.securityGroupRule as securityGroupRule
 import schemas.up.policy as policy
+import schemas.up.accessEntry as accessEntry
 
 oxr = option("params").oxr
 _ocds = option("params").ocds or {}
@@ -499,6 +500,18 @@ elif _clusterTopology.typeCluster == "Spoke":
                 }
             }
             _providerConfig = "provider-kubernetes-${_clusterTopology.hubId}"
+        }
+        _argocd_spoke_accessentry_resource = accessEntry.AccessentryBlueprint {
+            _name = "spoke-argocd-accessentry-from-hub"
+            _clusterNameSelector = {
+                matchControllerRef = True
+            }
+            _type = "STANDARD"
+            _principalArn = _hub_role_arn
+            _tags = _tags | {
+                Name = _name
+            }
+
         }
         # _spoke_securityGroupId = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.resourcesVpcConfig?.clusterSecurityGroupId or "10.0.0.0/8"
         # _hub_securityGroupId = ""
