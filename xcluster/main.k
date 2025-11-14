@@ -5,6 +5,7 @@ import schemas.up.rolePolicyAttachment as rolePolicyAttachment
 import schemas.up.kmsKey as kmsKey
 import schemas.up.kmsAlias as kmsAlias
 import schemas.up.eksCluster as eksCluster
+import schemas.up.clusterAuth as clusterAuth
 import schemas.up.eksNodeGroup as eksNodegroup
 import schemas.up.eksAddon as eksAddon
 import schemas.up.providerConfigHelm as providerConfigHelm
@@ -201,10 +202,20 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
             }
         }
     }]
+}
+
+_clusterauth_resource = clusterAuth.ClusterauthBlueprint {
+    _name = "${_eks_cluster_resource._name}-auth"
+    _labels = _labels
+    _providerConfig = _providerConfig
     _writeConnectionSecretToRef = {
         name: _name
         namespace: "default"
     }
+    _clusterNameSelector = {
+        matchControllerRef = True
+    }
+    _region = _region
 }
 
 _cluster_nodegroup_resource = eksNodegroup.NodegroupBlueprint {
@@ -1041,6 +1052,7 @@ items = [
     _cluster_role_resource,
     _node_role_resource,
     _eks_cluster_resource,
+    _clusterauth_resource,
    _cluster_nodegroup_resource
 ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
     _providerconfig_helm_resource
