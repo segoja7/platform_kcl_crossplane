@@ -503,7 +503,7 @@ elif _clusterTopology.typeCluster == "Spoke":
             _providerConfig = "provider-kubernetes-${_clusterTopology.hubId}"
         }
         _argocd_spoke_accessentry_resource = accessEntry.AccessentryBlueprint {
-            _name = "spoke-argocd-accessentry-from-hub"
+            _name = "spoke-argocd-accessentry-${_id}"
             _clusterNameSelector = {
                 matchControllerRef = True
             }
@@ -517,7 +517,7 @@ elif _clusterTopology.typeCluster == "Spoke":
         }
 
         _argocd_spoke_accesspolicyassociation_resource = accessPolicyAssociation.AccesspolicyassociationBlueprint {
-            _name = "spoke-argocd-accesspolicyassociation-from-hub"
+            _name = "spoke-argocd-accesspolicyassociation-${_id}"
             _accessScope = {
                 type: "cluster"
             }
