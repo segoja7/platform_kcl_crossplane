@@ -128,47 +128,55 @@ spec:
                       type: string
                       description: "How to resolve version conflicts for the addon. Valid values are 'NONE', 'OVERWRITE', and 'PRESERVE'."
                       enum: ["NONE", "OVERWRITE", "PRESERVE"]
-              # helmAddonsConfig:
-              #   type: array
-              #   description: "Create IAM service accounts and install Helm charts on the cluster."
-              #   items:
-              #     type: object
-              #     properties:
-              #       # Helm Release
-              #       name:
-              #         type: string
-              #         description: "Name of the Helm release."
-              #       chart:
-              #         type: string
-              #         description: "The name of the chart to install."
-              #       repository:
-              #         type: string
-              #         description: "The URL of the repository where the chart is located."
-              #       version:
-              #         type: string
-              #         description: "The version of the chart to install."
-              #       namespace:
-              #         type: string
-              #         description: "The Kubernetes namespace to install the chart into."
-              #       createNamespace:
-              #         type: boolean
-              #         description: "Whether to create the namespace if it does not exist."
-              #         default: true
-              #       values:
-              #         type: object
-              #         description: "Object containing the values to set for the chart."
-              #         x-kubernetes-preserve-unknown-fields: true
-              #       # Service Account e IAM
-              #       serviceAccountName:
-              #         type: string
-              #         description: "Name of the service account to create for IRSA."
-              #       customPolicy:
-              #         type: string
-              #         description: "JSON formatted IAM policy for the service account."
-              #     anyOf:
-              #       - not:
-              #           required: ["serviceAccountName"]
-              #       - required: ["serviceAccountName", "customPolicy"]
+              helmAddonsConfig:
+                type: array
+                description: "Create IAM service accounts and install Helm charts on the cluster."
+                items:
+                  type: object
+                  properties:
+                    # Helm Release
+                    name:
+                      type: string
+                      description: "Name of the Helm release."
+                    chart:
+                      type: string
+                      description: "The name of the chart to install."
+                    repository:
+                      type: string
+                      description: "The URL of the repository where the chart is located."
+                    version:
+                      type: string
+                      description: "The version of the chart to install."
+                    namespace:
+                      type: string
+                      description: "The Kubernetes namespace to install the chart into."
+                    createNamespace:
+                      type: boolean
+                      description: "Whether to create the namespace if it does not exist."
+                      default: true
+                    values:
+                      type: object
+                      description: "Object containing the values to set for the chart."
+                      x-kubernetes-preserve-unknown-fields: true
+                    # Service Account e IAM
+                    serviceAccountName:
+                      type: string
+                      description: "Name of the service account to create for IRSA."
+                    customPolicy:
+                      type: string
+                      description: "JSON formatted IAM policy for the service account."
+                  anyOf:
+                    - not:
+                        required: ["serviceAccountName"]
+                    - required: ["serviceAccountName", "customPolicy"]
+              createHelmReleases:
+                type: boolean
+                description: "Control whether to create Helm releases via Crossplane. Set to false for GitOps Bridge pattern."
+                default: false
+              createAddonsInfrastructure:
+                type: boolean
+                description: "Control whether to create IAM roles and service accounts for addons. Set to true for GitOps Bridge pattern."
+                default: false
               # hostedZoneID:
               #   type: string
               #   default: Z084056021QR5BJUSPGN7

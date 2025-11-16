@@ -39,6 +39,8 @@ _nodeGroupConfig = oxr.spec.nodeGroup or {}
 _addonsConfig = oxr.spec.addons or []
 _labels = {"claim-name" = _id}
 _helmAddonsConfig = oxr.spec.helmAddonsConfig or []
+_createHelmReleases = oxr.spec.createHelmReleases or False  # Control helm releases
+_createAddonsInfrastructure = oxr.spec.createAddonsInfrastructure or False  # Control roles + SA
 _domainNames = oxr.spec.domainNames
 _certificateSecretName = oxr.spec.certificateSecretName
 _hostedZoneID = oxr.spec.hostedZoneID or "hosted_zone_id_not_set"
@@ -777,81 +779,110 @@ extraResourcesRequest = {
 
 
 
-# _helm_addon_resources = []
-# if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
-#     _issuer_url = oidc_issuer_url.replace("https://", "")
+_helm_addon_resources = []
+if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
+    _issuer_url = oidc_issuer_url.replace("https://", "")
 
-#     _policies_resources = [policy.PolicyBlueprint {
-#         _name = "policy-${s.name}-${_id}"
-#         _providerConfig = _providerConfig
-#         _description = "Policy for ${s.name}"
-#         _document = s.customPolicy
-#         _tags = _tags | {Name = _name}
-#     } for s in _helmAddonsConfig if "serviceAccountName" in s and "customPolicy" in s]
+    # Create IAM infrastructure if createAddonsInfrastructure = true
+    _policies_resources = []
+    _roles_resources = []
+    _policy_attachments_resources = []
+    _sa_resources = []
+    
+    if _createAddonsInfrastructure == True:
+        _policies_resources = [policy.PolicyBlueprint {
+            _name = "policy-${s.name}-${_id}"
+            _providerConfig = _providerConfig
+            _description = "Policy for ${s.name}"
+            _policy = s.customPolicy
+            _tags = _tags | {Name = _name}
+        } for s in _helmAddonsConfig if "serviceAccountName" in s and "customPolicy" in s]
 
-#     _roles_resources = [role.RoleBlueprint {
-#         _name = "role-${s.name}-${_id}"
-#         _providerConfig = _providerConfig
-#         _assumeRolePolicyDocument = json.encode({
-#             "Version": "2012-10-17"
-#             "Statement": [{
-#                 "Effect": "Allow"
-#                 "Principal": {
-#                     "Federated": "arn:aws:iam::${_accountId}:oidc-provider/${_issuer_url}"
-#                 }
-#                 "Action": "sts:AssumeRoleWithWebIdentity"
-#                 "Condition": {
-#                     "StringEquals": {
-#                         "${_issuer_url}:sub": "system:serviceaccount:${s.namespace}:${s.serviceAccountName}"
-#                         "${_issuer_url}:aud": "sts.amazonaws.com"
-#                     }
-#                 }
-#             }]
-#         })
-#         _description = "IRSA role for ${s.name}"
-#         _tags = _tags | {Name = _name}
-#     } for s in _helmAddonsConfig if "serviceAccountName" in s and "customPolicy" in s]
+        _roles_resources = [role.RoleBlueprint {
+            _name = "role-${s.name}-${_id}"
+            _providerConfig = _providerConfig
+            _assumeRolePolicy = json.encode({
+                "Version": "2012-10-17"
+                "Statement": [{
+                    "Effect": "Allow"
+                    "Principal": {
+                        "Federated": "arn:aws:iam::${_accountId}:oidc-provider/${_issuer_url}"
+                    }
+                    "Action": "sts:AssumeRoleWithWebIdentity"
+                    "Condition": {
+                        "StringEquals": {
+                            "${_issuer_url}:sub": "system:serviceaccount:${s.namespace}:${s.serviceAccountName}"
+                            "${_issuer_url}:aud": "sts.amazonaws.com"
+                        }
+                    }
+                }]
+            })
+            _description = "IRSA role for ${s.name}"
+            _tags = _tags | {Name = _name}
+        } for s in _helmAddonsConfig if "serviceAccountName" in s and "customPolicy" in s]
 
-#     _policy_attachments_resources = [rolePolicyAttachment.RolepolicyattachmentBlueprint {
-#         _name = "policy-attachment-${s.name}-${_id}"
-#         _providerConfig = _providerConfig
-#         _roleName = "role-${s.name}-${_id}"
-#         _policyArn = "arn:aws:iam::${_accountId}:policy/policy-${s.name}-${_id}"
-#     } for s in _helmAddonsConfig if "serviceAccountName" in s and "customPolicy" in s]
+        _policy_attachments_resources = [rolePolicyAttachment.RolepolicyattachmentBlueprint {
+            _name = "policy-attachment-${s.name}-${_id}"
+            _providerConfig = _providerConfig
+            _role = "role-${s.name}-${_id}"
+            _policyArn = "arn:aws:iam::${_accountId}:policy/policy-${s.name}-${_id}"
+        } for s in _helmAddonsConfig if "serviceAccountName" in s and "customPolicy" in s]
 
-#     _releases_resources = [release.ReleaseBlueprint {
-#         _name = "${s.name}"
-#         _labels = _labels
-#         _providerConfig = _providerconfig_helm_resource._name
-#         _chart = {
-#             name = s.chart
-#             repository = s.repository
-#             version = s.version
-#         }
-#         _namespace = s.namespace
-#         _values = (s.values or {}) | ({
-#             # Especific Configuration for AWS Load Balancer Controller
-#             "clusterName": _id
-#             "vpcId": _vpc_id
-#             "region": _region
-#             "serviceAccount": {
-#                 "name": s.serviceAccountName
-#                 "annotations": {
-#                     "eks.amazonaws.com/role-arn": "arn:aws:iam::${_accountId}:role/role-${s.name}-${_id}"
-#                 }
-#             }
-#         } if s.name == "aws-load-balancer-controller" else {
-#             # Configuration for another charts with service account
-#             "serviceAccount": {
-#                 "name": s.serviceAccountName
-#                 "annotations": {
-#                     "eks.amazonaws.com/role-arn": "arn:aws:iam::${_accountId}:role/role-${s.name}-${_id}"
-#                 }
-#             }
-#         } if "serviceAccountName" in s else {})
-#     } for s in _helmAddonsConfig]
+        # Create Service Accounts for GitOps Bridge
+        _sa_resources = [object.ObjectBlueprint {
+            _name = "sa-${s.name}-${_id}"
+            _labels = _labels
+            _manifest = {
+                apiVersion = "v1"
+                kind = "ServiceAccount"
+                metadata = {
+                    name = s.serviceAccountName
+                    namespace = s.namespace
+                    annotations = {
+                        "eks.amazonaws.com/role-arn" = "arn:aws:iam::${_accountId}:role/role-${s.name}-${_id}"
+                    }
+                }
+            }
+            _providerConfig = _providerconfig_kubernetes_resource._name
+        } for s in _helmAddonsConfig if "serviceAccountName" in s and "customPolicy" in s]
 
-#     _helm_addon_resources = _policies_resources + _roles_resources + _policy_attachments_resources + _releases_resources
+    # Create Helm releases if createHelmReleases = true (your original logic)
+    _releases_resources = []
+    if _createHelmReleases == True:
+        _releases_resources = [release.ReleaseBlueprint {
+            _name = "${s.name}"
+            _labels = _labels
+            _providerConfig = _providerconfig_helm_resource._name
+            _chart = {
+                name = s.chart
+                repository = s.repository
+                version = s.version
+            }
+            _namespace = s.namespace
+            _values = (s.values or {}) | ({
+                # Specific Configuration for AWS Load Balancer Controller
+                "clusterName": _eks_cluster_resource._name
+                "region": _region
+                "serviceAccount": {
+                    "create": False if _createAddonsInfrastructure == True else True
+                    "name": s.serviceAccountName
+                    "annotations": {
+                        "eks.amazonaws.com/role-arn": "arn:aws:iam::${_accountId}:role/role-${s.name}-${_id}"
+                    }
+                }
+            } if s.name == "aws-load-balancer-controller" else {
+                # Configuration for other charts with service account
+                "serviceAccount": {
+                    "create": False if _createAddonsInfrastructure == True else True
+                    "name": s.serviceAccountName
+                    "annotations": {
+                        "eks.amazonaws.com/role-arn": "arn:aws:iam::${_accountId}:role/role-${s.name}-${_id}"
+                    }
+                }
+            } if "serviceAccountName" in s else {})
+        } for s in _helmAddonsConfig]
+
+    _helm_addon_resources = _policies_resources + _roles_resources + _policy_attachments_resources + _sa_resources + _releases_resources
 
 # #create certificate only when cert-manager is ready.
 # #TODO: this line assume that release have cert-manager name
@@ -935,6 +966,6 @@ items = [
 ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
     _providerconfig_helm_resource
     _providerconfig_kubernetes_resource
-] + _oidc_resources + _hub_resources + _spoke_resources + _argo_resources
+] + _oidc_resources + _hub_resources + _spoke_resources + _argo_resources + _helm_addon_resources
 
-# + _helm_addon_resources + _cert_manager_resources
+# + _cert_manager_resources
