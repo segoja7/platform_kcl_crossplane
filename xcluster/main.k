@@ -370,7 +370,7 @@ _issuer_url = oidc_issuer_url.replace("https://", "")
 
 # Create security group for all clusters (hub, spoke, standalone)
 _cluster_security_group = securityGroup.SecuritygroupBlueprint {
-    _metadataName = "sg-cluster-${_id}"
+    _metadataName = "cluster-sg-${_id}"
     _name = _metadataName
     _labels = _labels
     _providerConfig = _providerConfig
