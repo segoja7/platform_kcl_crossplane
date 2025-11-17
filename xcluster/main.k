@@ -213,7 +213,7 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
         #     }
         # }
         securityGroupIdRefs = [
-            name = _cluster_security_group._name
+            {name: _cluster_security_group._name}
         ]
     }]
 }
