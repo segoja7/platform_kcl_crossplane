@@ -349,7 +349,7 @@ _providerconfig_kubernetes_resource = providerConfigKubernetes.ProviderconfigBlu
 }
 
 observed_cluster_name = _eks_cluster_resource._name
-oidc_issuer_url = option("params")?.ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.identity?[0]?.oidc?[0]?.issuer or " "
+oidc_issuer_url = option("params")?.ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.identity?[0]?.oidc?[0]?.issuer or ""
 
 
 # Create security group for all clusters (hub, spoke, standalone)
