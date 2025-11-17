@@ -174,7 +174,7 @@ if _encryptCluster == True:
 
 _eks_cluster_resource = eksCluster.ClusterBlueprint {
     _name = "eks-cluster-${_id}"
-    _labels = _labels
+    _labels = _labels | ({"argocd-hub": _id} if _clusterTopology.typeCluster == "Hub" else {})
     _region = _region
     _providerConfig = _providerConfig
     _accessConfig = [{
