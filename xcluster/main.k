@@ -579,7 +579,7 @@ elif _clusterTopology.typeCluster == "Spoke":
         _hub_securityGroupId = ""
 
         if er?.clusters and len(er.clusters) > 0:
-            _hub_securityGroupId = er.clusters[0]?.Resource?.status?.atProvider?.vpcConfig?.clusterSecurityGroupId or ""
+            _hub_securityGroupId = er.clusters[0].Resource?.status?.atProvider?.vpcConfig?.clusterSecurityGroupId or ""
 
         if _hub_securityGroupId != "":
             _spoke_sg_rule_https = securityGroupRule.SecuritygroupruleBlueprint {
