@@ -206,6 +206,12 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
                 "subnet.type" = "private"
             }
         }
+        securityGroupIdSelector = {
+            matchControllerRef = True
+            matchLabels = {
+                "claim-name" = _id
+            }
+        }
     }]
 }
 
@@ -367,23 +373,6 @@ _cluster_security_group = securityGroup.SecuritygroupBlueprint {
 
 # Security group rule for hub-spoke communication (only for spokes)
 _cluster_sg_rules = []
-if _clusterTopology.typeCluster == "Spoke":
-    _spoke_sg_rule_https = securityGroupRule.SecuritygroupruleBlueprint {
-        _metadataName = "cluster-sg-rule-https-${_id}"
-        _labels = _labels
-        _providerConfig = _providerConfig
-        _type = "ingress"
-        _fromPort = 443
-        _toPort = 443
-        _protocol = "tcp"
-        _region = _region
-        _securityGroupIdRef = {
-            name = _cluster_security_group._metadataName
-        }
-        _cidrBlocks = ["10.0.0.0/8"]  # Allow from VPC CIDR (includes hub)
-        _description = "Allow HTTPS from hub cluster for ArgoCD access"
-    }
-    _cluster_sg_rules = [_spoke_sg_rule_https]
 if oidc_issuer_url and oidc_issuer_url != "":
     _oidc_resource = openIDConnectProvider.OpenidconnectproviderBlueprint {
         _name = "openid-eks-${_id}"
@@ -584,25 +573,32 @@ elif _clusterTopology.typeCluster == "Spoke":
         }
 
 
-        # _spoke_securityGroupId = _ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.resourcesVpcConfig?.clusterSecurityGroupId or "10.0.0.0/8"
-        # _hub_securityGroupId = ""
-        # if er?.clusters and len(er.clusters) > 0:
-        #     _hub_securityGroupId = er.clusters[0]?.Resource?.status?.atProvider?.resourcesVpcConfig?.clusterSecurityGroupId or ""
+        # Security group rule for ArgoCD access from hub (only if hub SG is available)
+        _spoke_sg_rules = []
+        _hub_securityGroupId = ""
 
-        # _spoke_sg_rule = securityGroupRule.SecuritygroupruleBlueprint {
-        #     _name = "spoke-sg-rule-${_id}"
-        #     _labels = _labels
-        #     _providerConfig = _providerConfig
-        #     _type = "ingress"
-        #     _fromPort = 443
-        #     _toPort = 443
-        #     _protocol = "tcp"
-        #     # _cidrBlock = "10.0.0.0/8"
-        #     _region = _region
-        #     _sourceSecurityGroupId = _hub_securityGroupId
-        # }
+        if er?.clusters and len(er.clusters) > 0:
+            _hub_securityGroupId = er.clusters[0]?.Resource?.status?.atProvider?.vpcConfig?[0]?.clusterSecurityGroupId or ""
 
-        _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource, _argocd_spoke_accessentry_resource, _argocd_spoke_accesspolicyassociation_resource]
+        if _hub_securityGroupId != "":
+            _spoke_sg_rule_https = securityGroupRule.SecuritygroupruleBlueprint {
+                _metadataName = "spoke-sg-rule-https-${_id}"
+                _labels = _labels
+                _providerConfig = _providerConfig
+                _type = "ingress"
+                _fromPort = 443
+                _toPort = 443
+                _protocol = "tcp"
+                _region = _region
+                _securityGroupIdRef = {
+                    name = _cluster_security_group._metadataName
+                }
+                _sourceSecurityGroupId = _hub_securityGroupId
+                _description = "Allow HTTPS from hub cluster security group for ArgoCD access"
+            }
+            _spoke_sg_rules = [_spoke_sg_rule_https]
+
+        _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource, _argocd_spoke_accessentry_resource, _argocd_spoke_accesspolicyassociation_resource] + _spoke_sg_rules
 
 _argo_resources = []
 if _enableArgo == True:
@@ -1032,6 +1028,6 @@ items = [
     _providerconfig_helm_resource
     _providerconfig_kubernetes_resource,
     _cluster_security_group
-] + _oidc_resources + _hub_resources + _spoke_resources + _argo_resources + _helm_addon_resources + _cluster_sg_rules
+] + _oidc_resources + _hub_resources + _spoke_resources + _argo_resources + _helm_addon_resources
 
 # + _cert_manager_resources
