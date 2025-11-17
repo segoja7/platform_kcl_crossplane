@@ -386,7 +386,7 @@ _cluster_security_group = securityGroup.SecuritygroupBlueprint {
     }
     _tags = _tags | {
         Name = "sg-cluster-${_id}"
-        "kubernetes.io/cluster/${_eks_cluster_resource._name}" = "owned"
+        "kubernetes.io/cluster/eks-cluster-${_id}" = "owned"
         "cluster-type" = _clusterTopology.typeCluster
     }
 }
