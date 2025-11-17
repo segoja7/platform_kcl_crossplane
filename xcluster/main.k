@@ -355,6 +355,7 @@ oidc_issuer_url = option("params")?.ocds?[_eks_cluster_resource._name]?.Resource
 # Create security group for all clusters (hub, spoke, standalone)
 _cluster_security_group = securityGroup.SecuritygroupBlueprint {
     _metadataName = "sg-cluster-${_id}"
+    _name = _metadataName
     _labels = _labels
     _providerConfig = _providerConfig
     _description = "Security group for cluster ${_id}"
