@@ -200,15 +200,21 @@ _eks_cluster_resource = eksCluster.ClusterBlueprint {
         endpointPrivateAccess = _endpointPrivateAccess
         endpointPublicAccess = _endpointPublicAccess
         publicAccessCidrs = _publicAccessCidrs
-        securityGroupIdRefs = [
-            name: _cluster_security_group._metadataName
-        ]
-        securityGroupIdSelector = {
-            matchControllerRef = True
+        subnetIdSelector = {
             matchLabels = {
-                "claim-name" = _id
+                "claim-name" = _networkId
+                "subnet.type" = "private"
             }
         }
+        # securityGroupIdSelector = {
+        #     matchControllerRef = True
+        #     matchLabels = {
+        #         "claim-name" = _id
+        #     }
+        # }
+        securityGroupIdRefs = [
+            name = _cluster_security_group._name
+        ]
     }]
 }
 
