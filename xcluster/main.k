@@ -787,6 +787,7 @@ if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
     _policies_resources = []
     _roles_resources = []
     _policy_attachments_resources = []
+    _namespace_resources = []
     _sa_resources = []
 
     if _createAddonsInfrastructure == True:
@@ -827,6 +828,20 @@ if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
             _role = "role-${s.name}-${_id}"
             _policyArn = "arn:aws:iam::${_accountId}:policy/policy-${s.name}-${_id}"
         } for s in _helmAddonsConfig if "serviceAccountName" in s and "customPolicy" in s]
+
+        # namespaces
+        _namespace_resources = [object.ObjectBlueprint {
+            _name = "ns-${s.namespace}-${_id}"
+            _labels = _labels
+            _manifest = {
+                apiVersion = "v1"
+                kind = "Namespace"
+                metadata = {
+                    name = s.namespace
+                }
+            }
+            _providerConfig = _providerconfig_kubernetes_resource._name
+        } for s in _helmAddonsConfig if "serviceAccountName" in s and "customPolicy" in s and s.namespace != "default"]
 
         # Create Service Accounts for GitOps Bridge
         _sa_resources = [object.ObjectBlueprint {
@@ -882,7 +897,7 @@ if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
             } if "serviceAccountName" in s else {})
         } for s in _helmAddonsConfig]
 
-    _helm_addon_resources = _policies_resources + _roles_resources + _policy_attachments_resources + _sa_resources + _releases_resources
+    _helm_addon_resources = _policies_resources + _roles_resources + _policy_attachments_resources + _namespace_resources + _sa_resources + _releases_resources
 
 # #create certificate only when cert-manager is ready.
 # #TODO: this line assume that release have cert-manager name
