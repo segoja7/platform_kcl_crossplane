@@ -352,6 +352,22 @@ observed_cluster_name = _eks_cluster_resource._name
 oidc_issuer_url = option("params")?.ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.identity?[0]?.oidc?[0]?.issuer or ""
 
 
+# Create OpenIDConnectProvider only when we have a real OIDC URL
+_oidc_resources = []
+if oidc_issuer_url and oidc_issuer_url != "":
+    _oidc_resource = openIDConnectProvider.OpenidconnectproviderBlueprint {
+        _name = "openid-eks-${_id}"
+        _providerConfig = _providerConfig
+        _clientIdList = ["sts.amazonaws.com"]
+        _thumbprintList = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
+        _url = oidc_issuer_url
+        _tags = _tags | {Name = _name}
+    }
+    _oidc_resources = [_oidc_resource]
+
+_issuer_url = oidc_issuer_url.replace("https://", "")
+
+
 # Create security group for all clusters (hub, spoke, standalone)
 _cluster_security_group = securityGroup.SecuritygroupBlueprint {
     _metadataName = "sg-cluster-${_id}"
@@ -372,20 +388,6 @@ _cluster_security_group = securityGroup.SecuritygroupBlueprint {
     }
 }
 
-# Security group rule for hub-spoke communication (only for spokes)
-_cluster_sg_rules = []
-if oidc_issuer_url and oidc_issuer_url != "":
-    _oidc_resource = openIDConnectProvider.OpenidconnectproviderBlueprint {
-        _name = "openid-eks-${_id}"
-        _providerConfig = _providerConfig
-        _clientIdList = ["sts.amazonaws.com"]
-        _thumbprintList = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
-        _url = oidc_issuer_url
-        _tags = _tags | {Name = _name}
-    }
-    _oidc_resources = [_oidc_resource]
-
-_issuer_url = oidc_issuer_url.replace("https://", "")
 
 _hub_resources = []
 _spoke_resources = []
