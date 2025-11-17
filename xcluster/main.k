@@ -788,7 +788,7 @@ if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
     _roles_resources = []
     _policy_attachments_resources = []
     _sa_resources = []
-    
+
     if _createAddonsInfrastructure == True:
         _policies_resources = [policy.PolicyBlueprint {
             _name = "policy-${s.name}-${_id}"
@@ -846,7 +846,7 @@ if _helmAddonsConfig and len(_helmAddonsConfig) > 0 and oidc_issuer_url != "":
             _providerConfig = _providerconfig_kubernetes_resource._name
         } for s in _helmAddonsConfig if "serviceAccountName" in s and "customPolicy" in s]
 
-    # Create Helm releases if createHelmReleases = true (your original logic)
+    # Create Helm releases if createHelmReleases = true
     _releases_resources = []
     if _createHelmReleases == True:
         _releases_resources = [release.ReleaseBlueprint {
