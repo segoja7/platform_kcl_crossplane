@@ -493,6 +493,19 @@ elif _clusterTopology.typeCluster == "Spoke":
                     namespace = "argocd"
                     labels = {
                         "argocd.argoproj.io/secret-type": "cluster"
+                        "environment": _id
+                    }
+                    annotations = {
+                        # GitOps Bridge metadata
+                        "addons_repo_url": "https://github.com/segoja7/platform_as_data"
+                        "addons_repo_path": "xargoapps/gitops-bridge/clusters/${_id}"
+                        "addons_repo_revision": "main"
+                        "aws_region": _region
+                        "cluster_name": _eks_cluster_resource._name
+                    } | {
+                        # Dynamic metadata for each addon role
+                        "${s.name}_role_arn": "arn:aws:iam::${_accountId}:role/role-${s.name}-${_id}"
+                        for s in _helmAddonsConfig if "serviceAccountName" in s and "customPolicy" in s
                     }
                 }
                 type = "Opaque"

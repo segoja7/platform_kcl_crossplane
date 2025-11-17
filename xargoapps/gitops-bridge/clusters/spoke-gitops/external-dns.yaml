@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns-spoke-gitops
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://kubernetes-sigs.github.io/external-dns/
+    chart: external-dns
+    targetRevision: 1.19.0
+    helm:
+      values: |
+        serviceAccount:
+          create: false  # Usa el SA creado por Crossplane
+          name: external-dns
+        provider: aws
+        aws:
+          region: "{{metadata.annotations.aws_region}}"
+        sources:
+          - service
+          - ingress
+        domainFilters:
+          - "example.com"  # Cambia por tu dominio
+        policy: sync
+        registry: txt
+  destination:
+    name: spoke-gitops
+    namespace: external-dns
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
