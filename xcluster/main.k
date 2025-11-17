@@ -499,7 +499,7 @@ elif _clusterTopology.typeCluster == "Spoke":
                         # GitOps Bridge metadata
                         "addons_repo_url": "https://github.com/segoja7/platform_as_data"
                         "addons_repo_path": "xargoapps/gitops-bridge/clusters/${_id}"
-                        "addons_repo_revision": "main"
+                        "addons_repo_revision": "master"
                         "aws_region": _region
                         "cluster_name": _eks_cluster_resource._name
                     } | {
