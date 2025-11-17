@@ -13,7 +13,8 @@ import schemas.up.release as release
 import schemas.up.providerConfigKubernetes as providerConfigKubernetes
 import schemas.up.object as object
 import schemas.up.openIDConnectProvider as openIDConnectProvider
-# #import schemas.securityGroupRule as securityGroupRule
+import schemas.up.securityGroup as securityGroup
+import schemas.up.securityGroupRule as securityGroupRule
 import schemas.up.policy as policy
 import schemas.up.accessEntry as accessEntry
 import schemas.up.accessPolicyAssociation as accessPolicyAssociation
@@ -345,8 +346,44 @@ observed_cluster_name = _eks_cluster_resource._name
 oidc_issuer_url = option("params")?.ocds?[_eks_cluster_resource._name]?.Resource?.status?.atProvider?.identity?[0]?.oidc?[0]?.issuer or ""
 
 
-# Create OpenIDConnectProvider only when we have a real OIDC URL
-_oidc_resources = []
+# Create security group for all clusters (hub, spoke, standalone)
+_cluster_security_group = securityGroup.SecuritygroupBlueprint {
+    _name = "sg-cluster-${_id}"
+    _labels = _labels
+    _providerConfig = _providerConfig
+    _description = "Security group for cluster ${_id}"
+    _region = _region
+    _vpcIdSelector = {
+        matchLabels = {
+            "claim-name" = _networkId
+        }
+    }
+    _tags = _tags | {
+        Name = "sg-cluster-${_id}"
+        "kubernetes.io/cluster/${_eks_cluster_resource._name}" = "owned"
+        "cluster-type" = _clusterTopology.typeCluster
+    }
+}
+
+# Security group rule for hub-spoke communication (only for spokes)
+_cluster_sg_rules = []
+if _clusterTopology.typeCluster == "Spoke":
+    _spoke_sg_rule_https = securityGroupRule.SecuritygroupruleBlueprint {
+        _name = "cluster-sg-rule-https-${_id}"
+        _labels = _labels
+        _providerConfig = _providerConfig
+        _type = "ingress"
+        _fromPort = 443
+        _toPort = 443
+        _protocol = "tcp"
+        _region = _region
+        _securityGroupIdRef = {
+            name = _cluster_security_group._name
+        }
+        # _cidrBlocks = ["10.0.0.0/8"]  # Allow from VPC CIDR
+        # _description = "Allow HTTPS from hub cluster for ArgoCD access"
+    }
+    _cluster_sg_rules = [_spoke_sg_rule_https]
 if oidc_issuer_url and oidc_issuer_url != "":
     _oidc_resource = openIDConnectProvider.OpenidconnectproviderBlueprint {
         _name = "openid-eks-${_id}"
@@ -565,7 +602,7 @@ elif _clusterTopology.typeCluster == "Spoke":
         #     _sourceSecurityGroupId = _hub_securityGroupId
         # }
 
-        _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource, _argocd_spoke_accessentry_resource, _argocd_spoke_accesspolicyassociation_resource]#, _spoke_sg_rule]
+        _spoke_resources = [_argocd_spoke_role_resource] + _argocd_spoke_policy_attachment_resource + [_argocd_spoke_secret_resource, _argocd_spoke_accessentry_resource, _argocd_spoke_accesspolicyassociation_resource]
 
 _argo_resources = []
 if _enableArgo == True:
@@ -993,7 +1030,8 @@ items = [
    _cluster_nodegroup_resource
 ] + _cluster_policy_attachment_resource + _node_policy_attachments_resource + _kms_resources + _cni_resources + _cluster_addons_resource + [
     _providerconfig_helm_resource
-    _providerconfig_kubernetes_resource
-] + _oidc_resources + _hub_resources + _spoke_resources + _argo_resources + _helm_addon_resources
+    _providerconfig_kubernetes_resource,
+    _cluster_security_group
+] + _oidc_resources + _hub_resources + _spoke_resources + _argo_resources + _helm_addon_resources + _cluster_sg_rules
 
 # + _cert_manager_resources
