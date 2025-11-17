@@ -348,7 +348,7 @@ oidc_issuer_url = option("params")?.ocds?[_eks_cluster_resource._name]?.Resource
 
 # Create security group for all clusters (hub, spoke, standalone)
 _cluster_security_group = securityGroup.SecuritygroupBlueprint {
-    _name = "sg-cluster-${_id}"
+    _metadataName = "sg-cluster-${_id}"
     _labels = _labels
     _providerConfig = _providerConfig
     _description = "Security group for cluster ${_id}"
@@ -369,7 +369,7 @@ _cluster_security_group = securityGroup.SecuritygroupBlueprint {
 _cluster_sg_rules = []
 if _clusterTopology.typeCluster == "Spoke":
     _spoke_sg_rule_https = securityGroupRule.SecuritygroupruleBlueprint {
-        _name = "cluster-sg-rule-https-${_id}"
+        _metadataName = "cluster-sg-rule-https-${_id}"
         _labels = _labels
         _providerConfig = _providerConfig
         _type = "ingress"
@@ -378,10 +378,10 @@ if _clusterTopology.typeCluster == "Spoke":
         _protocol = "tcp"
         _region = _region
         _securityGroupIdRef = {
-            name = _cluster_security_group._name
+            name = _cluster_security_group._metadataName
         }
-        # _cidrBlocks = ["10.0.0.0/8"]  # Allow from VPC CIDR
-        # _description = "Allow HTTPS from hub cluster for ArgoCD access"
+        _cidrBlocks = ["10.0.0.0/8"]  # Allow from VPC CIDR (includes hub)
+        _description = "Allow HTTPS from hub cluster for ArgoCD access"
     }
     _cluster_sg_rules = [_spoke_sg_rule_https]
 if oidc_issuer_url and oidc_issuer_url != "":

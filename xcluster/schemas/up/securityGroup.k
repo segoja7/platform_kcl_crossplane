@@ -7,7 +7,7 @@ schema SecuritygroupBlueprint(securitygroup_schema.Securitygroup):
     exponiendo una selección inteligente de campos requeridos y opcionales comunes."""
 
     # Parámetros de entrada simplificados para el usuario
-    _name: str
+    _metadataName: str
     _namespace?: str
     _labels?: {str:str}
     _annotations?: {str:str}
@@ -28,7 +28,7 @@ schema SecuritygroupBlueprint(securitygroup_schema.Securitygroup):
 
     # Lógica de mapeo de parámetros simples a la estructura compleja
     metadata = {
-        name = _name
+        name = _metadataName
         namespace = _namespace
         labels = _labels
         annotations = _annotations
