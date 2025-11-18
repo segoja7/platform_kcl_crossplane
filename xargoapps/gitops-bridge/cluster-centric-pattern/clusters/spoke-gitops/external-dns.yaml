@@ -1,12 +1,35 @@
-# Manifiesto de ejemplo para external-dns en spoke-gitops.
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Application
 metadata:
-  name: external-dns
-  namespace: external-dns
+  name: external-dns-spoke-gitops
+  namespace: argocd
 spec:
-  template:
-    spec:
-      containers:
-      - name: external-dns
-        image: registry.k8s.io/external-dns/external-dns:v0.14.0
+  project: default
+  source:
+    repoURL: https://kubernetes-sigs.github.io/external-dns/
+    chart: external-dns
+    targetRevision: 1.19.0
+    helm:
+      values: |
+        serviceAccount:
+          create: false  # Usa el SA creado por Crossplane
+          name: external-dns
+        provider: aws
+        aws:
+          region: "{{metadata.annotations.aws_region}}"
+        sources:
+          - service
+          - ingress
+        domainFilters:
+          - "example.com"  # Cambia por tu dominio
+        policy: sync
+        registry: txt
+  destination:
+    name: spoke-gitops
+    namespace: external-dns
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
