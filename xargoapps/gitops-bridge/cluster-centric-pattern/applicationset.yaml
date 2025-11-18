@@ -24,6 +24,9 @@ spec:
         targetRevision: '{{metadata.annotations.addons_repo_revision}}'
         # Ruta dinámica a la carpeta del cluster
         path: 'xargoapps/gitops-bridge/cluster-centric-pattern/clusters/{{name}}'
+        # Habilitar la búsqueda recursiva en subdirectorios
+        directory:
+          recurse: true
       destination:
         name: '{{name}}'
         namespace: 'default' # Namespace por defecto, puede ser sobreescrito por los manifiestos
