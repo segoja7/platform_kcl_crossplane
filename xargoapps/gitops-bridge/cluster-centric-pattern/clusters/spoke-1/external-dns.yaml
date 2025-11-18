@@ -1,0 +1,13 @@
+# Este es un manifiesto de ejemplo para external-dns.
+# En un caso real, aquí iría la definición completa del HelmRelease o los recursos de Kubernetes.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns
+  namespace: external-dns
+spec:
+  template:
+    spec:
+      containers:
+      - name: external-dns
+        image: registry.k8s.io/external-dns/external-dns:v0.14.0

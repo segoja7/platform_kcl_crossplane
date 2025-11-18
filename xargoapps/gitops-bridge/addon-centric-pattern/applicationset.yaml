@@ -1,0 +1,73 @@
+# xargoapps/gitops-bridge/addon-centric-pattern/applicationset.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: addons-by-addon
+  namespace: argocd
+spec:
+  generators:
+    - matrix:
+        generators:
+          # Generador 1: Encuentra todos los clusters Spoke
+          - clusters:
+              selector:
+                matchExpressions:
+                  - key: environment
+                    operator: NotIn
+                    values: [hub]
+          # Generador 2: Define la lista de addons disponibles
+          - list:
+              elements:
+                - addon_name: external-dns
+                  namespace: external-dns
+                  repoURL: https://kubernetes-sigs.github.io/external-dns/
+                  chart: external-dns
+                  targetRevision: 1.19.0
+                - addon_name: cert-manager
+                  namespace: cert-manager
+                  repoURL: https://charts.jetstack.io
+                  chart: cert-manager
+                  targetRevision: v1.13.3
+  template:
+    metadata:
+      # Nombre único por combinación: spoke-1-external-dns, spoke-2-cert-manager, etc.
+      name: '{{name}}-{{addon_name}}'
+      namespace: 'argocd'
+      finalizers:
+        - resources-finalizer.argocroj.io
+    spec:
+      project: default
+      source:
+        # Los detalles de la fuente vienen del generador de lista
+        repoURL: '{{repoURL}}'
+        chart: '{{chart}}'
+        targetRevision: '{{targetRevision}}'
+        helm:
+          values: |
+            # Valores genéricos que podrían aplicarse a muchos charts
+            serviceAccount:
+              create: false
+              name: {{addon_name}} # Usa el nombre del addon para el service account
+
+            # Valores específicos que podrían necesitar lógica condicional
+            {{- if eq .addon_name "external-dns" }}
+            provider: aws
+            aws:
+              region: "{{metadata.annotations.aws_region}}"
+            domainFilters:
+              - "example.com"
+            {{- end }}
+            {{- if eq .addon_name "cert-manager" }}
+            installCRDs: true
+            {{- end }}
+      destination:
+        # 'name' viene del generador de clusters (el Spoke)
+        name: '{{name}}'
+        # 'namespace' viene del generador de lista (dónde instalar el addon)
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
