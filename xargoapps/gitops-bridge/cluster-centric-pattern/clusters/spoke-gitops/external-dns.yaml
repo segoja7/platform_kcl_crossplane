@@ -1,0 +1,12 @@
+# Manifiesto de ejemplo para external-dns en spoke-gitops.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns
+  namespace: external-dns
+spec:
+  template:
+    spec:
+      containers:
+      - name: external-dns
+        image: registry.k8s.io/external-dns/external-dns:v0.14.0
