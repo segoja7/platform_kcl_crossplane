@@ -1,32 +1,32 @@
+# xargoapps/gitops-bridge/cluster-centric-pattern/applicationset.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: cluster-workloads
+  name: addons-by-cluster
   namespace: argocd
 spec:
-  syncPolicy:
-    preserveResourcesOnDeletion: false
   generators:
     - clusters:
         selector:
           matchExpressions:
             - key: environment
               operator: NotIn
-              values: [hub]  # Excluir el hub, solo spokes
+              values: [hub]
   template:
     metadata:
-      name: 'workloads-{{metadata.labels.environment}}'
+      name: 'addons-{{name}}'
+      namespace: 'argocd'
     spec:
       project: default
       source:
         repoURL: '{{metadata.annotations.addons_repo_url}}'
-        path: 'xargoapps/gitops-bridge/workloads/{{metadata.labels.environment}}'
         targetRevision: '{{metadata.annotations.addons_repo_revision}}'
+        path: 'xargoapps/gitops-bridge/one_to_one/clusters/{{name}}'
         directory:
           recurse: true
       destination:
-        name: '{{name}}'
-        namespace: 'workload'
+        server: 'https://kubernetes.default.svc'
+        namespace: 'argocd'
       syncPolicy:
         automated:
           prune: true

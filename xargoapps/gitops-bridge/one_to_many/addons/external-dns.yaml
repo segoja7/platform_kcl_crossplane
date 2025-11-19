@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: global-external-dns
+  namespace: argocd
+spec:
+  generators:
+    - clusters:
+        selector:
+          matchExpressions:
+            - key: environment
+              operator: NotIn
+              values: [hub]
+
+  template:
+    metadata:
+      name: 'external-dns-{{name}}'
+      namespace: argocd
+    spec:
+      project: default
+      source:
+        repoURL: https://kubernetes-sigs.github.io/external-dns/
+        chart: external-dns
+        targetRevision: 1.19.0
+        helm:
+          values: |
+            serviceAccount:
+              create: false
+              name: external-dns
+            provider: aws
+            aws:
+              region: "{{metadata.annotations.aws_region}}"
+            domainFilters:
+              - "example.com"
+            policy: sync
+            registry: txt
+      destination:
+        name: '{{name}}'
+        namespace: external-dns
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
