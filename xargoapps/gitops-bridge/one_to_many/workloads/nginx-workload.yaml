@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: global-nginx-workload
+  name: nginx-workload
   namespace: argocd
 spec:
   generators:
@@ -11,7 +11,7 @@ spec:
             - key: environment
               operator: NotIn
               values: [hub]
-
+  
   template:
     metadata:
       name: 'nginx-global-{{name}}'
@@ -21,7 +21,7 @@ spec:
       source:
         repoURL: https://github.com/segoja7/platform_as_data
         targetRevision: master
-        path: xargoapps/gitops-bridge/global-workloads-manifests
+        path: xargoapps/gitops-bridge/shared_manifests/nginx
         directory:
           recurse: true
       destination:
