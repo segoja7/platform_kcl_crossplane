@@ -13,16 +13,16 @@ spec:
                   - key: environment
                     operator: NotIn
                     values: [hub]
-          
+
           - git:
               repoURL: https://github.com/segoja7/platform_as_data
               revision: master
               directories:
-                - path: xargoapps/gitops-bridge/shared_manifests/*/* 
-  
+                - path: xargoapps/gitops-bridge/shared_manifests/*/*
+
   template:
     metadata:
-      name: '{{path.basename}}-{{name}}' 
+      name: '{{path.basename}}-{{name}}'
       namespace: argocd
     spec:
       project: default
@@ -36,7 +36,7 @@ spec:
         # path = xargoapps/gitops-bridge/shared_manifests/web-tier/nginx
         # Los segmentos son [xargoapps, gitops-bridge, shared_manifests, web-tier, nginx]
         # El índice 3 corresponde a 'web-tier' o 'api-tier'
-        namespace: '{{index path.segments 3}}' 
+        namespace: '{{path.segments.3}}'
       syncPolicy:
         automated:
           prune: true
