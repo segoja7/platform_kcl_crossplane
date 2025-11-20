@@ -31,8 +31,7 @@ spec:
       source:
         repoURL: https://github.com/segoja7/platform_as_data
         targetRevision: master
-        kustomize:
-          path: '{{.path.path}}'
+        path: '{{.path.path}}'
       destination:
         name: '{{.name}}'
         # Usamos index directamente aquí, confiando en que Go Template tiene acceso a .path.segments
