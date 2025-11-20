@@ -4,6 +4,9 @@ metadata:
   name: master-workload-controller
   namespace: argocd
 spec:
+  # Activamos el motor de plantillas Go para poder usar funciones como 'index'
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
   generators:
     - matrix:
         generators:
@@ -18,21 +21,27 @@ spec:
               repoURL: https://github.com/segoja7/platform_as_data
               revision: master
               directories:
-                - path: xargoapps/gitops-bridge/shared_manifests/*/* 
-  
+                - path: xargoapps/gitops-bridge/shared_manifests/*/*
+              # Usamos 'values' para calcular el namespace usando funciones de Go Template
+              values:
+                targetNamespace: '{{index .path.segments 3}}'
+
   template:
     metadata:
-      name: '{{path.basename}}-{{name}}' 
+      # En Go Template usamos .path.basename y .name
+      name: '{{.path.basename}}-{{.name}}' 
       namespace: argocd
     spec:
       project: default
       source:
         repoURL: https://github.com/segoja7/platform_as_data
         targetRevision: master
-        path: '{{path}}'
+        # En Go Template la ruta completa es .path.path
+        path: '{{.path.path}}'
       destination:
-        name: '{{name}}'
-        namespace: '{{path.segments.3}}' 
+        name: '{{.name}}'
+        # Usamos el valor calculado en el generador
+        namespace: '{{.values.targetNamespace}}'
       syncPolicy:
         automated:
           prune: true
