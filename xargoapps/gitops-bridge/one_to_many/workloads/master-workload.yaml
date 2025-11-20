@@ -20,7 +20,7 @@ spec:
               repoURL: https://github.com/segoja7/platform_as_data
               revision: master
               directories:
-                - path: xargoapps/gitops-bridge/shared_manifests/*/*
+                - path: xargoapps/gitops-bridge/fleet-rollout/*/*
 
   template:
     metadata:
