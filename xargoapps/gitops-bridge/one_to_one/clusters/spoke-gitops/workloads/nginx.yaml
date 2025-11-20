@@ -9,8 +9,6 @@ spec:
     repoURL: https://github.com/segoja7/platform_as_data
     targetRevision: master
     path: xargoapps/gitops-bridge/catalog/nginx
-    directory:
-      recurse: true
   destination:
     name: spoke-gitops
     namespace: nginx
